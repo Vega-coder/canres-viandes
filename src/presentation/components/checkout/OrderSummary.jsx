@@ -1,0 +1,37 @@
+import { formatMoney } from '@/domain/shared/money.js';
+import ProductImage from '@/presentation/components/product/ProductImage.jsx';
+import FreeShippingProgress from '@/presentation/components/cart/FreeShippingProgress.jsx';
+
+export default function OrderSummary({ items, totals }) {
+    return (
+        <div className="bg-white p-6 shadow-sm ring-1 ring-taupe/10 sm:p-8">
+            <h2 className="font-display text-2xl">Resumen del pedido</h2>
+            <ul className="mt-6 divide-y divide-taupe/15">
+                {items.map((i) => (
+                    <li key={i.productId} className="flex items-center gap-4 py-4">
+                        <div className="relative">
+                            <ProductImage product={i} className="h-16 w-14" />
+                            <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-ink text-[10px] text-cream-light">{i.quantity}</span>
+                        </div>
+                        <div className="flex-1">
+                            <p className="eyebrow text-[9px] text-taupe">{i.brand}</p>
+                            <p className="font-display leading-tight">{i.name}</p>
+                            {i.hasFreeShipping || !i.shippingCost || i.shippingCost <= 0 ? (
+                                <span className="text-[10px] font-semibold text-emerald-700">✓ Envío gratis</span>
+                            ) : (
+                                <span className="text-[10px] text-taupe">Envío: {formatMoney(i.shippingCost)}</span>
+                            )}
+                        </div>
+                        <p className="text-sm">{formatMoney(i.unitPrice * i.quantity)}</p>
+                    </li>
+                ))}
+            </ul>
+            <div className="mt-4 space-y-3 border-t border-taupe/15 pt-5 text-sm">
+                <FreeShippingProgress missing={totals.missingForFreeShipping} />
+                <div className="flex justify-between pt-2"><span>Subtotal</span><span>{formatMoney(totals.subtotal)}</span></div>
+                <div className="flex justify-between text-taupe"><span>Envío</span><span>{totals.shipping ? formatMoney(totals.shipping) : 'Gratis'}</span></div>
+                <div className="flex justify-between border-t border-taupe/15 pt-4 font-display text-2xl"><span>Total</span><span>{formatMoney(totals.total)}</span></div>
+            </div>
+        </div>
+    );
+}
