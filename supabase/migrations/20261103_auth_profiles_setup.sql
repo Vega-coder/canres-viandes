@@ -118,11 +118,15 @@ CREATE TRIGGER on_auth_user_created
 -- 6. Políticas de Seguridad RLS
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "Profiles viewable by everyone" ON public.profiles;
-DROP POLICY IF EXISTS "Profiles are viewable by everyone" ON public.profiles;
-DROP POLICY IF EXISTS "Profiles are viewable by owner or admin" ON public.profiles;
-DROP POLICY IF EXISTS "Profiles insertable by owner" ON public.profiles;
-DROP POLICY IF EXISTS "Profiles updatable by owner" ON public.profiles;
+-- Eliminar de forma dinámica cualquier política previa en public.profiles para evitar errores de colisión (ERROR 42710)
+DO $$
+DECLARE
+    pol RECORD;
+BEGIN
+    FOR pol IN (SELECT policyname FROM pg_policies WHERE tablename = 'profiles' AND schemaname = 'public') LOOP
+        EXECUTE format('DROP POLICY IF EXISTS %I ON public.profiles', pol.policyname);
+    END LOOP;
+END $$;
 
 -- Lectura de perfiles
 CREATE POLICY "Profiles are viewable by everyone"
