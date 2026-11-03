@@ -32,8 +32,11 @@ const formatReviewDate = (isoString) => {
     }
 };
 
+const REVIEW_CACHE_TTL = 10 * 60 * 1000; // 10 minutos anti-egress
+
 export const createSupabaseReviewRepository = (supabase, storage = globalThis.localStorage) => {
     const memoryReviews = new Map();
+    const queryCache = new Map();
 
     const getLocalReviews = (productId) => {
         try {
@@ -55,15 +58,25 @@ export const createSupabaseReviewRepository = (supabase, storage = globalThis.lo
                 // ignore
             }
             memoryReviews.set(productId, updated);
+            queryCache.delete(productId);
             return review;
         } catch {
             memoryReviews.set(productId, [review]);
+            queryCache.delete(productId);
             return review;
         }
     };
 
     return {
         findByProductId: async (productId) => {
+            if (!productId) return [];
+
+            // Escudo anti-egress: si ya se consultó en los últimos 10 minutos, servir desde caché
+            const cached = queryCache.get(productId);
+            if (cached && cached.expiresAt > Date.now()) {
+                return cached.data;
+            }
+
             if (!supabase) {
                 return getLocalReviews(productId);
             }
@@ -81,12 +94,14 @@ export const createSupabaseReviewRepository = (supabase, storage = globalThis.lo
                 }
 
                 if (!data || data.length === 0) {
-                    // Si la BD no tiene reseñas aún para este producto, verificar si hay locales
                     const local = getLocalReviews(productId);
+                    queryCache.set(productId, { data: local, expiresAt: Date.now() + REVIEW_CACHE_TTL });
                     return local;
                 }
 
-                return data.map(toDomain);
+                const result = data.map(toDomain);
+                queryCache.set(productId, { data: result, expiresAt: Date.now() + REVIEW_CACHE_TTL });
+                return result;
             } catch (err) {
                 console.warn('[ReviewRepo] Fallo de red con Supabase:', err);
                 return getLocalReviews(productId);
@@ -132,6 +147,7 @@ export const createSupabaseReviewRepository = (supabase, storage = globalThis.lo
                         const { user_id, ...fallbackRow } = row;
                         const retry = await supabase.from('product_reviews').insert(fallbackRow).select().single();
                         if (!retry.error && retry.data) {
+                            queryCache.delete(productId);
                             return toDomain(retry.data);
                         }
                     }
@@ -144,6 +160,7 @@ export const createSupabaseReviewRepository = (supabase, storage = globalThis.lo
                     return saveLocalReview(productId, localReview);
                 }
 
+                queryCache.delete(productId);
                 return toDomain(data);
             } catch (err) {
                 console.warn('[ReviewRepo] Excepción al guardar reseña en Supabase:', err);

@@ -1,7 +1,10 @@
-// Implementación de ProductRepository sobre Supabase (tabla `products`, ver supabase/schema.sql).
+// Implementación de ProductRepository sobre Supabase con escudo anti-egress.
+// Evita consumo excesivo de ancho de banda (egress) cacheando en memoria y Storage cliente con TTL.
 import { createProduct } from '@/domain/catalog/product.js';
 
 const FK_VIOLATION = '23503';
+const CACHE_KEY = 'canres_catalog_cache_v2';
+const CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutos (0 egress en navegación y recargas)
 
 const toDomain = (row) => createProduct({
     ...row,
@@ -46,10 +49,57 @@ const toRow = (product, brandId, includePyramid = true, includeShipping = true) 
 };
 
 /** @returns {import('@/application/ports.js').ProductRepository} */
-export const createSupabaseProductRepository = (supabase) => {
-    let cache = null;
+export const createSupabaseProductRepository = (supabase, storage = globalThis.sessionStorage || globalThis.localStorage) => {
+    let memoryCache = null;
+    let memoryExpiresAt = 0;
     let hasPyramidColumns = true;
     let hasShippingColumns = true;
+
+    const loadCachedCatalog = () => {
+        const now = Date.now();
+        if (memoryCache && memoryExpiresAt > now) {
+            return memoryCache;
+        }
+
+        try {
+            const raw = storage?.getItem?.(CACHE_KEY);
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                if (parsed && Array.isArray(parsed.data) && parsed.expiresAt > now && parsed.data.length > 0) {
+                    memoryCache = parsed.data.map(createProduct);
+                    memoryExpiresAt = parsed.expiresAt;
+                    return memoryCache;
+                }
+            }
+        } catch {
+            // Caché corrupto o inaccesible
+        }
+        return null;
+    };
+
+    const saveCachedCatalog = (products) => {
+        const expiresAt = Date.now() + CACHE_TTL_MS;
+        memoryCache = products;
+        memoryExpiresAt = expiresAt;
+        try {
+            storage?.setItem?.(CACHE_KEY, JSON.stringify({
+                data: products,
+                expiresAt,
+            }));
+        } catch {
+            // Ignorar si el almacenamiento está restringido
+        }
+    };
+
+    const clearCachedCatalog = () => {
+        memoryCache = null;
+        memoryExpiresAt = 0;
+        try {
+            storage?.removeItem?.(CACHE_KEY);
+        } catch {
+            // ignore
+        }
+    };
 
     const buildColumns = () => {
         const base = `
@@ -87,11 +137,15 @@ export const createSupabaseProductRepository = (supabase) => {
 
     return {
         findAll: async () => {
-            if (cache) return cache;
+            const cached = loadCachedCatalog();
+            if (cached) return cached;
+
             const { data, error } = await runQuery((q) => q.eq('is_active', true).order('created_at', { ascending: false }));
             if (error) throw error;
-            cache = data.map(toDomain);
-            return cache;
+
+            const products = data.map(toDomain);
+            saveCachedCatalog(products);
+            return products;
         },
         findAllForAdmin: async () => {
             const { data, error } = await runQuery((q) => q.order('created_at', { ascending: false }));
@@ -99,16 +153,30 @@ export const createSupabaseProductRepository = (supabase) => {
             return data.map(toDomain);
         },
         findById: async (id) => {
+            // 1. Escudo anti-egress: buscar primero en catálogo local
+            const catalog = loadCachedCatalog();
+            if (catalog) {
+                const found = catalog.find((p) => p.id === id);
+                if (found) return found;
+            }
+
             const { data, error } = await runQuery((q) => q.eq('id', id).maybeSingle());
             if (error) throw error;
             return data ? toDomain(data) : null;
         },
         findBySlug: async (slug) => {
+            // 1. Escudo anti-egress: buscar primero en catálogo local
+            const catalog = loadCachedCatalog();
+            if (catalog) {
+                const found = catalog.find((p) => p.slug === slug || p.id === slug);
+                if (found) return found;
+            }
+
             const { data, error } = await runQuery((q) => q.eq('slug', slug).eq('is_active', true).maybeSingle());
             if (error) throw error;
             return data ? toDomain(data) : null;
         },
-        // Sin caché: se usa al confirmar pedidos y necesita precio/stock frescos.
+        // Sin caché: se usa al confirmar pedidos y necesita precio/stock frescos en tiempo real.
         findByIds: async (ids) => {
             const { data, error } = await runQuery((q) => q.in('id', ids));
             if (error) throw error;
@@ -132,11 +200,11 @@ export const createSupabaseProductRepository = (supabase) => {
             }
 
             if (res.error) throw res.error;
-            cache = null;
+            clearCachedCatalog();
             return toDomain(res.data);
         },
         remove: async (id) => {
-            cache = null;
+            clearCachedCatalog();
             const { error } = await supabase.from('products').delete().eq('id', id);
             if (!error) return { archived: false };
             // Tiene pedidos asociados: lo ocultamos de la tienda para conservar el historial.
