@@ -1,60 +1,85 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { HiArrowLongRight } from 'react-icons/hi2';
+import { formatMoney, formatUnit } from '@/domain/shared/money.js';
 
-const FEATURED_CUTS = [
+const DEFAULT_FALLBACK_CUTS = [
     {
-        id: 'rib-eye',
-        name: 'Lomo Ancho Rib Eye AAA',
+        id: 'lomo-ancho-rib-eye',
+        name: 'Lomo Ancho Rib Eye',
         brand: 'Res AAA',
         slug: 'lomo-ancho-rib-eye',
-        price: '32.00 $ / kg',
+        price: 32.0,
+        unit: 'kg',
         image: 'https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739782/canres-viandes/meat_beef_cut.jpg',
         tag: 'Corte Estrella · Marmoleo Superior',
         glow: 'bg-brand-red/35',
     },
     {
-        id: 'picanha',
-        name: 'Punta de Picaña Sterling',
+        id: 'punta-de-picanha-aaa',
+        name: 'Punta de Picaña AAA',
         brand: 'Res AAA',
         slug: 'punta-de-picanha-aaa',
-        price: '20.00 $ / kg',
+        price: 20.0,
+        unit: 'kg',
         image: 'https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739785/canres-viandes/ribeye.jpg',
         tag: 'Grasa Uniforme · Asador al Carbón',
         glow: 'bg-gold/30',
     },
     {
-        id: 'chorizo',
-        name: 'Chorizo Jarabe de Caña',
-        brand: 'Charcutería 100% Artesanal',
+        id: 'chorizo-jarabe-de-cana',
+        name: 'Chorizo con Jarabe de Caña',
+        brand: 'Charcutería Artesanal',
         slug: 'chorizo-jarabe-de-cana',
-        price: '8.00 $ (pqte 450g)',
+        price: 8.0,
+        unit: '450g',
         image: 'https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739782/canres-viandes/chorizos.jpg',
         tag: 'Receta de Autor · Tradición Colombiana',
         glow: 'bg-brand-wine/40',
     },
     {
-        id: 'baby-back',
-        name: 'Costilla Baby Back Carnuda',
+        id: 'costilla-de-cerdo-baby',
+        name: 'Costilla de Cerdo (Baby Back)',
         brand: 'Cerdo Selecto',
         slug: 'costilla-de-cerdo-baby',
-        price: '12.00 $ / kg',
+        price: 12.0,
+        unit: 'kg',
         image: 'https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739785/canres-viandes/ribs.jpg',
         tag: 'Tierno & Carnudo · Ideal BBQ',
         glow: 'bg-brand-light/35',
     },
 ];
 
-export default function Hero() {
+export default function Hero({ cuts = [] }) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [tilt, setTilt] = useState({ x: 0, y: 0 });
 
+    const featuredCuts = useMemo(() => {
+        if (Array.isArray(cuts) && cuts.length > 0) {
+            return cuts.slice(0, 5).map((c) => ({
+                id: c.id,
+                name: c.name,
+                brand: c.brand || 'Boucherie CANRES',
+                slug: c.slug || c.id,
+                price: `${formatMoney(c.price)} ${formatUnit(c.unit)}`,
+                image: (Array.isArray(c.images) && c.images[0]) || 'https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739782/canres-viandes/meat_beef_cut.jpg',
+                tag: (Array.isArray(c.notes) && c.notes[0]) || 'Corte Noble Seleccionado',
+                glow: c.gender === 'cerdo' ? 'bg-brand-light/35' : c.gender === 'chorizos' ? 'bg-brand-wine/40' : 'bg-brand-red/35',
+            }));
+        }
+        return DEFAULT_FALLBACK_CUTS.map((c) => ({
+            ...c,
+            price: `${formatMoney(c.price)} ${formatUnit(c.unit)}`,
+        }));
+    }, [cuts]);
+
     useEffect(() => {
+        if (featuredCuts.length <= 1) return;
         const timer = setInterval(() => {
-            setCurrentIndex((prev) => (prev + 1) % FEATURED_CUTS.length);
-        }, 4000);
+            setCurrentIndex((prev) => (prev + 1) % featuredCuts.length);
+        }, 4500);
         return () => clearInterval(timer);
-    }, [currentIndex]);
+    }, [featuredCuts.length]);
 
     const handleMouseMove = (e) => {
         const rect = e.currentTarget.getBoundingClientRect();
@@ -67,7 +92,7 @@ export default function Hero() {
         setTilt({ x: 0, y: 0 });
     };
 
-    const activeCut = FEATURED_CUTS[currentIndex];
+    const activeCut = featuredCuts[currentIndex % featuredCuts.length] || featuredCuts[0];
 
     return (
         <section className="relative overflow-hidden bg-gradient-to-br from-[#1A0B0C] via-[#2D0A0E] to-[#121212] text-cream-light py-10 sm:py-16">
@@ -140,13 +165,13 @@ export default function Hero() {
                         >
                             {/* Imagen de fondo con transicion */}
                             <div className="relative h-48 sm:h-56 w-full rounded-xl overflow-hidden">
-                                {FEATURED_CUTS.map((cut, index) => (
+                                {featuredCuts.map((cut, index) => (
                                     <img
                                         key={cut.id}
                                         src={cut.image}
                                         alt={cut.name}
                                         className={`absolute inset-0 h-full w-full object-cover transition-all duration-700 ${
-                                            index === currentIndex ? 'opacity-100 scale-105' : 'opacity-0 scale-100'
+                                            index === (currentIndex % featuredCuts.length) ? 'opacity-100 scale-105' : 'opacity-0 scale-100'
                                         }`}
                                     />
                                 ))}
@@ -174,13 +199,13 @@ export default function Hero() {
                                 <div className="mt-3 flex items-center justify-between border-t border-white/10 pt-3">
                                     {/* Indicadores de rotación */}
                                     <div className="flex gap-1.5">
-                                        {FEATURED_CUTS.map((cut, index) => (
+                                        {featuredCuts.map((cut, index) => (
                                             <button
                                                 key={cut.id}
                                                 type="button"
                                                 onClick={() => setCurrentIndex(index)}
                                                 className={`h-1.5 rounded-full transition-all ${
-                                                    index === currentIndex ? 'w-6 bg-brand-light' : 'w-2 bg-white/30'
+                                                    index === (currentIndex % featuredCuts.length) ? 'w-6 bg-brand-light' : 'w-2 bg-white/30'
                                                 }`}
                                                 aria-label={`Ver ${cut.name}`}
                                             />

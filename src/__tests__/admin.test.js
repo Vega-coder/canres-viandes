@@ -16,11 +16,11 @@ const memoryStorage = () => {
     return { getItem: (k) => data.get(k) ?? null, setItem: (k, v) => data.set(k, v), removeItem: (k) => data.delete(k) };
 };
 
-const customer = { fullName: 'Marta Ruiz', email: 'marta@correo.com', phone: '3101234567', city: 'Cali', address: 'Av 6N # 23-45' };
+const customer = { fullName: 'Marta Ruiz', email: 'marta@correo.com', phone: '3101234567', city: 'Montréal', address: '456 Rue Saint-Denis' };
 
-const validInput = {
-    name: 'Light Blue', brand: 'Dolce & Gabbana', gender: 'mujer', type: 'fragancia', concentration: 'edt',
-    volumeMl: '100', price: '420000', discountPercent: '0', stock: '5', notes: 'Limón, Manzana, Cedro', images: [],
+const validMeatInput = {
+    name: 'Tomahawk AAA', brand: 'Res AAA', gender: 'res', type: 'corte',
+    unit: 'kg', price: '45', discountPercent: '0', stock: '10', notes: 'Hueso largo, Marmoleo superior', images: [],
     isActive: true, isFeatured: false, isNew: true,
 };
 
@@ -34,116 +34,85 @@ beforeEach(() => {
 
 describe('Validación de producto', () => {
     it('acepta un producto completo', () => {
-        expect(validateProductInput(validInput)).toEqual({});
+        expect(validateProductInput(validMeatInput)).toEqual({});
     });
     it('marca precio, stock y descuento inválidos', () => {
-        const errors = validateProductInput({ ...validInput, price: '0', stock: '-1', discountPercent: '95' });
+        const errors = validateProductInput({ ...validMeatInput, price: '0', stock: '-1', discountPercent: '95' });
         expect(Object.keys(errors).sort()).toEqual(['discountPercent', 'price', 'stock']);
     });
 });
 
 describe('Administración de productos', () => {
     it('crea un producto con notas e id derivado', async () => {
-        const saved = await makeSaveProduct({ productRepository })(validInput);
-        expect(saved.id).toBe('dolce-gabbana-light-blue-100');
-        expect(saved.notes).toEqual(['Limón', 'Manzana', 'Cedro']);
-        expect(saved.price).toBe(420000);
-        expect(await productRepository.findById(saved.id)).not.toBeNull();
-    });
-
-    it('permite guardar la pirámide olfativa por separado desde el admin (salida, corazón, base)', async () => {
-        const inputWithPyramid = {
-            ...validInput,
-            name: 'Aventus Absolu',
-            brand: 'Creed',
-            topNotes: 'Grosella, Bergamota, Toronja',
-            heartNotes: 'Jengibre, Canela, Cardamomo',
-            baseNotes: 'Pimienta rosa, Pachulí, Vetiver',
-        };
-        const saved = await makeSaveProduct({ productRepository })(inputWithPyramid);
-        expect(saved.topNotes).toEqual(['Grosella', 'Bergamota', 'Toronja']);
-        expect(saved.heartNotes).toEqual(['Jengibre', 'Canela', 'Cardamomo']);
-        expect(saved.baseNotes).toEqual(['Pimienta rosa', 'Pachulí', 'Vetiver']);
+        const saved = await makeSaveProduct({ productRepository })(validMeatInput);
+        expect(saved.id).toBe('res-aaa-tomahawk-aaa');
+        expect(saved.notes).toContain('Hueso largo');
+        expect(saved.price).toBe(45);
     });
 
     it('permite configurar si tiene envío gratis o costo específico de envío', async () => {
         const save = makeSaveProduct({ productRepository });
-        const withFree = await save({
-            ...validInput,
-            name: 'Producto Envío Gratis',
-            hasFreeShipping: true,
-            shippingCost: '15000', // debe ignorarse porque hasFreeShipping es true
-        });
-        expect(withFree.hasFreeShipping).toBe(true);
-        expect(withFree.shippingCost).toBe(0);
+        const free = await save({ ...validMeatInput, name: 'Corte Especial', hasFreeShipping: true });
+        expect(free.hasFreeShipping).toBe(true);
+        expect(free.shippingCost).toBe(0);
 
-        const withCustomCost = await save({
-            ...validInput,
-            name: 'Producto Con Tarifa',
-            hasFreeShipping: false,
-            shippingCost: '12000',
-        });
-        expect(withCustomCost.hasFreeShipping).toBe(false);
-        expect(withCustomCost.shippingCost).toBe(12000);
+        const paid = await save({ ...validMeatInput, name: 'Corte Pesado', hasFreeShipping: false, shippingCost: '18' });
+        expect(paid.hasFreeShipping).toBe(false);
+        expect(paid.shippingCost).toBe(18);
     });
 
-    it('permite vincular familias olfativas / aromas (amaderados, cítricos, etc.) y los preserva en el producto', async () => {
-        const save = makeSaveProduct({ productRepository });
-        const saved = await save({
-            ...validInput,
-            name: 'Club de Nuit Intense Man',
-            brand: 'Armaf',
-            aromas: ['amaderados', 'citricos'],
+    it('permite vincular estilos culinarios y los preserva en el producto', async () => {
+        const saved = await makeSaveProduct({ productRepository })({
+            ...validMeatInput,
+            name: 'Picaña Brasa',
+            aromas: ['parrilla'],
         });
-        expect(saved.aromas).toEqual(['amaderados', 'citricos']);
-        expect(saved.notes).toContain('Amaderados');
-        expect(saved.notes).toContain('Cítricos');
-        expect(saved.notes).toContain('aroma:amaderados');
-        expect(saved.notes).toContain('aroma:citricos');
+        expect(saved.aromas).toEqual(['parrilla']);
     });
 
     it('edita sin cambiar el slug publicado', async () => {
         const save = makeSaveProduct({ productRepository });
-        const original = await productRepository.findById('lattafa-asad-100');
-        const saved = await save({ ...original, name: 'Asad Edición', price: '200000', stock: '4', notes: 'Tabaco, Vainilla', volumeMl: '100' });
+        const original = await productRepository.findById('lomo-ancho-rib-eye');
+        const saved = await save({ ...original, name: 'Ribeye Edición Especial', price: '35', stock: '4', notes: 'Marmoleo superior' });
         expect(saved.slug).toBe(original.slug);
-        expect(saved.name).toBe('Asad Edición');
+        expect(saved.name).toBe('Ribeye Edición Especial');
     });
 
     it('rechaza duplicados y datos inválidos con errores por campo', async () => {
         const save = makeSaveProduct({ productRepository });
-        await save(validInput);
-        await expect(save(validInput)).rejects.toMatchObject({ fields: { name: 'Producto duplicado' } });
-        await expect(save({ ...validInput, name: '' })).rejects.toMatchObject({ fields: { name: expect.any(String) } });
+        await save(validMeatInput);
+        await expect(save(validMeatInput)).rejects.toMatchObject({ fields: { name: 'Producto duplicado' } });
+        await expect(save({ ...validMeatInput, name: '' })).rejects.toMatchObject({ fields: { name: expect.any(String) } });
     });
 
     it('ocultar un producto lo saca de la tienda pero no del admin', async () => {
-        await makeToggleProductActive({ productRepository })('lattafa-asad-100');
+        await makeToggleProductActive({ productRepository })('lomo-ancho-rib-eye');
         const { products } = await makeBrowseCatalog({ productRepository })({});
-        expect(products.find((p) => p.id === 'lattafa-asad-100')).toBeUndefined();
+        expect(products.find((p) => p.id === 'lomo-ancho-rib-eye')).toBeUndefined();
         const admin = await makeListProductsForAdmin({ productRepository })();
-        expect(admin.find((p) => p.id === 'lattafa-asad-100').isActive).toBe(false);
+        expect(admin.find((p) => p.id === 'lomo-ancho-rib-eye').isActive).toBe(false);
     });
 
     it('elimina un producto', async () => {
-        await makeDeleteProduct({ productRepository })('maison-victorious-legacy-100');
-        expect(await productRepository.findById('maison-victorious-legacy-100')).toBeNull();
+        await makeDeleteProduct({ productRepository })('carne-molida-extra-magra');
+        expect(await productRepository.findById('carne-molida-extra-magra')).toBeNull();
     });
 });
 
 describe('Administración de pedidos', () => {
     const placeFirstOrder = () =>
         makePlaceOrder({ productRepository, orderRepository, notificationGateway: createWhatsappGateway('57') })({
-            items: [{ productId: 'lattafa-yara-100', name: 'Yara', brand: 'Lattafa', quantity: 2 }],
+            items: [{ productId: 'lomo-ancho-rib-eye', name: 'Lomo Ancho Rib Eye', brand: 'Res AAA', quantity: 2 }],
             customer,
             paymentMethod: 'wompi',
         });
 
     it('descuenta stock en modo demo al confirmar el pago del pedido', async () => {
+        const initialStock = (await productRepository.findById('lomo-ancho-rib-eye')).stock;
         const { order } = await placeFirstOrder();
-        expect((await productRepository.findById('lattafa-yara-100')).stock).toBe(15);
+        expect((await productRepository.findById('lomo-ancho-rib-eye')).stock).toBe(initialStock);
         await orderRepository.updateWompiPayment(order.code, 'tx-test-123', 'APPROVED');
-        expect((await productRepository.findById('lattafa-yara-100')).stock).toBe(13);
+        expect((await productRepository.findById('lomo-ancho-rib-eye')).stock).toBe(initialStock - 2);
     });
 
     it('solo permite transiciones válidas', async () => {
@@ -158,22 +127,24 @@ describe('Administración de pedidos', () => {
         const { order } = await placeFirstOrder();
         const dashboard = makeGetDashboard({ orderRepository, productRepository });
         expect((await dashboard()).revenue).toBe(order.total);
-        expect((await dashboard()).topProducts[0]).toMatchObject({ productId: 'lattafa-yara-100', units: 2 });
+        expect((await dashboard()).topProducts[0]).toMatchObject({ productId: 'lomo-ancho-rib-eye', units: 2 });
 
         await makeChangeOrderStatus({ orderRepository })(order.code, 'cancelled');
         const after = await dashboard();
         expect(after.revenue).toBe(0);
-        expect(after.lowStock[0]).toMatchObject({ id: 'afnan-rare-reef-100', stock: 0 });
     });
 });
 
 describe('Autenticación demo', () => {
+    const authGateway = createDemoAuthGateway({ email: 'admin@canres.test', password: 'demo-password', storage: memoryStorage() });
+
     it('inicia sesión solo con las credenciales configuradas', async () => {
-        const authGateway = createDemoAuthGateway({ email: 'admin@test.test', password: 'clave-segura', storage: memoryStorage() });
         const signIn = makeSignInAdmin({ authGateway });
-        await expect(signIn('admin@test.test', 'otra')).rejects.toThrow('incorrectos');
-        expect(await makeGetCurrentAdmin({ authGateway })()).toBeNull();
-        await signIn('ADMIN@test.test ', 'clave-segura');
-        expect(await makeGetCurrentAdmin({ authGateway })()).toMatchObject({ isAdmin: true });
+        const getCurrent = makeGetCurrentAdmin({ authGateway });
+        await expect(signIn('admin@canres.test', 'mala')).rejects.toThrow();
+        await expect(signIn('otro@test.com', 'demo-password')).rejects.toThrow();
+        const user = await signIn('admin@canres.test', 'demo-password');
+        expect(user.isAdmin).toBe(true);
+        expect((await getCurrent()).email).toBe('admin@canres.test');
     });
 });

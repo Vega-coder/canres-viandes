@@ -7,14 +7,12 @@ import ImageUploader from './ImageUploader.jsx';
 import { Panel } from './AdminUi.jsx';
 
 const DISPLAY_AROMAS_ORDER = [
-    'amaderados',
-    'dulces',
-    'avainillados',
-    'citricos',
-    'florales',
-    'especiados',
-    'afrutados',
-    'almizclados',
+    'parrilla',
+    'charcuteria',
+    'bbq',
+    'horno',
+    'sarten',
+    'colombiana',
 ];
 
 const DISPLAY_AROMAS = DISPLAY_AROMAS_ORDER
@@ -22,15 +20,31 @@ const DISPLAY_AROMAS = DISPLAY_AROMAS_ORDER
     .filter(Boolean);
 
 const GENDER_OPTIONS = [
-    { id: GENDER.WOMEN, label: 'Mujer' },
-    { id: GENDER.MEN, label: 'Hombre' },
-    { id: GENDER.UNISEX, label: 'Unisex' },
+    { id: GENDER.RES, label: 'Res AAA' },
+    { id: GENDER.CERDO, label: 'Cerdo Selecto' },
+    { id: GENDER.POLLO, label: 'Pollo de Granja' },
+    { id: GENDER.CHIVO, label: 'Chivo & Cordero' },
+    { id: GENDER.CHORIZOS, label: 'Chorizos 100% Artesanales' },
+    { id: GENDER.CANALES, label: 'Mayoreo & Canales' },
+    { id: GENDER.PERSONALIZADOS, label: 'Chorizos Personalizados' },
 ];
 
 const TYPE_OPTIONS = [
-    { id: PRODUCT_TYPE.FRAGRANCE, label: 'Fragancia' },
-    { id: PRODUCT_TYPE.GIFT_SET, label: 'Set de regalo' },
-    { id: PRODUCT_TYPE.ACCESSORY, label: 'Accesorio' },
+    { id: PRODUCT_TYPE.CORTE, label: 'Corte Fresco' },
+    { id: PRODUCT_TYPE.CHARCUTERIA, label: 'Charcutería Artesanal' },
+    { id: PRODUCT_TYPE.CAJA, label: 'Caja al Mayoreo' },
+    { id: PRODUCT_TYPE.CANAL, label: 'Media Canal / Cuarto' },
+    { id: PRODUCT_TYPE.PERSONALIZADO, label: 'Embutido a Medida' },
+];
+
+const UNIT_OPTIONS = [
+    { id: 'kg', label: 'Kilogramo (/ kg)' },
+    { id: '450g', label: 'Paquete 450g (/ pqte 450g)' },
+    { id: 'caja-4kg', label: 'Caja 4 kg (/ caja 4 kg)' },
+    { id: 'caja-13kg', label: 'Caja 13 kg (/ caja 13 kg)' },
+    { id: 'caja-11kg', label: 'Caja 11 kg (/ caja 11 kg)' },
+    { id: 'boite-5kg', label: 'Boîte 5 kg (/ boîte 5 kg)' },
+    { id: 'unidad', label: 'Unidad (/ unid.)' },
 ];
 
 function Field({ label, error, children, className = '' }) {
@@ -57,9 +71,10 @@ export default function ProductForm({ values, errors, brands, onChange, onSubmit
 
     // Producto "de vista previa" para mostrar cómo se verá en la tienda.
     const preview = {
-        name: values.name || 'Nombre',
-        brand: values.brand || 'Marca',
+        name: values.name || 'Nombre del Corte',
+        brand: values.brand || 'Línea de Carne',
         type: values.type,
+        unit: values.unit || 'kg',
         images: values.images,
         palette: values.palette,
     };
@@ -67,55 +82,60 @@ export default function ProductForm({ values, errors, brands, onChange, onSubmit
     return (
         <form onSubmit={onSubmit} noValidate className="grid gap-6 lg:grid-cols-[1fr_320px]">
             <div className="space-y-6">
-                <Panel title="Información">
+                <Panel title="Información del Corte">
                     <div className="grid gap-4 sm:grid-cols-2">
-                        <Field label="Nombre" error={errors.name}>
-                            <input value={values.name} onChange={set('name')} className={inputClass('name')} placeholder="Ej. Yara, Asad, 9PM..." />
+                        <Field label="Nombre del Corte" error={errors.name}>
+                            <input value={values.name} onChange={set('name')} className={inputClass('name')} placeholder="Ej. Lomo Ancho Rib Eye, Baby Back..." />
                         </Field>
-                        <Field label="Marca" error={errors.brand}>
-                            <input value={values.brand} onChange={set('brand')} className={inputClass('brand')} list="brand-list" placeholder="Ej. Lattafa, Afnan..." />
+                        <Field label="Nombre Secundario / Francés" error={errors.subname}>
+                            <input value={values.subname ?? ''} onChange={set('subname')} className={inputClass('subname')} placeholder="Ej. Faux-filet / Ribeye AAA, Boîte de 5 kg..." />
+                        </Field>
+                        <Field label="Línea / Origen" error={errors.brand}>
+                            <input value={values.brand} onChange={set('brand')} className={inputClass('brand')} list="brand-list" placeholder="Ej. Res AAA, Cerdo Selecto..." />
                             <datalist id="brand-list">{brands.map((b) => <option key={b} value={b} />)}</datalist>
                         </Field>
-                        <Field label="Tipo" error={errors.type}>
-                            <select value={values.type} onChange={set('type')} className={inputClass('type')}>
-                                {TYPE_OPTIONS.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
-                            </select>
-                        </Field>
-                        <Field label="Género" error={errors.gender}>
+                        <Field label="Categoría Principal" error={errors.gender}>
                             <select value={values.gender} onChange={set('gender')} className={inputClass('gender')}>
                                 {GENDER_OPTIONS.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
                             </select>
                         </Field>
-                        <Field label="Concentración">
+                        <Field label="Tipo de Producto" error={errors.type}>
+                            <select value={values.type} onChange={set('type')} className={inputClass('type')}>
+                                {TYPE_OPTIONS.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
+                            </select>
+                        </Field>
+                        <Field label="Unidad de Venta" error={errors.unit}>
+                            <select value={values.unit || 'kg'} onChange={set('unit')} className={inputClass('unit')}>
+                                {UNIT_OPTIONS.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
+                            </select>
+                        </Field>
+                        <Field label="Certificación / Calidad">
                             <select value={values.concentration ?? ''} onChange={set('concentration')} className="input py-2.5">
-                                <option value="">— No aplica —</option>
+                                <option value="">— Estándar de la Casa —</option>
                                 {Object.values(CONCENTRATION).map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
                             </select>
                         </Field>
-                        <Field label="Contenido (ml)" error={errors.volumeMl}>
-                            <input type="number" min="1" value={values.volumeMl ?? ''} onChange={set('volumeMl')} className={inputClass('volumeMl')} placeholder="100" />
-                        </Field>
-                        <Field label="Descripción" className="sm:col-span-2">
-                            <textarea rows={4} value={values.description} onChange={set('description')} className="input resize-y" />
+                        <Field label="Descripción del Corte" className="sm:col-span-2">
+                            <textarea rows={3} value={values.description} onChange={set('description')} className="input resize-y" placeholder="Descripción detallada de terneza, marmoleo y sabor..." />
                         </Field>
 
-                        {/* Familias Olfativas / Aromas */}
-                        <div className="sm:col-span-2 mt-1 rounded-xl border border-gold/30 bg-gold/[0.04] p-4">
+                        {/* Estilos y Métodos de Preparación */}
+                        <div className="sm:col-span-2 mt-1 rounded-xl border border-brand-wine/20 bg-cream/30 p-4">
                             <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                                 <div>
-                                    <p className="eyebrow text-gold-dark font-bold">Familias Olfativas (Categorías Aromáticas)</p>
+                                    <p className="eyebrow text-brand-wine font-bold">Estilo & Método Culinario</p>
                                     <p className="text-[11px] text-taupe mt-0.5">
-                                        Selecciona una o más familias para vincular este perfume con las categorías del inicio y filtros de la tienda.
+                                        Selecciona los métodos recomendados para vincular este corte con las categorías de preparación de la carnicería.
                                     </p>
                                 </div>
                                 {(values.aromas || []).length > 0 && (
-                                    <span className="rounded-full bg-gold/20 px-2.5 py-0.5 text-[10px] font-semibold text-gold-dark">
-                                        {(values.aromas || []).length} seleccionada{(values.aromas || []).length > 1 ? 's' : ''}
+                                    <span className="rounded-full bg-brand-wine/15 px-2.5 py-0.5 text-[10px] font-semibold text-brand-wine">
+                                        {(values.aromas || []).length} seleccionado{(values.aromas || []).length > 1 ? 's' : ''}
                                     </span>
                                 )}
                             </div>
 
-                            <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+                            <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
                                 {DISPLAY_AROMAS.map((a) => {
                                     const isSelected = (values.aromas || []).includes(a.slug);
                                     return (
@@ -125,19 +145,19 @@ export default function ProductForm({ values, errors, brands, onChange, onSubmit
                                             onClick={() => toggleAroma(a.slug)}
                                             className={`group relative flex flex-col items-start rounded-lg border p-3 text-left transition duration-200 cursor-pointer ${
                                                 isSelected
-                                                    ? 'border-gold bg-gold/15 ring-1 ring-gold shadow-xs'
-                                                    : 'border-taupe/20 bg-white hover:border-gold/50 hover:bg-cream/40'
+                                                    ? 'border-brand-wine bg-brand-wine/15 ring-1 ring-brand-wine shadow-xs'
+                                                    : 'border-taupe/20 bg-white hover:border-brand-wine/50 hover:bg-cream/40'
                                             }`}
                                         >
                                             <div className="flex w-full items-center justify-between gap-1">
-                                                <span className={`text-xs font-bold uppercase tracking-wider ${isSelected ? 'text-gold-dark' : 'text-ink'}`}>
+                                                <span className={`text-xs font-bold uppercase tracking-wider ${isSelected ? 'text-brand-wine' : 'text-ink'}`}>
                                                     {a.name}
                                                 </span>
                                                 <div
                                                     className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-sm border transition ${
                                                         isSelected
-                                                            ? 'border-gold bg-gold text-white'
-                                                            : 'border-taupe/40 bg-white group-hover:border-gold'
+                                                            ? 'border-brand-wine bg-brand-wine text-white'
+                                                            : 'border-taupe/40 bg-white group-hover:border-brand-wine'
                                                     }`}
                                                 >
                                                     {isSelected && (
@@ -158,65 +178,53 @@ export default function ProductForm({ values, errors, brands, onChange, onSubmit
                             </div>
                         </div>
 
-                        {/* Pirámide Olfativa en 3 etapas */}
+                        {/* Atributos y Notas del Corte */}
                         <div className="sm:col-span-2 mt-2 rounded-xl border border-taupe/20 bg-cream/30 p-4">
                             <div className="mb-3">
-                                <p className="eyebrow text-ink font-bold">Pirámide Olfativa (Separadas por comas)</p>
-                                <p className="text-[11px] text-taupe mt-0.5">Ingresa las notas de cada fase para generar la pirámide de 3 etapas en la tienda.</p>
+                                <p className="eyebrow text-ink font-bold">Atributos & Métodos de Cocción Sugeridos</p>
+                                <p className="text-[11px] text-taupe mt-0.5">Ingresa los métodos de cocción específicos y notas destacadas (separadas por comas).</p>
                             </div>
-                            <div className="grid gap-3 sm:grid-cols-3">
-                                <Field label="1. Salida (Primer impacto)" error={errors.topNotes}>
+                            <div className="grid gap-3 sm:grid-cols-2">
+                                <Field label="Métodos de Cocción (separados por coma)" error={errors.cookingMethods}>
                                     <input
-                                        value={values.topNotes ?? ''}
-                                        onChange={set('topNotes')}
+                                        value={Array.isArray(values.cookingMethods) ? values.cookingMethods.join(', ') : (values.cookingMethods ?? '')}
+                                        onChange={set('cookingMethods')}
                                         className="input py-2 text-xs"
-                                        placeholder="Ej. Limón, Piña, Bergamota"
+                                        placeholder="Ej. Parrilla, Sartén de hierro, Asador"
                                     />
                                 </Field>
-                                <Field label="2. Corazón (Cuerpo)" error={errors.heartNotes}>
+                                <Field label="Notas y Atributos del Corte (separados por coma)" error={errors.notes}>
                                     <input
-                                        value={values.heartNotes ?? ''}
-                                        onChange={set('heartNotes')}
+                                        value={Array.isArray(values.notes) ? values.notes.join(', ') : (values.notes ?? '')}
+                                        onChange={set('notes')}
                                         className="input py-2 text-xs"
-                                        placeholder="Ej. Abedul, Jazmín, Rosa"
-                                    />
-                                </Field>
-                                <Field label="3. Base / Fondo (Fijación)" error={errors.baseNotes}>
-                                    <input
-                                        value={values.baseNotes ?? ''}
-                                        onChange={set('baseNotes')}
-                                        className="input py-2 text-xs"
-                                        placeholder="Ej. Ámbar gris, Almizcle, Vainilla"
+                                        placeholder="Ej. Marmoleo AAA, Grasa uniforme, 100% Artesanal"
                                     />
                                 </Field>
                             </div>
                         </div>
-
-                        <Field label="Notas generales / Etiquetas adicionales (Opcional)" className="sm:col-span-2">
-                            <input value={values.notes ?? ''} onChange={set('notes')} className="input py-2 text-xs" placeholder="Notas adicionales o lista libre" />
-                        </Field>
                     </div>
                 </Panel>
 
                 <Panel title="Precio e inventario">
                     <div className="grid gap-4 sm:grid-cols-3">
-                        <Field label="Precio (COP)" error={errors.price}>
-                            <input type="number" min="0" step="1000" value={values.price} onChange={set('price')} className={inputClass('price')} />
+                        <Field label="Precio ($ CAD / USD)" error={errors.price}>
+                            <input type="number" min="0" step="0.01" value={values.price} onChange={set('price')} className={inputClass('price')} />
                         </Field>
                         <Field label="Descuento (%)" error={errors.discountPercent}>
                             <input type="number" min="0" max="90" value={values.discountPercent} onChange={set('discountPercent')} className={inputClass('discountPercent')} />
                         </Field>
-                        <Field label="Stock" error={errors.stock}>
+                        <Field label="Stock / Disponibilidad" error={errors.stock}>
                             <input type="number" min="0" step="1" value={values.stock} onChange={set('stock')} className={inputClass('stock')} />
                         </Field>
                     </div>
-                    <p className="mt-3 text-sm text-taupe">Precio final en tienda: <strong className="text-ink">{formatMoney(finalPrice)}</strong></p>
+                    <p className="mt-3 text-sm text-taupe">Precio final en carnicería: <strong className="text-ink">{formatMoney(finalPrice)}</strong> <span className="text-xs">/ {values.unit || 'kg'}</span></p>
 
-                    {/* Configuración de Envío por Producto */}
+                    {/* Configuración de Envío Refrigerado */}
                     <div className="mt-5 rounded-xl border border-taupe/20 bg-cream/30 p-4">
                         <div className="mb-3">
-                            <p className="eyebrow text-ink font-bold">Condiciones de Envío del Producto</p>
-                            <p className="text-[11px] text-taupe mt-0.5">Indica si este producto tiene envío gratis o cuánto cuesta su envío individualmente.</p>
+                            <p className="eyebrow text-ink font-bold">Condiciones de Envío Refrigerado</p>
+                            <p className="text-[11px] text-taupe mt-0.5">Indica si este corte tiene entrega refrigerada gratuita o costo individual.</p>
                         </div>
                         <div className="grid gap-4 sm:grid-cols-2 items-start">
                             <label className="flex items-start gap-3 cursor-pointer pt-2">
@@ -230,19 +238,19 @@ export default function ProductForm({ values, errors, brands, onChange, onSubmit
                                             shippingCost: checked ? '0' : (values.shippingCost === '0' ? '' : values.shippingCost),
                                         });
                                     }}
-                                    className="mt-0.5 h-4 w-4 accent-[#C6A15B]"
+                                    className="mt-0.5 h-4 w-4 accent-brand-wine"
                                 />
                                 <div>
-                                    <span className="block text-xs font-semibold text-ink">Envío Gratis Garantizado</span>
-                                    <span className="block text-[11px] text-taupe mt-0.5">El cliente no pagará envío por este producto.</span>
+                                    <span className="block text-xs font-semibold text-ink">Envío Refrigerado Gratis Garantizado</span>
+                                    <span className="block text-[11px] text-taupe mt-0.5">El cliente no pagará flete de cadena de frío por este producto.</span>
                                 </div>
                             </label>
 
-                            <Field label="Costo de envío (COP)" error={errors.shippingCost}>
+                            <Field label="Costo de entrega refrigerada ($)" error={errors.shippingCost}>
                                 <input
                                     type="number"
                                     min="0"
-                                    step="1000"
+                                    step="0.5"
                                     disabled={Boolean(values.hasFreeShipping)}
                                     value={values.hasFreeShipping ? '0' : values.shippingCost}
                                     onChange={(e) => {
@@ -257,46 +265,31 @@ export default function ProductForm({ values, errors, brands, onChange, onSubmit
                                 />
                                 <span className="mt-1 block text-[10px] text-taupe">
                                     {values.hasFreeShipping
-                                        ? '✓ Producto con Envío Gratis ($0).'
+                                        ? '✓ Corte con Envío Refrigerado Gratis ($0).'
                                         : Number(values.shippingCost) > 0
-                                        ? `Se cobrará ${formatMoney(Number(values.shippingCost))} de envío (o gratis si el pedido supera ${formatMoney(FREE_SHIPPING_THRESHOLD)}).`
-                                        : 'Sin costo de envío configurado ($0 = no se le cobrará envío al cliente).'}
+                                        ? `Se cobrará ${formatMoney(Number(values.shippingCost))} de transporte refrigerado (o gratis si el pedido supera ${formatMoney(FREE_SHIPPING_THRESHOLD)}).`
+                                        : 'Sin costo de envío configurado ($0 = gratis para el cliente).'}
                                 </span>
                             </Field>
                         </div>
                     </div>
                 </Panel>
 
-                <Panel title="Fotos">
+                <Panel title="Fotos del Producto (Cloudinary)">
                     <ImageUploader images={values.images} onChange={(images) => onChange({ images })} />
                 </Panel>
             </div>
 
             <div className="space-y-6 lg:sticky lg:top-6 lg:self-start">
-                <Panel title="Vista previa">
-                    <ProductImage product={preview} className="aspect-[4/5]" artClassName="h-3/4 w-auto" />
-                    {values.images.length === 0 && (
-                        <div className="mt-4 grid grid-cols-3 gap-2 text-[10px] uppercase tracking-wider text-taupe">
-                            {[['from', 'Vidrio'], ['to', 'Sombra'], ['liquid', 'Líquido']].map(([key, label]) => (
-                                <label key={key} className="flex flex-col items-center gap-1">
-                                    <input
-                                        type="color"
-                                        value={values.palette[key]}
-                                        onChange={(e) => onChange({ palette: { ...values.palette, [key]: e.target.value } })}
-                                        className="h-9 w-full cursor-pointer border border-taupe/20 bg-white"
-                                    />
-                                    {label}
-                                </label>
-                            ))}
-                        </div>
-                    )}
+                <Panel title="Vista previa del Corte">
+                    <ProductImage product={preview} className="aspect-[4/3] rounded-xl" />
                 </Panel>
 
-                <Panel title="Visibilidad">
+                <Panel title="Visibilidad en Catálogo">
                     <div className="space-y-3 text-sm">
-                        {[['isActive', 'Visible en la tienda'], ['isFeatured', 'Destacado en el inicio'], ['isNew', 'Marcar como novedad']].map(([key, label]) => (
+                        {[['isActive', 'Visible en la tienda'], ['isFeatured', 'Destacado en vitrina principal'], ['isNew', 'Marcar como novedad']].map(([key, label]) => (
                             <label key={key} className="flex cursor-pointer items-center gap-3">
-                                <input type="checkbox" checked={values[key]} onChange={set(key)} className="h-4 w-4 accent-[#C6A15B]" />
+                                <input type="checkbox" checked={values[key]} onChange={set(key)} className="h-4 w-4 accent-brand-wine" />
                                 {label}
                             </label>
                         ))}
@@ -305,7 +298,7 @@ export default function ProductForm({ values, errors, brands, onChange, onSubmit
 
                 <div className="flex gap-3">
                     <button type="button" onClick={onCancel} className="btn-outline flex-1">Cancelar</button>
-                    <button type="submit" disabled={saving} className="btn-dark flex-1">{saving ? 'Guardando…' : 'Guardar'}</button>
+                    <button type="submit" disabled={saving} className="btn-brand flex-1">{saving ? 'Guardando…' : 'Guardar Corte'}</button>
                 </div>
             </div>
         </form>

@@ -459,7 +459,7 @@ export default function ProductReviews({ product, productId, productName }) {
                     </div>
                 )}
 
-                {/* Estado vacío: Sin reseñas aún para este perfume */}
+                {/* Estado vacío: Sin reseñas aún para este corte */}
                 {!loading && reviews.length === 0 && (
                     <div className="mt-10 rounded-2xl border border-taupe/15 bg-white p-10 text-center shadow-xs">
                         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-cream/50 text-gold-dark">

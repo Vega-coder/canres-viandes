@@ -60,6 +60,7 @@ export const createInMemoryProductRepository = (seed = SEED_PRODUCTS, storage = 
 
     return {
         findAll: async () => products.filter((p) => p.isActive).map((p) => enrichWithReviews(p, storage)),
+        findAllForAdmin: async () => products.map((p) => enrichWithReviews(p, storage)),
         findBySlug: async (slug) => {
             const p = products.find((p) => p.slug === slug);
             return p ? enrichWithReviews(p, storage) : null;
@@ -67,6 +68,10 @@ export const createInMemoryProductRepository = (seed = SEED_PRODUCTS, storage = 
         findById: async (id) => {
             const p = products.find((p) => p.id === id);
             return p ? enrichWithReviews(p, storage) : null;
+        },
+        findByIds: async (ids) => {
+            const set = new Set(ids);
+            return products.filter((p) => set.has(p.id)).map((p) => enrichWithReviews(p, storage));
         },
         save: async (productData) => {
             const entity = createProduct(productData);
@@ -77,6 +82,10 @@ export const createInMemoryProductRepository = (seed = SEED_PRODUCTS, storage = 
             return entity;
         },
         delete: async (id) => {
+            products = products.filter((p) => p.id !== id);
+            persist();
+        },
+        remove: async (id) => {
             products = products.filter((p) => p.id !== id);
             persist();
         },

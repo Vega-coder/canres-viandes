@@ -76,7 +76,7 @@ export const validateCustomer = (customer = {}) => {
 export const generateOrderCode = (now = new Date(), random = Math.random) => {
     const date = now.toISOString().slice(2, 10).replace(/-/g, '');
     const suffix = Math.floor(random() * 36 ** 4).toString(36).toUpperCase().padStart(4, '0');
-    return `AP-${date}-${suffix}`;
+    return `CANRES-${date}-${suffix}`;
 };
 
 /**

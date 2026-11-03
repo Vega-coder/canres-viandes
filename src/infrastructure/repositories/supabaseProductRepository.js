@@ -3,7 +3,7 @@
 import { createProduct } from '@/domain/catalog/product.js';
 
 const FK_VIOLATION = '23503';
-const CACHE_KEY = 'canres_catalog_cache_v2';
+const CACHE_KEY = 'canres_catalog_cache_v3';
 const CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutos (0 egress en navegación y recargas)
 
 const toDomain = (row) => createProduct({
@@ -12,6 +12,7 @@ const toDomain = (row) => createProduct({
     reviews: row.reviews,
     hasFreeShipping: row.has_free_shipping,
     shippingCost: row.shipping_cost,
+    cookingMethods: row.cooking_methods || row.cookingMethods,
 });
 
 const toRow = (product, brandId, includePyramid = true, includeShipping = true) => {
@@ -19,16 +20,19 @@ const toRow = (product, brandId, includePyramid = true, includeShipping = true) 
         id: product.id,
         slug: product.slug,
         name: product.name,
+        subname: product.subname || '',
         brand_id: brandId,
         description: product.description,
         gender: product.gender,
         type: product.type,
+        unit: product.unit || 'kg',
         concentration: product.concentration,
         volume_ml: product.volumeMl,
         price: product.price,
         discount_percent: product.discountPercent,
         stock: product.stock,
         notes: product.notes,
+        cooking_methods: product.cookingMethods || [],
         images: product.images,
         palette: product.palette,
         is_new: product.isNew,

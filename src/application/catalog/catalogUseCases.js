@@ -58,6 +58,7 @@ export const makeGetHomeShowcase = ({ productRepository }) =>
             featured: (featured.length ? featured : all).slice(0, 8),
             newArrivals: sortProducts(all.filter((p) => p.isNew), 'newest').slice(0, 4),
             brands: buildBrandsCatalog(all).slice(0, 5),
+            allProducts: all,
         };
     };
 

@@ -10,12 +10,11 @@ describe('Marcas Use Cases', () => {
 
     it('returns brands catalog without errors', async () => {
         const result = await getBrandsCatalog();
-        console.log('Total brands:', result.brands.length);
         expect(result.brands.length).toBeGreaterThan(0);
     });
 
     it('returns brand detail without errors', async () => {
-        const result = await getBrandDetail('lattafa');
+        const result = await getBrandDetail('res-aaa');
         expect(result.brand).not.toBeNull();
     });
 });

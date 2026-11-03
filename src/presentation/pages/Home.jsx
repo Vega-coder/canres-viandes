@@ -18,6 +18,7 @@ const TABS = [
     { id: 'res', label: 'Res AAA' },
     { id: 'cerdo', label: 'Cerdo Selecto' },
     { id: 'pollo', label: 'Pollo de Granja' },
+    { id: 'chivo', label: 'Chivo & Cordero' },
     { id: 'chorizos', label: 'Chorizos 100% Artesanales' },
     { id: 'canales', label: 'Mayoreo & Canales' },
 ];
@@ -27,15 +28,18 @@ export default function Home() {
     const [selectedTab, setSelectedTab] = useState('all');
 
     const rawFeatured = data?.featured;
+    const allProducts = data?.allProducts ?? rawFeatured ?? [];
     const filteredProducts = useMemo(() => {
-        const list = rawFeatured ?? [];
-        if (selectedTab === 'all') return list;
-        return list.filter((p) => p.gender === selectedTab);
-    }, [rawFeatured, selectedTab]);
+        if (selectedTab === 'all') return (rawFeatured?.length ? rawFeatured : allProducts).slice(0, 8);
+        if (selectedTab === 'canales') {
+            return allProducts.filter((p) => p.gender === 'canales' || p.type === 'canal' || p.type === 'caja');
+        }
+        return allProducts.filter((p) => p.gender === selectedTab);
+    }, [allProducts, rawFeatured, selectedTab]);
 
     return (
         <>
-            <Hero />
+            <Hero cuts={data?.featured} />
             <LuxuryTicker />
 
             {/* Sección de Productos Destacados con Pestañas Interactivas */}

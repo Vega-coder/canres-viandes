@@ -69,7 +69,7 @@ export const SHIPPING_STATUS_LABELS = Object.freeze({
 
 /**
  * Calcula automáticamente las dimensiones y peso del paquete según los productos del pedido.
- * Un perfume de lujo con caja y empaque de burbuja pesa aprox. 0.4kg.
+ * Cortes y charcutería con empaque térmico refrigerado y geles de frío.
  * Las transportadoras en Colombia tasan peso mínimo de 1 kg.
  *
  * @param {Object} order

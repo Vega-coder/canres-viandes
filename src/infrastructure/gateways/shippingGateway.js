@@ -353,7 +353,7 @@ async function callMiPaqueteApi({ apiKey, isSandbox, senderInfo, order, carrier,
             destinyDaneCode: destDane,
         },
         channel: 'api',
-        description: 'Fragancias y perfumeria',
+        description: 'Carnes y charcutería refrigerada',
         paymentType: 101, // 101: Prepago tradicional con flete descontado de la billetera
         deliveryCompany: deliveryCompanyId,
         requestPickup: true,

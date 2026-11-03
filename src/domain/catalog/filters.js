@@ -60,7 +60,13 @@ export const filterProducts = (products, criteria = {}) => {
         if (!p.isActive) return false;
         if (query && !matchesQuery(p, query)) return false;
         if (aroma && !matchesAroma(p, aroma)) return false;
-        if (gender && p.gender !== gender) return false;
+        if (gender) {
+            if (gender === 'canales') {
+                if (p.gender !== 'canales' && p.type !== 'canal' && p.type !== 'caja') return false;
+            } else if (p.gender !== gender) {
+                return false;
+            }
+        }
         if (type && p.type !== type) return false;
         if (brands && brands.length > 0 && !brands.includes(p.brand)) return false;
         const finalPrice = getFinalPrice(p);

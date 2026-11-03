@@ -63,8 +63,9 @@ export const countItems = (items) => items.reduce((sum, i) => sum + i.quantity, 
 export const calculateTotals = (items) => {
     const rawSubtotal = items.reduce((sum, i) => sum + i.unitPrice * i.quantity, 0);
     const subtotal = Math.round(rawSubtotal * 100) / 100;
+    const allFreeShipping = items.length > 0 && items.every((i) => i.hasFreeShipping);
 
-    if (subtotal === 0 || subtotal >= FREE_SHIPPING_THRESHOLD) {
+    if (subtotal === 0 || subtotal >= FREE_SHIPPING_THRESHOLD || allFreeShipping) {
         return {
             subtotal,
             shipping: 0,
