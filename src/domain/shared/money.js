@@ -3,7 +3,7 @@
 
 export const CURRENCY = 'CAD';
 
-const formatter = new Intl.NumberFormat('fr-CA', {
+const formatter = new Intl.NumberFormat('en-CA', {
     style: 'currency',
     currency: 'CAD',
     minimumFractionDigits: 2,

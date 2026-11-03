@@ -101,7 +101,7 @@ export default function Navbar() {
                     >
                         {menuOpen ? <HiOutlineXMark className="h-6 w-6" /> : <HiOutlineBars3 className="h-6 w-6" />}
                     </button>
-                    <Logo />
+                    <Logo iconOnly />
                 </div>
 
                 <nav className="hidden items-center gap-5 lg:flex">
@@ -150,12 +150,12 @@ export default function Navbar() {
                     <button
                         type="button"
                         onClick={open}
-                        className="flex items-center gap-2 rounded-full bg-brand-wine px-3.5 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-sm hover:bg-brand-red transition active:scale-95"
+                        className="flex shrink-0 items-center gap-2 rounded-full bg-brand-wine px-3.5 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-sm hover:bg-brand-red transition active:scale-95 whitespace-nowrap"
                         aria-label={`Ver carrito: ${count} productos, total ${formatMoney(totals.total)}`}
                     >
-                        <HiOutlineShoppingBag className="h-4 w-4" />
-                        <span className="hidden sm:inline font-bold">{count}</span>
-                        <span className="hidden min-[480px]:inline font-mono">· {formatMoney(totals.total)}</span>
+                        <HiOutlineShoppingBag className="h-4 w-4 shrink-0" />
+                        <span className="font-bold">{count}</span>
+                        <span className="hidden min-[480px]:inline font-semibold tracking-normal">· {formatMoney(totals.total)}</span>
                     </button>
                 </div>
             </div>
