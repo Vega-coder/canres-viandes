@@ -1,5 +1,5 @@
 export default function ProductImage({ product, className = '' }) {
-    const image = product.images?.[0] ?? product.image;
+    const image = product?.images?.[0] ?? product?.image;
 
     return (
         <div className={`relative flex items-center justify-center overflow-hidden bg-gradient-to-b from-[#FAF6EB] to-[#F0EAE1] ${className}`}>

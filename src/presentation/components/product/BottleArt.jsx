@@ -8,7 +8,7 @@ const fitText = (text, maxChars, width) =>
 // Evita depender de fotos externas mientras el cliente carga las imágenes reales.
 export default function BottleArt({ product, className = 'h-full w-auto' }) {
     const uid = useId().replace(/:/g, '');
-    const { from, to, liquid } = product.palette;
+    const { from = '#660F12', to = '#141414', liquid = '#8B0000' } = product?.palette || {};
 
     if (product.type === 'set') return <GiftBox uid={uid} from={from} to={to} brand={product.brand} className={className} />;
     if (product.type === 'accesorio') return <Atomizer uid={uid} from={from} to={to} liquid={liquid} className={className} />;

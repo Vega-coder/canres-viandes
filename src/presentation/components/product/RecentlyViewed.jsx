@@ -5,52 +5,57 @@ import ProductGrid from '@/presentation/components/product/ProductGrid.jsx';
 const STORAGE_KEY = 'ap_recently_viewed';
 const MAX_STORED = 10;
 
-export default function RecentlyViewed({ currentProduct }) {
+export default function RecentlyViewed({ currentProduct, currentProductId }) {
     const [recentlyViewed, setRecentlyViewed] = useState([]);
+    const targetId = currentProduct?.id || currentProductId;
 
     useEffect(() => {
-        if (!currentProduct?.id) return;
+        if (!targetId) return;
 
         let items = [];
         try {
             const raw = localStorage.getItem(STORAGE_KEY);
             if (raw) {
-                items = JSON.parse(raw);
+                const parsed = JSON.parse(raw);
+                if (Array.isArray(parsed)) {
+                    items = parsed.filter((p) => p && typeof p === 'object' && p.id && p.name);
+                }
             }
         } catch {
             items = [];
         }
 
         // Filtrar los que no sean el actual para mostrarlos en el historial
-        const others = items.filter((p) => p.id !== currentProduct.id);
+        const others = items.filter((p) => p.id !== targetId);
         setRecentlyViewed(others);
 
-        // Guardar el actual al inicio de la lista
-        const compactProduct = {
-            id: currentProduct.id,
-            slug: currentProduct.slug,
-            name: currentProduct.name,
-            brand: currentProduct.brand,
-            gender: currentProduct.gender,
-            concentration: currentProduct.concentration,
-            volumeMl: currentProduct.volumeMl,
-            price: currentProduct.price,
-            discountPercent: currentProduct.discountPercent,
-            stock: currentProduct.stock,
-            images: currentProduct.images,
-            palette: currentProduct.palette,
-            notes: currentProduct.notes || [],
-            isNew: currentProduct.isNew,
-            isFeatured: currentProduct.isFeatured,
-        };
+        // Guardar el actual al inicio de la lista si se pasó el objeto completo
+        if (currentProduct?.id) {
+            const compactProduct = {
+                id: currentProduct.id,
+                slug: currentProduct.slug,
+                name: currentProduct.name,
+                brand: currentProduct.brand || 'CANRES Viandes',
+                gender: currentProduct.gender || 'res',
+                unit: currentProduct.unit || 'kg',
+                price: Number(currentProduct.price) || 0,
+                discountPercent: Number(currentProduct.discountPercent) || 0,
+                stock: Number(currentProduct.stock) || 0,
+                images: currentProduct.images || [],
+                palette: currentProduct.palette,
+                notes: currentProduct.notes || [],
+                isNew: Boolean(currentProduct.isNew),
+                isFeatured: Boolean(currentProduct.isFeatured),
+            };
 
-        const updated = [compactProduct, ...items.filter((p) => p.id !== currentProduct.id)].slice(0, MAX_STORED);
-        try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-        } catch {
-            // Ignorar
+            const updated = [compactProduct, ...items.filter((p) => p.id !== targetId)].slice(0, MAX_STORED);
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+            } catch {
+                // Ignorar
+            }
         }
-    }, [currentProduct?.id]);
+    }, [targetId, currentProduct]);
 
     if (!recentlyViewed.length) {
         return null;

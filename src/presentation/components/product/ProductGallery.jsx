@@ -10,9 +10,9 @@ import BottleArt from './BottleArt.jsx';
 export default function ProductGallery({ product }) {
     // Normalizar imágenes del producto
     const images = useMemo(() => {
-        const raw = Array.isArray(product.images) && product.images.length > 0
+        const raw = Array.isArray(product?.images) && product.images.length > 0
             ? product.images.filter(Boolean)
-            : [product.image].filter(Boolean);
+            : [product?.image].filter(Boolean);
 
         if (raw.length === 0) return [];
 
@@ -29,11 +29,11 @@ export default function ProductGallery({ product }) {
         // Si tiene solo 1 imagen cargada, creamos opciones de perspectiva/detalle
         // para que siempre existan miniaturas interactivas a la izquierda:
         return [
-            { id: 'view-front', src: raw[0], label: 'Frasco', cropZoom: 1 },
+            { id: 'view-front', src: raw[0], label: 'Corte', cropZoom: 1 },
             { id: 'view-detail', src: raw[0], label: 'Detalle', cropZoom: 1.45 },
             { id: 'view-close', src: raw[0], label: 'Primer plano', cropZoom: 1.9 },
         ];
-    }, [product.images, product.image]);
+    }, [product?.images, product?.image]);
 
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [isHoverZooming, setIsHoverZooming] = useState(false);

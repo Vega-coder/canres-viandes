@@ -15,7 +15,9 @@ import { useCases } from '@/infrastructure/container.js';
 import { useAuth } from '@/presentation/context/AuthContext.jsx';
 import { alertError, toast } from '@/presentation/utils/swal.js';
 
-export default function ProductReviews({ product }) {
+export default function ProductReviews({ product, productId, productName }) {
+    const targetId = product?.id || productId;
+    const targetName = product?.name || productName || 'Corte';
     const { user, isAuthenticated } = useAuth();
     const location = useLocation();
 
@@ -49,9 +51,14 @@ export default function ProductReviews({ product }) {
     // Cargar reseñas reales desde el backend / base de datos Supabase
     useEffect(() => {
         let mounted = true;
+        if (!targetId) {
+            setLoading(false);
+            return undefined;
+        }
+
         setLoading(true);
 
-        useCases.getProductReviews(product.id)
+        useCases.getProductReviews(targetId)
             .then((data) => {
                 if (mounted) {
                     setReviews(data || []);
@@ -68,7 +75,7 @@ export default function ProductReviews({ product }) {
         return () => {
             mounted = false;
         };
-    }, [product.id]);
+    }, [targetId]);
 
     // Estadísticas dinámicas calculadas 100% sobre datos reales de la BD
     const stats = useMemo(() => {
@@ -107,13 +114,13 @@ export default function ProductReviews({ product }) {
         setSubmitting(true);
         try {
             const saved = await useCases.submitProductReview({
-                productId: product.id,
+                productId: targetId,
                 author: author.trim(),
                 rating,
-                title: title.trim() || 'Excelente fragancia',
+                title: title.trim() || 'Excelente calidad de corte',
                 comment: comment.trim(),
                 longevity,
-                sillage: 'Pesada',
+                sillage: 'Excelente terneza',
             });
 
             setReviews((prev) => [saved, ...prev]);
@@ -164,7 +171,7 @@ export default function ProductReviews({ product }) {
                             Opiniones de clientes
                         </p>
                         <h2 className="mt-2 font-display text-2xl sm:text-3xl font-bold uppercase tracking-[0.15em] text-ink">
-                            Reseñas de {product.name}
+                            Reseñas de {targetName}
                         </h2>
                         <p className="mt-1 text-xs text-taupe">
                             Experiencias reales de compradores verificados almacenadas en base de datos
@@ -462,7 +469,7 @@ export default function ProductReviews({ product }) {
                             Aún no hay reseñas para este corte
                         </h4>
                         <p className="mx-auto mt-2 max-w-md text-xs leading-relaxed text-taupe">
-                            ¿Has tenido la oportunidad de degustar {product.name}? Sé el primero en compartir tu experiencia y ayudar a otros amantes de la buena carne artesanal.
+                            ¿Has tenido la oportunidad de degustar {targetName}? Sé el primero en compartir tu experiencia y ayudar a otros amantes de la buena carne artesanal.
                         </p>
                         {isAuthenticated ? (
                             <button

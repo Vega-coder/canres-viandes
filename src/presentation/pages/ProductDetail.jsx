@@ -49,7 +49,7 @@ function ProductView({ product, related }) {
     const details = [
         ['Línea', product.brand],
         ['Unidad de venta', product.unit ? formatUnit(product.unit).replace('/', '').trim() : 'kg'],
-        ['Categoría', product.gender.toUpperCase()],
+        ['Categoría', product.gender ? product.gender.toUpperCase() : 'GENERAL'],
         ['Origen', 'Québec & Tradición Colombiana'],
         ['Empaque', 'Al vacío refrigerado hermético'],
         ['Entrega', hasFreeShip ? 'Envío refrigerado GRATIS' : `${formatMoney(product.shippingCost)} (Gratis desde ${formatMoney(FREE_SHIPPING_THRESHOLD)})`],
@@ -59,7 +59,7 @@ function ProductView({ product, related }) {
         <>
             <div className="container-luxe py-8 sm:py-12">
                 <nav className="mb-6 text-[11px] uppercase tracking-wider text-taupe" aria-label="Ruta">
-                    <Link to="/" className="hover:text-brand-wine">Inicio</Link> / <Link to="/tienda" className="hover:text-brand-wine">Carnicería</Link> / <Link to={`/tienda/${product.gender}`} className="hover:text-brand-wine">{product.gender.toUpperCase()}</Link> / <span className="text-ink font-bold">{product.name}</span>
+                    <Link to="/" className="hover:text-brand-wine">Inicio</Link> / <Link to="/tienda" className="hover:text-brand-wine">Carnicería</Link> / <Link to={`/tienda/${product.gender || ''}`} className="hover:text-brand-wine">{(product.gender || 'Cortes').toUpperCase()}</Link> / <span className="text-ink font-bold">{product.name}</span>
                 </nav>
 
                 <div className="grid gap-10 md:grid-cols-2 lg:gap-14 items-start">
@@ -184,7 +184,7 @@ function ProductView({ product, related }) {
                 </div>
 
                 <div id="reviews" className="mt-16">
-                    <ProductReviews productId={product.id} productName={product.name} />
+                    <ProductReviews product={product} productId={product.id} productName={product.name} />
                 </div>
 
                 {related?.length > 0 && (
@@ -194,7 +194,7 @@ function ProductView({ product, related }) {
                     </div>
                 )}
 
-                <RecentlyViewed currentProductId={product.id} />
+                <RecentlyViewed currentProduct={product} currentProductId={product.id} />
             </div>
         </>
     );
