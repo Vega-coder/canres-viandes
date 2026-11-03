@@ -13,12 +13,17 @@ export const createSupabaseAuthGateway = (supabase) => {
         }
 
         const role = profile?.role || user.user_metadata?.role || 'customer';
+        const fullName = profile?.full_name || user.user_metadata?.full_name || user.user_metadata?.name || '';
+        const phone = profile?.phone || user.user_metadata?.phone || '';
+        const avatarUrl = profile?.avatar_url || user.user_metadata?.avatar_url || user.user_metadata?.picture || '';
+
         return {
             id: user.id,
             email: user.email,
-            fullName: profile?.full_name || user.user_metadata?.full_name || '',
-            phone: profile?.phone || user.user_metadata?.phone || '',
+            fullName,
+            phone,
             role,
+            avatarUrl,
             isAdmin: ['superadmin', 'admin', 'gerente'].includes(role),
         };
     };
@@ -27,12 +32,42 @@ export const createSupabaseAuthGateway = (supabase) => {
         signIn: async (email, password) => {
             const { data, error } = await supabase.auth.signInWithPassword({ email, password });
             if (error) {
-                if (error.message === 'Invalid login credentials') {
+                if (error.message === 'Invalid login credentials' || error.message.includes('Invalid login')) {
                     throw new Error('Correo o contraseña incorrectos');
+                }
+                if (error.message.includes('Email not confirmed')) {
+                    throw new Error('Tu correo aún no ha sido confirmado. Revisa tu bandeja de entrada o spam.');
                 }
                 throw new Error(error.message);
             }
             return toAuthUser(data.user);
+        },
+        signInWithGoogle: async (redirectPath = '/') => {
+            const redirectTo = typeof window !== 'undefined'
+                ? `${window.location.origin}${redirectPath.startsWith('/') ? redirectPath : `/${redirectPath}`}`
+                : undefined;
+
+            const { data, error } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: {
+                    redirectTo,
+                },
+            });
+            if (error) throw error;
+            return data;
+        },
+        exchangeCodeForSession: async (authCode) => {
+            const { data, error } = await supabase.auth.exchangeCodeForSession(authCode);
+            if (error) throw error;
+            return toAuthUser(data.session?.user ?? null);
+        },
+        setSession: async ({ accessToken, refreshToken }) => {
+            const { data, error } = await supabase.auth.setSession({
+                access_token: accessToken,
+                refresh_token: refreshToken || '',
+            });
+            if (error) throw error;
+            return toAuthUser(data.session?.user ?? null);
         },
         signUp: async (email, password, { fullName = '', phone = '' } = {}) => {
             const { data, error } = await supabase.auth.signUp({
@@ -46,13 +81,17 @@ export const createSupabaseAuthGateway = (supabase) => {
                 },
             });
             if (error) {
-                if (error.message.includes('User already registered') || error.message.includes('already registered')) {
+                const msg = error.message || '';
+                if (msg.includes('already registered') || msg.includes('User already registered')) {
                     throw new Error('Ya existe una cuenta registrada con este correo electrónico');
                 }
-                if (error.message.includes('Password should be at least')) {
+                if (msg.includes('Password should be at least')) {
                     throw new Error('La contraseña debe tener al menos 6 caracteres');
                 }
-                throw new Error(error.message);
+                if (error.code === 'over_email_send_rate_limit' || msg.includes('rate limit')) {
+                    throw new Error('Se ha superado el límite de correos. Te recomendamos usar "Registrarse con Google" o esperar unos minutos.');
+                }
+                throw new Error(msg);
             }
 
             if (data.user) {
@@ -65,11 +104,24 @@ export const createSupabaseAuthGateway = (supabase) => {
                         role: 'customer',
                     });
                 } catch {
-                    // El trigger on_auth_user_created también lo inserta
+                    try {
+                        await supabase.from('profiles').upsert({
+                            id: data.user.id,
+                            full_name: fullName,
+                            phone,
+                            role: 'customer',
+                        });
+                    } catch {
+                        // El trigger on_auth_user_created en DB lo respaldará
+                    }
                 }
             }
 
-            return toAuthUser(data.user);
+            const authUser = await toAuthUser(data.user);
+            if (authUser) {
+                authUser.needsConfirmation = !data.session && !data.user?.email_confirmed_at;
+            }
+            return authUser;
         },
         signOut: async () => {
             await supabase.auth.signOut();
@@ -192,6 +244,18 @@ export const createDemoAuthGateway = ({ email, password, storage = globalThis.se
             };
             storage?.setItem(DEMO_SESSION_KEY, JSON.stringify(customerUser));
             return customerUser;
+        },
+        signInWithGoogle: async () => {
+            const demoGoogleUser = {
+                id: 'demo-google-user',
+                email: 'cliente.google@canres.test',
+                fullName: 'Cliente Google Demo',
+                phone: '3001234567',
+                role: 'customer',
+                isAdmin: false,
+            };
+            storage?.setItem(DEMO_SESSION_KEY, JSON.stringify(demoGoogleUser));
+            return demoGoogleUser;
         },
         signUp: async (inputEmail, inputPassword, { fullName = '', phone = '' } = {}) => {
             const customers = getCustomers();

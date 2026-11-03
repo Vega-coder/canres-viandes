@@ -29,7 +29,7 @@ import {
 import { makeListOrders, makeChangeOrderStatus, makeGetDashboard } from '@/application/admin/orderAdmin.js';
 import {
     makeSignInAdmin, makeGetCurrentAdmin, makeSignOut,
-    makeSignInCustomer, makeSignUpCustomer, makeGetCurrentUser, makeGetUserOrders,
+    makeSignInCustomer, makeSignUpCustomer, makeSignInWithGoogle, makeGetCurrentUser, makeGetUserOrders,
     makeResetPassword, makeUpdatePassword,
 } from '@/application/auth/authUseCases.js';
 import { makeSubmitProductReview } from '@/application/reviews/reviewUseCases.js';
@@ -160,6 +160,7 @@ export const useCases = Object.freeze({
     calculatePackageSpecs: (order) => calculatePackageSpecs(order),
     printShippingLabel: (order) => printShippingLabel(order),
     signInCustomer: makeSignInCustomer({ authGateway }),
+    signInWithGoogle: makeSignInWithGoogle({ authGateway }),
     signUpCustomer: makeSignUpCustomer({ authGateway }),
     signOutCustomer: makeSignOut({ authGateway }),
     getCurrentUser: makeGetCurrentUser({ authGateway }),

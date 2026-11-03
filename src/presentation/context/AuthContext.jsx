@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { useCases } from '@/infrastructure/container.js';
 
 const AuthContext = createContext(null);
+const SESSION_BACKUP_KEY = 'canres_session_backup';
 
 export const useAuth = () => {
     const ctx = useContext(AuthContext);
@@ -10,25 +11,97 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
+    // 1. Cargar desde backup para evitar pestañeo de pantalla de login en recargas (patrón OCAPLUS)
+    const [user, setUser] = useState(() => {
+        try {
+            const backup = localStorage.getItem(SESSION_BACKUP_KEY);
+            return backup ? JSON.parse(backup) : null;
+        } catch {
+            return null;
+        }
+    });
+
+    const [loading, setLoading] = useState(() => {
+        try {
+            return !localStorage.getItem(SESSION_BACKUP_KEY);
+        } catch {
+            return true;
+        }
+    });
+
+    const persistUser = useCallback((u) => {
+        setUser(u);
+        try {
+            if (u) {
+                localStorage.setItem(SESSION_BACKUP_KEY, JSON.stringify(u));
+            } else {
+                localStorage.removeItem(SESSION_BACKUP_KEY);
+            }
+        } catch {
+            // Ignorar errores de storage
+        }
+    }, []);
 
     useEffect(() => {
         let active = true;
-        useCases.getCurrentUser()
-            .then((current) => {
-                if (active) setUser(current);
-            })
-            .catch(() => {
-                if (active) setUser(null);
-            })
-            .finally(() => {
-                if (active) setLoading(false);
-            });
+
+        const initAuth = async () => {
+            try {
+                // Manejar posibles parámetros devueltos por Google OAuth en URL (Hash o Query)
+                if (typeof window !== 'undefined') {
+                    const hashStr = window.location.hash ? window.location.hash.substring(1) : '';
+                    const hashParams = new URLSearchParams(hashStr);
+                    const searchParams = new URLSearchParams(window.location.search);
+
+                    const oauthError = hashParams.get('error_description')
+                        || searchParams.get('error_description')
+                        || hashParams.get('error')
+                        || searchParams.get('error');
+
+                    if (oauthError) {
+                        console.error('[CANRES Auth]: Google OAuth error en URL:', oauthError);
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                    }
+
+                    // Si viene un código PKCE (?code=...), intercambiarlo explícitamente
+                    const authCode = searchParams.get('code');
+                    if (authCode && useCases.exchangeCodeForSession) {
+                        try {
+                            const exchangedUser = await useCases.exchangeCodeForSession(authCode);
+                            if (active && exchangedUser) {
+                                persistUser(exchangedUser);
+                                window.history.replaceState({}, document.title, window.location.pathname);
+                                setLoading(false);
+                                return;
+                            }
+                        } catch (exErr) {
+                            console.warn('[CANRES Auth]: Error intercambiando código OAuth:', exErr);
+                        }
+                    }
+                }
+
+                // Cargar sesión actual activa
+                const current = await useCases.getCurrentUser();
+                if (active) {
+                    persistUser(current);
+                }
+            } catch (err) {
+                console.warn('[CANRES Auth]: Error inicializando autenticación:', err);
+                if (active) {
+                    persistUser(null);
+                }
+            } finally {
+                if (active) {
+                    setLoading(false);
+                }
+            }
+        };
+
+        initAuth();
 
         const unsubscribe = useCases.onAuthStateChange?.((updatedUser) => {
             if (active) {
-                setUser(updatedUser);
+                persistUser(updatedUser);
                 setLoading(false);
             }
         });
@@ -37,24 +110,36 @@ export const AuthProvider = ({ children }) => {
             active = false;
             unsubscribe?.();
         };
-    }, []);
+    }, [persistUser]);
 
     const signIn = useCallback(async (email, password) => {
         const loggedUser = await useCases.signInCustomer(email, password);
-        setUser(loggedUser);
+        persistUser(loggedUser);
         return loggedUser;
+    }, [persistUser]);
+
+    const signInWithGoogle = useCallback(async (redirectTo = '/') => {
+        if (!useCases.signInWithGoogle) {
+            throw new Error('El inicio de sesión con Google no está disponible');
+        }
+        return useCases.signInWithGoogle(redirectTo);
     }, []);
 
     const signUp = useCallback(async (data) => {
         const newUser = await useCases.signUpCustomer(data);
-        setUser(newUser);
+        if (newUser && !newUser.needsConfirmation) {
+            persistUser(newUser);
+        }
         return newUser;
-    }, []);
+    }, [persistUser]);
 
     const signOut = useCallback(async () => {
-        await useCases.signOutCustomer();
-        setUser(null);
-    }, []);
+        try {
+            await useCases.signOutCustomer();
+        } finally {
+            persistUser(null);
+        }
+    }, [persistUser]);
 
     const resetPassword = useCallback(async (email) => {
         return useCases.resetPassword(email);
@@ -62,9 +147,9 @@ export const AuthProvider = ({ children }) => {
 
     const updatePassword = useCallback(async (newPassword) => {
         const updatedUser = await useCases.updatePassword(newPassword);
-        if (updatedUser) setUser(updatedUser);
+        if (updatedUser) persistUser(updatedUser);
         return updatedUser;
-    }, []);
+    }, [persistUser]);
 
     const value = useMemo(() => ({
         user,
@@ -72,11 +157,12 @@ export const AuthProvider = ({ children }) => {
         isAuthenticated: Boolean(user),
         isAdmin: Boolean(user?.isAdmin),
         signIn,
+        signInWithGoogle,
         signUp,
         signOut,
         resetPassword,
         updatePassword,
-    }), [user, loading, signIn, signUp, signOut, resetPassword, updatePassword]);
+    }), [user, loading, signIn, signInWithGoogle, signUp, signOut, resetPassword, updatePassword]);
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

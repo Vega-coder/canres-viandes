@@ -24,6 +24,12 @@ export const makeSignUpCustomer = ({ authGateway }) => async ({ email, password,
 };
 
 /** @param {{ authGateway: import('../ports.js').AuthGateway }} deps */
+export const makeSignInWithGoogle = ({ authGateway }) => async (redirectTo = '/') => {
+    if (!authGateway.signInWithGoogle) throw new Error('Inicio de sesión con Google no disponible');
+    return authGateway.signInWithGoogle(redirectTo);
+};
+
+/** @param {{ authGateway: import('../ports.js').AuthGateway }} deps */
 export const makeGetCurrentUser = ({ authGateway }) => async () => {
     return authGateway.getCurrentUser();
 };

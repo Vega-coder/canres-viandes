@@ -52,11 +52,61 @@ create index if not exists products_active_idx on public.products (is_active);
 -- 3. PERFILES DE CLIENTES / ADMIN
 create table if not exists public.profiles (
     id uuid primary key references auth.users (id) on delete cascade,
-    full_name text default '',
+    email text,
+    full_name text not null default '',
     phone text default '',
-    role text not null default 'customer',
-    created_at timestamptz not null default now()
+    role text not null default 'customer' check (role in ('customer', 'admin', 'superadmin', 'gerente', 'cajero', 'mesero', 'cocinero')),
+    activo boolean not null default true,
+    avatar_url text,
+    created_at timestamptz not null default now(),
+    updated_at timestamptz not null default now()
 );
+
+create index if not exists profiles_email_idx on public.profiles (email);
+create index if not exists profiles_role_idx on public.profiles (role);
+
+-- Trigger para sincronizar automáticamente auth.users con public.profiles
+create or replace function public.handle_new_user()
+returns trigger language plpgsql security definer set search_path = public as $$
+declare
+    v_name text;
+    v_phone text;
+    v_role text;
+    v_avatar text;
+begin
+    v_name := coalesce(
+        nullif(new.raw_user_meta_data ->> 'full_name', ''),
+        nullif(new.raw_user_meta_data ->> 'name', ''),
+        split_part(new.email, '@', 1)
+    );
+    v_phone := coalesce(new.raw_user_meta_data ->> 'phone', '');
+    v_role := coalesce(nullif(new.raw_user_meta_data ->> 'role', ''), 'customer');
+    v_avatar := coalesce(
+        nullif(new.raw_user_meta_data ->> 'avatar_url', ''),
+        nullif(new.raw_user_meta_data ->> 'picture', '')
+    );
+
+    if v_role not in ('customer', 'admin', 'superadmin', 'gerente', 'cajero', 'mesero', 'cocinero') then
+        v_role := 'customer';
+    end if;
+
+    insert into public.profiles (id, email, full_name, phone, role, activo, avatar_url, updated_at)
+    values (new.id, new.email, v_name, v_phone, v_role, true, v_avatar, now())
+    on conflict (id) do update set
+        email = excluded.email,
+        full_name = coalesce(nullif(excluded.full_name, ''), profiles.full_name),
+        phone = coalesce(nullif(excluded.phone, ''), profiles.phone),
+        avatar_url = coalesce(nullif(excluded.avatar_url, ''), profiles.avatar_url),
+        updated_at = now();
+
+    return new;
+end;
+$$;
+
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+    after insert on auth.users
+    for each row execute function public.handle_new_user();
 
 -- 4. PEDIDOS
 create table if not exists public.orders (

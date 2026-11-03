@@ -37,7 +37,7 @@ export default function AdminLogin() {
             <div className="w-full max-w-sm">
                 <div className="flex flex-col items-center text-center">
                     <Monogram className="h-20 w-auto" variant="light" />
-                    <p className="mt-6 font-display text-2xl tracking-[0.12em] text-cream-light">AROMA PREMIUM</p>
+                    <p className="mt-6 font-display text-2xl tracking-[0.12em] text-cream-light">CANRES VIANDES</p>
                     <p className="eyebrow mt-2 text-gold">Panel de administración</p>
                 </div>
 

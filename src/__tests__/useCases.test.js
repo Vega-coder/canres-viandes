@@ -6,7 +6,7 @@ import { createDemoAuthGateway } from '@/infrastructure/gateways/authGateways.js
 import { makeBrowseCatalog, makeGetProductDetail } from '@/application/catalog/catalogUseCases.js';
 import { makePlaceOrder } from '@/application/orders/placeOrder.js';
 import {
-    makeSignInCustomer, makeSignUpCustomer, makeGetCurrentUser,
+    makeSignInCustomer, makeSignUpCustomer, makeSignInWithGoogle, makeGetCurrentUser,
     makeResetPassword, makeUpdatePassword,
 } from '@/application/auth/authUseCases.js';
 import { SEED_PRODUCTS } from '@/infrastructure/data/seedProducts.js';
@@ -131,6 +131,13 @@ describe('Autenticación de clientes', () => {
         expect(user.email).toBe('carlos@ejemplo.com');
         const current = await getCurrentUser();
         expect(current?.email).toBe('carlos@ejemplo.com');
+    });
+
+    it('inicia sesión con Google OAuth', async () => {
+        const signInWithGoogle = makeSignInWithGoogle({ authGateway });
+        const user = await signInWithGoogle('/');
+        expect(user.email).toBe('cliente.google@canres.test');
+        expect(user.fullName).toBe('Cliente Google Demo');
     });
 
     it('solicita restablecimiento de contraseña validando el correo', async () => {

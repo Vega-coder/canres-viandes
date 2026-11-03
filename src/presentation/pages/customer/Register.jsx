@@ -1,12 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { HiOutlineEye, HiOutlineEyeSlash } from 'react-icons/hi2';
+import Swal from 'sweetalert2';
 import { useAuth } from '@/presentation/context/AuthContext.jsx';
 import { alertError, toastSuccess } from '@/presentation/utils/swal.js';
 import Logo from '@/presentation/components/brand/Logo.jsx';
+import GoogleIcon from '@/presentation/components/ui/GoogleIcon.jsx';
 
 export default function Register() {
-    const { signUp } = useAuth();
+    const { signUp, signInWithGoogle, isAuthenticated } = useAuth();
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const redirectUrl = searchParams.get('redirect') || '/cuenta';
@@ -19,14 +21,34 @@ export default function Register() {
         confirmPassword: '',
     });
     const [loading, setLoading] = useState(false);
+    const [googleLoading, setGoogleLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            navigate(redirectUrl, { replace: true });
+        }
+    }, [isAuthenticated, navigate, redirectUrl]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setForm((prev) => ({ ...prev, [name]: value }));
         if (errorMsg) setErrorMsg('');
+    };
+
+    const handleGoogleAuth = async () => {
+        setErrorMsg('');
+        setGoogleLoading(true);
+        try {
+            await signInWithGoogle(redirectUrl);
+        } catch (err) {
+            const msg = err.message || 'No se pudo conectar con Google';
+            setErrorMsg(msg);
+            alertError('Error con Google', msg);
+            setGoogleLoading(false);
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -37,10 +59,14 @@ export default function Register() {
             setErrorMsg('Por favor ingresa tu nombre completo');
             return;
         }
-        if (!form.email.trim() || !form.email.includes('@')) {
-            setErrorMsg('Ingresa un correo electrónico válido');
+
+        // Validación estricta de correo electrónico (patrón OCAPLUS)
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailRegex.test(String(form.email).trim().toLowerCase())) {
+            setErrorMsg('Por favor ingresa un correo electrónico válido (ej: usuario@dominio.com)');
             return;
         }
+
         if (form.password.length < 6) {
             setErrorMsg('La contraseña debe tener al menos 6 caracteres');
             return;
@@ -52,14 +78,26 @@ export default function Register() {
 
         setLoading(true);
         try {
-            await signUp({
+            const newUser = await signUp({
                 fullName: form.fullName.trim(),
                 phone: form.phone.trim(),
                 email: form.email.trim(),
                 password: form.password,
             });
-            toastSuccess('¡Cuenta creada con éxito! Bienvenido.');
-            navigate(redirectUrl, { replace: true });
+
+            if (newUser?.needsConfirmation) {
+                await Swal.fire({
+                    title: '¡Cuenta creada!',
+                    text: 'Te enviamos un enlace de confirmación a tu correo. Por favor revisa tu bandeja de entrada o spam para activar tu cuenta.',
+                    icon: 'success',
+                    confirmButtonText: 'Ir a Iniciar Sesión',
+                    confirmButtonColor: '#660F12',
+                });
+                navigate('/login');
+            } else {
+                toastSuccess('¡Cuenta creada con éxito! Bienvenido a CANRES Viandes.');
+                navigate(redirectUrl, { replace: true });
+            }
         } catch (err) {
             const msg = err.message || 'No pudimos crear tu cuenta';
             setErrorMsg(msg);
@@ -87,7 +125,27 @@ export default function Register() {
                     </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+                {/* Botón Registrarse con Google (Estilo OCAPLUS) */}
+                <div className="mt-8">
+                    <button
+                        type="button"
+                        onClick={handleGoogleAuth}
+                        disabled={loading || googleLoading}
+                        className="w-full flex items-center justify-center gap-3 bg-white hover:bg-cream/40 text-ink font-semibold py-3.5 px-4 border border-taupe/30 shadow-sm transition-all hover:shadow hover:border-brand-wine/50 disabled:opacity-50 text-xs uppercase tracking-wider"
+                    >
+                        <GoogleIcon className="w-5 h-5 shrink-0" />
+                        <span>{googleLoading ? 'Conectando con Google…' : 'Registrarse con Google'}</span>
+                    </button>
+                </div>
+
+                <div className="relative my-6 flex items-center justify-center">
+                    <div className="border-t border-taupe/20 w-full" />
+                    <span className="bg-white px-3 text-[10px] text-taupe font-bold uppercase tracking-wider absolute">
+                        o con correo
+                    </span>
+                </div>
+
+                <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
                         <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.15em] text-ink/70">
                             Nombre completo *
@@ -200,7 +258,7 @@ export default function Register() {
 
                     <button
                         type="submit"
-                        disabled={loading}
+                        disabled={loading || googleLoading}
                         className="btn-dark mt-2 w-full py-4 text-xs"
                     >
                         {loading ? 'Creando cuenta…' : 'Crear mi cuenta'}
@@ -212,7 +270,7 @@ export default function Register() {
                         ¿Ya tienes una cuenta?{' '}
                         <Link
                             to={`/login${redirectUrl !== '/cuenta' ? `?redirect=${encodeURIComponent(redirectUrl)}` : ''}`}
-                            className="font-medium text-ink underline transition hover:text-gold"
+                            className="font-medium text-ink underline transition hover:text-brand-wine"
                         >
                             Inicia sesión aquí
                         </Link>
