@@ -46,7 +46,7 @@ class ErrorBoundary extends Component {
     }
 
     componentDidCatch(error, info) {
-        console.error('[Aroma Premium ErrorBoundary]:', error, info);
+        console.error('[CANRES Viandes ErrorBoundary]:', error, info);
     }
 
     render() {

@@ -44,7 +44,7 @@ export default function Login() {
             <div className="w-full max-w-md border border-taupe/20 bg-white/80 p-8 shadow-luxe backdrop-blur sm:p-10">
                 <div className="text-center">
                     <Logo compact className="inline-block" />
-                    <p className="eyebrow mt-4 text-taupe">Bienvenido a Aroma Premium</p>
+                    <p className="eyebrow mt-4 text-taupe">Bienvenido a CANRES Viandes</p>
                     <h1 className="mt-2 text-3xl font-normal text-ink sm:text-4xl">Iniciar sesión</h1>
                     {redirectUrl.includes('checkout') && (
                         <p className="mt-3 rounded bg-gold/15 p-2.5 text-xs text-ink">

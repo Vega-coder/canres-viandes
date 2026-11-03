@@ -35,7 +35,7 @@ export default function ProductCard({ product }) {
 
                 {/* Badges superiores */}
                 <div className="pointer-events-none absolute left-2.5 top-2.5 flex flex-col gap-1">
-                    {product.brand.includes('AAA') && (
+                    {product.brand?.includes('AAA') && (
                         <span className="bg-brand-wine px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white rounded">
                             Grado AAA
                         </span>
