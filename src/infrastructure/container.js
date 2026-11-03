@@ -2,6 +2,7 @@
 // y se inyectan en los casos de uso. La UI solo importa `useCases` / `adminUseCases` desde aquí.
 import { supabase, isSupabaseConfigured } from './supabase/client.js';
 import { createInMemoryProductRepository } from './repositories/inMemoryProductRepository.js';
+import { SEED_PRODUCTS } from './data/seedProducts.js';
 import { createLocalOrderRepository } from './repositories/localOrderRepository.js';
 import { createSupabaseProductRepository } from './repositories/supabaseProductRepository.js';
 import { createSupabaseOrderRepository } from './repositories/supabaseOrderRepository.js';
@@ -64,7 +65,7 @@ if (isDemoMode) {
 }
 
 const productRepository = isDemoMode
-    ? createInMemoryProductRepository([], globalThis.localStorage)
+    ? createInMemoryProductRepository(SEED_PRODUCTS, globalThis.localStorage)
     : createSupabaseProductRepository(supabase);
 
 let generateShippingGuideFn;

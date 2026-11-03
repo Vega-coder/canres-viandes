@@ -3,13 +3,13 @@ import { CATEGORIES } from '@/domain/catalog/categories.js';
 import SectionHeading from '@/presentation/components/ui/SectionHeading.jsx';
 
 const CATEGORY_IMAGES = {
-    res: 'https://images.unsplash.com/photo-1603048588665-791ca8aea617?auto=format&fit=crop&w=400&q=80',
-    cerdo: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=400&q=80',
-    pollo: 'https://images.unsplash.com/photo-1604503468506-a8da13d82791?auto=format&fit=crop&w=400&q=80',
-    chivo: 'https://images.unsplash.com/photo-1514944298352-fa545b78f4a1?auto=format&fit=crop&w=400&q=80',
-    chorizos: 'https://images.unsplash.com/photo-1587593810167-a84920ea0781?auto=format&fit=crop&w=400&q=80',
-    canales: 'https://images.unsplash.com/photo-1547496502-affa22d38842?auto=format&fit=crop&w=400&q=80',
-    personalizados: 'https://images.unsplash.com/photo-1587593810167-a84920ea0781?auto=format&fit=crop&w=400&q=80',
+    res: '/images/meat/meat_beef_cut.jpg',
+    cerdo: '/images/meat/ribs.jpg',
+    pollo: '/images/meat/butcher.jpg',
+    chivo: '/images/meat/meat_steak_raw.jpg',
+    chorizos: '/images/meat/chorizos.jpg',
+    canales: '/images/meat/meat_steak_raw.jpg',
+    personalizados: '/images/meat/chorizos.jpg',
 };
 
 export default function CategoryCircles() {

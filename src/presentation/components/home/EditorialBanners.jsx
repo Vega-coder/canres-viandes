@@ -8,7 +8,7 @@ const BANNERS = [
         title: 'Cortes de Res AAA & Reservas Sterling',
         to: '/tienda/res',
         cta: 'Explorar Cortes de Res',
-        image: 'https://images.unsplash.com/photo-1603048588665-791ca8aea617?auto=format&fit=crop&w=600&q=80',
+        image: '/images/meat/meat_beef_cut.jpg',
         alt: 'Ribeye AAA y cortes premium',
     },
     {
@@ -17,7 +17,7 @@ const BANNERS = [
         title: 'Chorizos Personalizados a Medida',
         to: '/producto/chorizos-personalizados',
         cta: 'Crear mi receta (desde 16$/kg)',
-        image: 'https://images.unsplash.com/photo-1587593810167-a84920ea0781?auto=format&fit=crop&w=600&q=80',
+        image: '/images/meat/chorizos.jpg',
         alt: 'Chorizos artesanales personalizados',
     },
     {
@@ -26,7 +26,7 @@ const BANNERS = [
         title: 'Medias Canales & Cajas de Ahorro Familiar',
         to: '/tienda/canales',
         cta: 'Ver Precios Mayoristas',
-        image: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80',
+        image: '/images/meat/ribs.jpg',
         alt: 'Medias canales y cajas de carne',
     },
 ];

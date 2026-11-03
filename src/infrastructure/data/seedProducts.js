@@ -34,8 +34,8 @@ export const SEED_PRODUCTS = [
         "isFeatured": true,
         "isNew": false,
         "images": [
-            "https://images.unsplash.com/photo-1603048588665-791ca8aea617?auto=format&fit=crop&w=800&q=80",
-            "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80"
+            "/images/meat/meat_beef_cut.jpg",
+            "/images/meat/ribs.jpg"
         ]
     },
     {
@@ -69,7 +69,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": true,
         "isNew": false,
         "images": [
-            "https://images.unsplash.com/photo-1558030006-450675393462?auto=format&fit=crop&w=800&q=80"
+            "/images/meat/ribeye.jpg"
         ]
     },
     {
@@ -103,7 +103,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": true,
         "isNew": false,
         "images": [
-            "https://images.unsplash.com/photo-1558030006-450675393462?auto=format&fit=crop&w=800&q=80"
+            "/images/meat/ribeye.jpg"
         ]
     },
     {
@@ -137,7 +137,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": true,
         "isNew": true,
         "images": [
-            "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80"
+            "/images/meat/ribs.jpg"
         ]
     },
     {
@@ -171,7 +171,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "https://images.unsplash.com/photo-1547496502-affa22d38842?auto=format&fit=crop&w=800&q=80"
+            "/images/meat/meat_steak_raw.jpg"
         ]
     },
     {
@@ -205,7 +205,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": true,
         "isNew": false,
         "images": [
-            "https://images.unsplash.com/photo-1588168333986-5078d3ae3976?auto=format&fit=crop&w=800&q=80"
+            "/images/meat/steak.jpg"
         ]
     },
     {
@@ -239,7 +239,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "https://images.unsplash.com/photo-1588168333986-5078d3ae3976?auto=format&fit=crop&w=800&q=80"
+            "/images/meat/steak.jpg"
         ]
     },
     {
@@ -273,7 +273,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "https://images.unsplash.com/photo-1547496502-affa22d38842?auto=format&fit=crop&w=800&q=80"
+            "/images/meat/meat_steak_raw.jpg"
         ]
     },
     {
@@ -307,7 +307,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "https://images.unsplash.com/photo-1547496502-affa22d38842?auto=format&fit=crop&w=800&q=80"
+            "/images/meat/meat_steak_raw.jpg"
         ]
     },
     {
@@ -341,7 +341,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "https://images.unsplash.com/photo-1547496502-affa22d38842?auto=format&fit=crop&w=800&q=80"
+            "/images/meat/meat_steak_raw.jpg"
         ]
     },
     {
@@ -374,7 +374,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "https://images.unsplash.com/photo-1547496502-affa22d38842?auto=format&fit=crop&w=800&q=80"
+            "/images/meat/meat_steak_raw.jpg"
         ]
     },
     {
@@ -408,7 +408,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "https://images.unsplash.com/photo-1547496502-affa22d38842?auto=format&fit=crop&w=800&q=80"
+            "/images/meat/meat_steak_raw.jpg"
         ]
     },
     {
@@ -442,7 +442,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": true,
         "isNew": false,
         "images": [
-            "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80"
+            "/images/meat/ribs.jpg"
         ]
     },
     {
@@ -476,7 +476,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": true,
         "isNew": false,
         "images": [
-            "https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?auto=format&fit=crop&w=800&q=80"
+            "/images/meat/porkbelly.jpg"
         ]
     },
     {
@@ -510,7 +510,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?auto=format&fit=crop&w=800&q=80"
+            "/images/meat/porkbelly.jpg"
         ]
     },
     {
@@ -544,7 +544,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?auto=format&fit=crop&w=800&q=80"
+            "/images/meat/porkbelly.jpg"
         ]
     },
     {
@@ -578,7 +578,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?auto=format&fit=crop&w=800&q=80"
+            "/images/meat/porkbelly.jpg"
         ]
     },
     {
@@ -612,7 +612,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80"
+            "/images/meat/ribs.jpg"
         ]
     },
     {
@@ -646,7 +646,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": true,
         "isNew": false,
         "images": [
-            "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80"
+            "/images/meat/ribs.jpg"
         ]
     },
     {
@@ -680,7 +680,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?auto=format&fit=crop&w=800&q=80"
+            "/images/meat/porkbelly.jpg"
         ]
     },
     {
@@ -714,7 +714,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": true,
         "isNew": false,
         "images": [
-            "https://images.unsplash.com/photo-1604503468506-a8da13d82791?auto=format&fit=crop&w=800&q=80"
+            "/images/meat/butcher.jpg"
         ]
     },
     {
@@ -748,7 +748,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": true,
         "isNew": false,
         "images": [
-            "https://images.unsplash.com/photo-1527477396000-e27163b481c2?auto=format&fit=crop&w=800&q=80"
+            "/images/meat/butcher.jpg"
         ]
     },
     {
@@ -782,7 +782,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "https://images.unsplash.com/photo-1604503468506-a8da13d82791?auto=format&fit=crop&w=800&q=80"
+            "/images/meat/butcher.jpg"
         ]
     },
     {
@@ -816,7 +816,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "https://images.unsplash.com/photo-1604503468506-a8da13d82791?auto=format&fit=crop&w=800&q=80"
+            "/images/meat/butcher.jpg"
         ]
     },
     {
@@ -850,7 +850,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "https://images.unsplash.com/photo-1604503468506-a8da13d82791?auto=format&fit=crop&w=800&q=80"
+            "/images/meat/butcher.jpg"
         ]
     },
     {
@@ -884,7 +884,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": true,
         "isNew": false,
         "images": [
-            "https://images.unsplash.com/photo-1514944298352-fa545b78f4a1?auto=format&fit=crop&w=800&q=80"
+            "/images/meat/meat_steak_raw.jpg"
         ]
     },
     {
@@ -918,7 +918,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "https://images.unsplash.com/photo-1514944298352-fa545b78f4a1?auto=format&fit=crop&w=800&q=80"
+            "/images/meat/meat_steak_raw.jpg"
         ]
     },
     {
@@ -952,7 +952,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "https://images.unsplash.com/photo-1514944298352-fa545b78f4a1?auto=format&fit=crop&w=800&q=80"
+            "/images/meat/meat_steak_raw.jpg"
         ]
     },
     {
@@ -986,7 +986,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": true,
         "isNew": false,
         "images": [
-            "https://images.unsplash.com/photo-1587593810167-a84920ea0781?auto=format&fit=crop&w=800&q=80"
+            "/images/meat/chorizos.jpg"
         ]
     },
     {
@@ -1020,7 +1020,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": true,
         "isNew": true,
         "images": [
-            "https://images.unsplash.com/photo-1587593810167-a84920ea0781?auto=format&fit=crop&w=800&q=80"
+            "/images/meat/chorizos.jpg"
         ]
     },
     {
@@ -1054,7 +1054,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "https://images.unsplash.com/photo-1587593810167-a84920ea0781?auto=format&fit=crop&w=800&q=80"
+            "/images/meat/chorizos.jpg"
         ]
     },
     {
@@ -1088,7 +1088,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "https://images.unsplash.com/photo-1587593810167-a84920ea0781?auto=format&fit=crop&w=800&q=80"
+            "/images/meat/chorizos.jpg"
         ]
     },
     {
@@ -1122,7 +1122,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": true,
         "isNew": false,
         "images": [
-            "https://images.unsplash.com/photo-1587593810167-a84920ea0781?auto=format&fit=crop&w=800&q=80"
+            "/images/meat/chorizos.jpg"
         ]
     },
     {
@@ -1155,7 +1155,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": true,
         "isNew": false,
         "images": [
-            "https://images.unsplash.com/photo-1587593810167-a84920ea0781?auto=format&fit=crop&w=800&q=80"
+            "/images/meat/chorizos.jpg"
         ]
     },
     {
@@ -1189,7 +1189,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": true,
         "isNew": false,
         "images": [
-            "https://images.unsplash.com/photo-1587593810167-a84920ea0781?auto=format&fit=crop&w=800&q=80"
+            "/images/meat/chorizos.jpg"
         ]
     },
     {
@@ -1223,7 +1223,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "https://images.unsplash.com/photo-1587593810167-a84920ea0781?auto=format&fit=crop&w=800&q=80"
+            "/images/meat/chorizos.jpg"
         ]
     },
     {
@@ -1257,7 +1257,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "https://images.unsplash.com/photo-1587593810167-a84920ea0781?auto=format&fit=crop&w=800&q=80"
+            "/images/meat/chorizos.jpg"
         ]
     },
     {
@@ -1291,7 +1291,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": true,
         "isNew": false,
         "images": [
-            "https://images.unsplash.com/photo-1587593810167-a84920ea0781?auto=format&fit=crop&w=800&q=80"
+            "/images/meat/chorizos.jpg"
         ]
     },
     {
@@ -1324,7 +1324,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": true,
         "isNew": true,
         "images": [
-            "https://images.unsplash.com/photo-1587593810167-a84920ea0781?auto=format&fit=crop&w=800&q=80"
+            "/images/meat/chorizos.jpg"
         ]
     },
     {
@@ -1358,7 +1358,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "https://images.unsplash.com/photo-1547496502-affa22d38842?auto=format&fit=crop&w=800&q=80"
+            "/images/meat/meat_steak_raw.jpg"
         ]
     },
     {
@@ -1391,7 +1391,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "https://images.unsplash.com/photo-1547496502-affa22d38842?auto=format&fit=crop&w=800&q=80"
+            "/images/meat/meat_steak_raw.jpg"
         ]
     },
     {
@@ -1423,7 +1423,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "https://images.unsplash.com/photo-1547496502-affa22d38842?auto=format&fit=crop&w=800&q=80"
+            "/images/meat/meat_steak_raw.jpg"
         ]
     },
     {
@@ -1455,7 +1455,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "https://images.unsplash.com/photo-1547496502-affa22d38842?auto=format&fit=crop&w=800&q=80"
+            "/images/meat/meat_steak_raw.jpg"
         ]
     },
     {
@@ -1489,7 +1489,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": true,
         "isNew": false,
         "images": [
-            "https://images.unsplash.com/photo-1547496502-affa22d38842?auto=format&fit=crop&w=800&q=80"
+            "/images/meat/meat_steak_raw.jpg"
         ]
     }
 ];

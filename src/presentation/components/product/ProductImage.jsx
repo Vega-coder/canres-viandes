@@ -11,7 +11,7 @@ export default function ProductImage({ product, className = '' }) {
                     className="h-full w-full object-cover transition duration-300"
                     onError={(e) => {
                         e.target.onerror = null;
-                        e.target.src = 'https://images.unsplash.com/photo-1603048588665-791ca8aea617?auto=format&fit=crop&w=800&q=80';
+                        e.target.src = '/images/meat/meat_beef_cut.jpg';
                     }}
                 />
             ) : (
