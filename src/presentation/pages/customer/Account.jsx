@@ -98,7 +98,7 @@ export default function Account() {
                     <div className="mt-8 flex flex-col items-center justify-center rounded border border-dashed border-taupe/30 py-16 text-center">
                         <HiOutlineShoppingBag className="h-12 w-12 text-taupe/50" />
                         <p className="mt-4 font-display text-xl">Aún no tienes pedidos registrados</p>
-                        <p className="mt-1 text-xs text-taupe">Explora nuestro catálogo de perfumería árabe original.</p>
+                        <p className="mt-1 text-xs text-taupe">Explora nuestro catálogo de cortes nobles y charcutería artesanal.</p>
                         <Link to="/tienda" className="btn-dark mt-6 text-xs">
                             Ir a la tienda
                         </Link>

@@ -106,7 +106,7 @@ export default function ResetPassword() {
                                 to="/tienda"
                                 className="block text-center text-xs text-taupe underline hover:text-ink transition"
                             >
-                                Ir al catálogo de fragancias
+                                Ir al catálogo de carnes y embutidos
                             </Link>
                         </div>
                     </div>

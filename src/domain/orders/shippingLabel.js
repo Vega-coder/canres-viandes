@@ -280,7 +280,7 @@ export function buildShippingLabelHtml({ order, shippingData, sender }) {
                 </div>
             </div>
             <div style="font-size: 10px; margin-top: 4px;">
-                <strong>Contenido:</strong> ${specs.content || 'Fragancias y perfumería'}
+                <strong>Contenido:</strong> ${specs.content || 'Cortes cárnicos y charcutería refrigerada'}
             </div>
             <div class="fragile-banner">
                 ⚠️ FRÁGIL · CONTIENE LÍQUIDOS EN FRASCO DE VIDRIO · NO GOLPEAR

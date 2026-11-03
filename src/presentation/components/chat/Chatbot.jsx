@@ -4,19 +4,19 @@ import { FaWhatsapp, FaCrown } from 'react-icons/fa6';
 import { useCases, STORE_WHATSAPP } from '@/infrastructure/container.js';
 import ChatMarkdown from './ChatMarkdown.jsx';
 
-const STORAGE_KEY = 'ap_chatbot_history_v2';
+const STORAGE_KEY = 'canres_chatbot_history_v1';
 
 const SUGGESTIONS = [
-    { label: '🍫 Perfumes dulces y cálidos para cita', query: '¿Cuáles son los mejores perfumes dulces y cálidos para una cita o noche romántica?' },
-    { label: '🍋 Perfumes frescos / cítricos para el día', query: 'Recomiéndame perfumes árabes frescos y cítricos ideales para el uso diario y clima cálido.' },
-    { label: '👑 Los más vendidos para hombre', query: '¿Cuáles son los perfumes más vendidos y con más cumplidos para hombre?' },
-    { label: '🌹 Fragancias femeninas más elogiadas', query: '¿Cuáles son las mejores opciones de perfumes para mujer con excelente fijación?' },
-    { label: '📦 ¿Cómo funcionan los envíos y pagos?', query: '¿Cómo funcionan los envíos en Colombia, cuánto tardan y qué medios de pago aceptan?' },
+    { label: '🥩 ¿Cuál es el mejor corte para asar?', query: '¿Qué corte me recomiendas para hacer un asado a la parrilla con amigos?' },
+    { label: '🌭 Chorizos artesanales de la casa', query: '¿Qué variedades de chorizos artesanales tienen y cómo prepararlos?' },
+    { label: '📦 Precios de mayoreo y medias canales', query: '¿Cómo funciona la venta de medias canales y pedidos al por mayor?' },
+    { label: '🇨🇴 Sabor tradicional colombiano', query: '¿Qué cortes tienen para preparar sobrebarriga criolla o sancocho?' },
+    { label: '🚚 Envíos, empaque al vacío y pedidos', query: '¿Cómo despachan los productos frescos y cómo puedo ordenar por WhatsApp?' },
 ];
 
 const INITIAL_WELCOME = {
     role: 'assistant',
-    content: '¡Hola! Soy tu **Asesor Sommelier de Aroma Premium**. ✨\n\nEstoy aquí para guiarte en el fascinante mundo de la perfumería árabe (Lattafa, Afnan, Armaf, Maison y más). ¿Buscas una fragancia para ti, una ocasión especial o un regalo inolvidable?',
+    content: '¡Bienvenido a **CANRES Viandes**! 🥩✨\n\nSoy tu **Maestro Carnicero Virtual**. La perfecta alianza entre la tradición colombiana y el savoir-faire québécois. ¿Buscas un corte noble para la parrilla, chorizos artesanales de autor o asesoría para pedidos por mayor?',
     time: 'Ahora',
 };
 
@@ -117,8 +117,8 @@ export default function Chatbot() {
                         type="button"
                         onClick={() => setIsOpen(true)}
                         className="group flex items-center gap-2 rounded-full bg-gradient-to-r from-ink via-ink-light to-ink p-1.5 sm:py-2 sm:pl-3 sm:pr-4 text-gold shadow-luxe ring-1 ring-gold/40 transition-all duration-300 hover:scale-105 hover:ring-gold"
-                        aria-label="Abrir Asesor Virtual IA de Perfumería"
-                        title="Asesor Virtual de Perfumería Aroma Premium"
+                        aria-label="Abrir Asesor Carnicero IA"
+                        title="Asesor Experto CANRES Viandes"
                     >
                         <div className="relative flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-gold/15 text-gold transition group-hover:bg-gold group-hover:text-ink">
                             <HiSparkles className="h-4 w-4 sm:h-5 sm:w-5 animate-pulse text-gold group-hover:text-ink" />
@@ -129,10 +129,10 @@ export default function Chatbot() {
                         </div>
                         <div className="flex flex-col text-left leading-tight pr-1.5 sm:pr-0">
                             <span className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-gold">
-                                <FaCrown className="h-2 w-2" /> Asesor IA
+                                <FaCrown className="h-2 w-2" /> Asesor Carnicero
                             </span>
                             <span className="hidden sm:block text-[11px] font-medium text-cream-light">
-                                ¿Qué perfume buscas?
+                                ¿Qué corte buscas?
                             </span>
                         </div>
                     </button>
@@ -144,7 +144,7 @@ export default function Chatbot() {
                 <div
                     role="dialog"
                     aria-modal="true"
-                    aria-label="Chat con Asesor Virtual Aroma Premium"
+                    aria-label="Chat con Asesor Virtual CANRES Viandes"
                     className="fixed inset-x-3 bottom-3 top-20 z-50 flex flex-col overflow-hidden rounded-2xl border border-gold/40 bg-cream-light shadow-2xl backdrop-blur-md transition-all duration-300 sm:inset-auto sm:bottom-5 sm:left-5 sm:h-[580px] sm:w-[410px] sm:max-h-[85vh]"
                 >
                     {/* Encabezado de Lujo */}
@@ -157,14 +157,14 @@ export default function Chatbot() {
                             <div>
                                 <div className="flex items-center gap-2">
                                     <h3 className="font-display text-sm font-bold uppercase tracking-wider text-white">
-                                        Asesor Aroma Premium
+                                        Asesor CANRES Viandes
                                     </h3>
                                     <span className="rounded-full bg-gold/20 px-1.5 py-0.2 text-[9px] font-semibold tracking-wider text-gold uppercase">
-                                        IA Groq
+                                        IA Carnicero
                                     </span>
                                 </div>
                                 <p className="text-[11px] text-cream/70">
-                                    En línea · Sommelier de Perfumería
+                                    En línea · Maestro Carnicero
                                 </p>
                             </div>
                         </div>
@@ -289,7 +289,7 @@ export default function Chatbot() {
                                 type="text"
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
-                                placeholder="Escribe tu consulta sobre perfumes..."
+                                placeholder="Escribe tu consulta sobre cortes, maduración, recetas..."
                                 disabled={loading}
                                 className="flex-1 rounded-full border border-taupe/30 bg-cream-light/40 px-4 py-2.5 text-xs text-ink placeholder:text-taupe focus:border-gold focus:bg-white focus:outline-none focus:ring-1 focus:ring-gold sm:text-sm"
                             />

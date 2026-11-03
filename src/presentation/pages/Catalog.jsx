@@ -63,7 +63,7 @@ export default function Catalog() {
     if (query) {
         title = `Resultados para “${query}”`;
     } else if (aromaInfo) {
-        title = `Perfumes ${aromaInfo.name}`;
+        title = `Cortes para ${aromaInfo.name}`;
         subtitle = aromaInfo.description;
     } else if (categoryInfo) {
         title = categoryInfo.label;
@@ -72,7 +72,7 @@ export default function Catalog() {
     return (
         <div className="container-luxe py-12">
             <header className="mb-10 border-b border-taupe/15 pb-8 text-center">
-                <p className="eyebrow text-taupe">{aromaInfo ? 'Familia Olfativa' : 'Tienda'}</p>
+                <p className="eyebrow text-taupe">{aromaInfo ? 'Estilo & Método' : 'Carnicería'}</p>
                 <h1 className="mt-3 text-4xl sm:text-5xl">{title}</h1>
                 {subtitle && <p className="mx-auto mt-3 max-w-xl text-sm text-taupe">{subtitle}</p>}
                 {aromaInfo && (

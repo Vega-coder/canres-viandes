@@ -213,10 +213,10 @@ export default function ProductReviews({ product }) {
                                         <span className="text-[11px] text-taupe">Clientes registrados</span>
                                     </div>
                                     <h3 className="mt-1.5 font-display text-lg font-bold text-ink">
-                                        Inicia sesión para opinar y puntuar este perfume
+                                        Inicia sesión para opinar y puntuar este corte
                                     </h3>
                                     <p className="mt-1 text-xs text-taupe leading-relaxed max-w-xl">
-                                        Para garantizar la veracidad de las opiniones y evitar spam, sólo los clientes registrados pueden comentar y calificar fragancias.
+                                        Para garantizar la veracidad de las opiniones y evitar spam, sólo los clientes registrados pueden comentar y calificar nuestros productos.
                                     </p>
                                 </div>
                             </div>
@@ -252,7 +252,7 @@ export default function ProductReviews({ product }) {
                     <div className="mt-8 rounded-2xl border border-gold/40 bg-cream-light/40 p-6 sm:p-8 animate-fade-up shadow-sm">
                         <div className="flex items-center justify-between border-b border-taupe/15 pb-4">
                             <div>
-                                <h3 className="font-display text-lg font-bold text-ink">Tu valoración de este perfume</h3>
+                                <h3 className="font-display text-lg font-bold text-ink">Tu valoración de este corte</h3>
                                 <p className="mt-0.5 text-xs text-taupe flex items-center gap-1.5">
                                     <HiCheckBadge className="h-4 w-4 text-emerald-600" />
                                     <span>Publicando como <strong className="text-ink">{user?.fullName || user?.email}</strong></span>
@@ -459,10 +459,10 @@ export default function ProductReviews({ product }) {
                             <HiOutlineChatBubbleBottomCenterText className="h-7 w-7" />
                         </div>
                         <h4 className="mt-4 font-display text-lg font-bold text-ink">
-                            Aún no hay reseñas para este perfume
+                            Aún no hay reseñas para este corte
                         </h4>
                         <p className="mx-auto mt-2 max-w-md text-xs leading-relaxed text-taupe">
-                            ¿Has tenido la oportunidad de probar {product.name}? Sé el primero en compartir tu experiencia y ayudar a otros amantes de la perfumería árabe.
+                            ¿Has tenido la oportunidad de degustar {product.name}? Sé el primero en compartir tu experiencia y ayudar a otros amantes de la buena carne artesanal.
                         </p>
                         {isAuthenticated ? (
                             <button

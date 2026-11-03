@@ -126,7 +126,7 @@ export const createProduct = (raw = {}) => {
         cookingMethods,
         images: Array.isArray(raw.images) && raw.images.length > 0
             ? raw.images.filter(Boolean)
-            : ['https://images.unsplash.com/photo-1603048588665-791ca8aea617?auto=format&fit=crop&w=800&q=80'],
+            : ['/images/meat/meat_beef_cut.jpg'],
         palette: { ...DEFAULT_PALETTE, ...(raw.palette ?? {}) },
         isNew: Boolean(raw.isNew ?? raw.is_new),
         isFeatured: Boolean(raw.isFeatured ?? raw.is_featured),

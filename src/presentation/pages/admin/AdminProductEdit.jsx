@@ -10,7 +10,7 @@ import ProductForm from '@/presentation/components/admin/ProductForm.jsx';
 import { PageHeader } from '@/presentation/components/admin/AdminUi.jsx';
 
 const EMPTY = {
-    name: '', brand: '', description: '', gender: 'unisex', type: 'fragancia', concentration: 'edp', volumeMl: '100',
+    name: '', brand: '', description: '', gender: 'res', type: 'corte', unit: 'kg', concentration: null, volumeMl: null,
     price: '', discountPercent: '0', stock: '0',
     hasFreeShipping: false, shippingCost: '',
     aromas: [],

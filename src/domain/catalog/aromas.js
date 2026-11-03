@@ -7,7 +7,7 @@ export const AROMAS = Object.freeze([
         title: 'PARRILLA & BRASA',
         tag: 'Carbón, Leña & Marmoleo',
         description: 'Cortes seleccionados para el fuego directo: Ribeye, New York, Picaña Sterling y costillares jugosos.',
-        image: 'https://images.unsplash.com/photo-1603048588665-791ca8aea617?auto=format&fit=crop&w=600&q=80',
+        image: '/images/meat/meat_beef_cut.jpg',
         keywords: ['parrilla', 'brasa', 'asador', 'rib eye', 'picaña', 'picanha', 'carbón'],
     },
     {
