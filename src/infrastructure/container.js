@@ -13,7 +13,7 @@ import { createShippingGateway } from './gateways/shippingGateway.js';
 import { createGroqGateway } from './gateways/groqGateway.js';
 import { buildCatalogSummary } from '@/domain/catalog/catalogSummary.js';
 import { createSupabaseAuthGateway, createDemoAuthGateway } from './gateways/authGateways.js';
-import { createSupabaseImageStorage, createDataUrlImageStorage } from './gateways/imageStorage.js';
+import { createCloudinaryImageStorage, createSupabaseImageStorage, createDataUrlImageStorage } from './gateways/imageStorage.js';
 import {
     makeBrowseCatalog, makeGetProductDetail, makeGetHomeShowcase,
     makeGetBrandsCatalog, makeGetBrandDetail,
@@ -114,7 +114,12 @@ const handleUpdateWompiPayment = async (code, transactionId, status) => {
 
 const authGateway = isDemoMode ? createDemoAuthGateway(DEMO_ADMIN) : createSupabaseAuthGateway(supabase);
 
-const imageStorage = isDemoMode ? createDataUrlImageStorage() : createSupabaseImageStorage(supabase);
+const cloudinaryCloudName = env.VITE_CLOUDINARY_CLOUD_NAME || 'v3zsy3cm';
+const cloudinaryPreset = env.VITE_CLOUDINARY_UPLOAD_PRESET || 'canres_preset';
+
+const imageStorage = cloudinaryCloudName
+    ? createCloudinaryImageStorage({ cloudName: cloudinaryCloudName, uploadPreset: cloudinaryPreset })
+    : (isDemoMode ? createDataUrlImageStorage() : createSupabaseImageStorage(supabase));
 
 const reviewRepository = createSupabaseReviewRepository(supabase);
 const submitProductReview = makeSubmitProductReview({ reviewRepository, authGateway });

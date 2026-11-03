@@ -2,7 +2,9 @@ import { useRef, useState } from 'react';
 import { HiOutlinePhoto, HiOutlineXMark, HiOutlineArrowUpTray } from 'react-icons/hi2';
 import { adminUseCases } from '@/infrastructure/container.js';
 
-// Lista de imágenes del producto: subir archivos, pegar una URL, quitar y elegir la principal.
+const isVideo = (url = '') => /\.(mp4|webm|mov|ogg)(\?.*)?$/i.test(url) || url.includes('/video/upload/');
+
+// Lista de imágenes y videos del producto: subir archivos a Cloudinary, pegar URL, quitar y elegir el principal.
 export default function ImageUploader({ images, onChange }) {
     const fileRef = useRef(null);
     const [uploading, setUploading] = useState(false);
@@ -42,7 +44,11 @@ export default function ImageUploader({ images, onChange }) {
             <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
                 {images.map((src, i) => (
                     <div key={`${i}-${src.slice(-24)}`} className="group relative aspect-square overflow-hidden bg-cream ring-1 ring-taupe/15">
-                        <img src={src} alt={`Imagen ${i + 1}`} className="h-full w-full object-cover" />
+                        {isVideo(src) ? (
+                            <video src={src} className="h-full w-full object-cover" muted autoPlay loop playsInline />
+                        ) : (
+                            <img src={src} alt={`Archivo ${i + 1}`} className="h-full w-full object-cover" />
+                        )}
                         {i === 0 ? (
                             <span className="absolute bottom-1 left-1 bg-ink px-1.5 py-0.5 text-[9px] uppercase tracking-wider text-gold">Principal</span>
                         ) : (
@@ -50,7 +56,7 @@ export default function ImageUploader({ images, onChange }) {
                                 Hacer principal
                             </button>
                         )}
-                        <button type="button" onClick={() => onChange(images.filter((_, j) => j !== i))} className="absolute right-1 top-1 bg-white/90 p-1 hover:text-red-800" aria-label={`Quitar imagen ${i + 1}`}>
+                        <button type="button" onClick={() => onChange(images.filter((_, j) => j !== i))} className="absolute right-1 top-1 bg-white/90 p-1 hover:text-red-800" aria-label={`Quitar ${i + 1}`}>
                             <HiOutlineXMark className="h-4 w-4" />
                         </button>
                     </div>
@@ -61,15 +67,15 @@ export default function ImageUploader({ images, onChange }) {
                     disabled={uploading}
                     className="flex aspect-square flex-col items-center justify-center gap-2 border border-dashed border-taupe/40 text-xs text-taupe hover:border-gold hover:text-gold-dark disabled:opacity-50"
                 >
-                    {uploading ? 'Subiendo…' : <><HiOutlineArrowUpTray className="h-6 w-6" /> Subir fotos</>}
+                    {uploading ? 'Subiendo a Cloudinary…' : <><HiOutlineArrowUpTray className="h-6 w-6" /> Subir fotos / videos</>}
                 </button>
             </div>
-            <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={(e) => handleFiles([...e.target.files])} />
+            <input ref={fileRef} type="file" accept="image/*,video/*" multiple className="hidden" onChange={(e) => handleFiles([...e.target.files])} />
 
             <div className="mt-3 flex gap-2">
                 <div className="relative flex-1">
                     <HiOutlinePhoto className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-taupe" />
-                    <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="…o pega la URL de una imagen" className="input py-2 pl-9 text-xs" />
+                    <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="…o pega la URL de una foto o video" className="input py-2 pl-9 text-xs" />
                 </div>
                 <button type="button" onClick={addUrl} className="btn-outline px-4 py-2">Agregar</button>
             </div>
