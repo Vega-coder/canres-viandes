@@ -126,7 +126,7 @@ export const createProduct = (raw = {}) => {
         cookingMethods,
         images: Array.isArray(raw.images) && raw.images.length > 0
             ? raw.images.filter(Boolean)
-            : ['/images/meat/meat_beef_cut.jpg'],
+            : ['https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739782/canres-viandes/meat_beef_cut.jpg'],
         palette: { ...DEFAULT_PALETTE, ...(raw.palette ?? {}) },
         isNew: Boolean(raw.isNew ?? raw.is_new),
         isFeatured: Boolean(raw.isFeatured ?? raw.is_featured),

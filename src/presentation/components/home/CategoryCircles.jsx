@@ -3,13 +3,13 @@ import { CATEGORIES } from '@/domain/catalog/categories.js';
 import SectionHeading from '@/presentation/components/ui/SectionHeading.jsx';
 
 const CATEGORY_IMAGES = {
-    res: '/images/meat/meat_beef_cut.jpg',
-    cerdo: '/images/meat/ribs.jpg',
-    pollo: '/images/meat/butcher.jpg',
-    chivo: '/images/meat/meat_steak_raw.jpg',
-    chorizos: '/images/meat/chorizos.jpg',
-    canales: '/images/meat/meat_steak_raw.jpg',
-    personalizados: '/images/meat/chorizos.jpg',
+    res: 'https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739782/canres-viandes/meat_beef_cut.jpg',
+    cerdo: 'https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739785/canres-viandes/ribs.jpg',
+    pollo: 'https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739781/canres-viandes/butcher.jpg',
+    chivo: 'https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739783/canres-viandes/meat_steak_raw.jpg',
+    chorizos: 'https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739782/canres-viandes/chorizos.jpg',
+    canales: 'https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739783/canres-viandes/meat_steak_raw.jpg',
+    personalizados: 'https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739782/canres-viandes/chorizos.jpg',
 };
 
 export default function CategoryCircles() {

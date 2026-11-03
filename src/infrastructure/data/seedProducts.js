@@ -34,8 +34,8 @@ export const SEED_PRODUCTS = [
         "isFeatured": true,
         "isNew": false,
         "images": [
-            "/images/meat/meat_beef_cut.jpg",
-            "/images/meat/ribs.jpg"
+            "https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739782/canres-viandes/meat_beef_cut.jpg",
+            "https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739785/canres-viandes/ribs.jpg"
         ]
     },
     {
@@ -69,7 +69,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": true,
         "isNew": false,
         "images": [
-            "/images/meat/ribeye.jpg"
+            "https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739785/canres-viandes/ribeye.jpg"
         ]
     },
     {
@@ -103,7 +103,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": true,
         "isNew": false,
         "images": [
-            "/images/meat/ribeye.jpg"
+            "https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739785/canres-viandes/ribeye.jpg"
         ]
     },
     {
@@ -137,7 +137,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": true,
         "isNew": true,
         "images": [
-            "/images/meat/ribs.jpg"
+            "https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739785/canres-viandes/ribs.jpg"
         ]
     },
     {
@@ -171,7 +171,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "/images/meat/meat_steak_raw.jpg"
+            "https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739783/canres-viandes/meat_steak_raw.jpg"
         ]
     },
     {
@@ -205,7 +205,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": true,
         "isNew": false,
         "images": [
-            "/images/meat/steak.jpg"
+            "https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739786/canres-viandes/steak.jpg"
         ]
     },
     {
@@ -239,7 +239,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "/images/meat/steak.jpg"
+            "https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739786/canres-viandes/steak.jpg"
         ]
     },
     {
@@ -273,7 +273,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "/images/meat/meat_steak_raw.jpg"
+            "https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739783/canres-viandes/meat_steak_raw.jpg"
         ]
     },
     {
@@ -307,7 +307,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "/images/meat/meat_steak_raw.jpg"
+            "https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739783/canres-viandes/meat_steak_raw.jpg"
         ]
     },
     {
@@ -341,7 +341,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "/images/meat/meat_steak_raw.jpg"
+            "https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739783/canres-viandes/meat_steak_raw.jpg"
         ]
     },
     {
@@ -374,7 +374,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "/images/meat/meat_steak_raw.jpg"
+            "https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739783/canres-viandes/meat_steak_raw.jpg"
         ]
     },
     {
@@ -408,7 +408,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "/images/meat/meat_steak_raw.jpg"
+            "https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739783/canres-viandes/meat_steak_raw.jpg"
         ]
     },
     {
@@ -442,7 +442,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": true,
         "isNew": false,
         "images": [
-            "/images/meat/ribs.jpg"
+            "https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739785/canres-viandes/ribs.jpg"
         ]
     },
     {
@@ -476,7 +476,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": true,
         "isNew": false,
         "images": [
-            "/images/meat/porkbelly.jpg"
+            "https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739784/canres-viandes/porkbelly.jpg"
         ]
     },
     {
@@ -510,7 +510,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "/images/meat/porkbelly.jpg"
+            "https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739784/canres-viandes/porkbelly.jpg"
         ]
     },
     {
@@ -544,7 +544,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "/images/meat/porkbelly.jpg"
+            "https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739784/canres-viandes/porkbelly.jpg"
         ]
     },
     {
@@ -578,7 +578,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "/images/meat/porkbelly.jpg"
+            "https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739784/canres-viandes/porkbelly.jpg"
         ]
     },
     {
@@ -612,7 +612,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "/images/meat/ribs.jpg"
+            "https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739785/canres-viandes/ribs.jpg"
         ]
     },
     {
@@ -646,7 +646,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": true,
         "isNew": false,
         "images": [
-            "/images/meat/ribs.jpg"
+            "https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739785/canres-viandes/ribs.jpg"
         ]
     },
     {
@@ -680,7 +680,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "/images/meat/porkbelly.jpg"
+            "https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739784/canres-viandes/porkbelly.jpg"
         ]
     },
     {
@@ -714,7 +714,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": true,
         "isNew": false,
         "images": [
-            "/images/meat/butcher.jpg"
+            "https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739781/canres-viandes/butcher.jpg"
         ]
     },
     {
@@ -748,7 +748,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": true,
         "isNew": false,
         "images": [
-            "/images/meat/butcher.jpg"
+            "https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739781/canres-viandes/butcher.jpg"
         ]
     },
     {
@@ -782,7 +782,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "/images/meat/butcher.jpg"
+            "https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739781/canres-viandes/butcher.jpg"
         ]
     },
     {
@@ -816,7 +816,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "/images/meat/butcher.jpg"
+            "https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739781/canres-viandes/butcher.jpg"
         ]
     },
     {
@@ -850,7 +850,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "/images/meat/butcher.jpg"
+            "https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739781/canres-viandes/butcher.jpg"
         ]
     },
     {
@@ -884,7 +884,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": true,
         "isNew": false,
         "images": [
-            "/images/meat/meat_steak_raw.jpg"
+            "https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739783/canres-viandes/meat_steak_raw.jpg"
         ]
     },
     {
@@ -918,7 +918,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "/images/meat/meat_steak_raw.jpg"
+            "https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739783/canres-viandes/meat_steak_raw.jpg"
         ]
     },
     {
@@ -952,7 +952,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "/images/meat/meat_steak_raw.jpg"
+            "https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739783/canres-viandes/meat_steak_raw.jpg"
         ]
     },
     {
@@ -986,7 +986,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": true,
         "isNew": false,
         "images": [
-            "/images/meat/chorizos.jpg"
+            "https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739782/canres-viandes/chorizos.jpg"
         ]
     },
     {
@@ -1020,7 +1020,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": true,
         "isNew": true,
         "images": [
-            "/images/meat/chorizos.jpg"
+            "https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739782/canres-viandes/chorizos.jpg"
         ]
     },
     {
@@ -1054,7 +1054,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "/images/meat/chorizos.jpg"
+            "https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739782/canres-viandes/chorizos.jpg"
         ]
     },
     {
@@ -1088,7 +1088,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "/images/meat/chorizos.jpg"
+            "https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739782/canres-viandes/chorizos.jpg"
         ]
     },
     {
@@ -1122,7 +1122,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": true,
         "isNew": false,
         "images": [
-            "/images/meat/chorizos.jpg"
+            "https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739782/canres-viandes/chorizos.jpg"
         ]
     },
     {
@@ -1155,7 +1155,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": true,
         "isNew": false,
         "images": [
-            "/images/meat/chorizos.jpg"
+            "https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739782/canres-viandes/chorizos.jpg"
         ]
     },
     {
@@ -1189,7 +1189,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": true,
         "isNew": false,
         "images": [
-            "/images/meat/chorizos.jpg"
+            "https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739782/canres-viandes/chorizos.jpg"
         ]
     },
     {
@@ -1223,7 +1223,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "/images/meat/chorizos.jpg"
+            "https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739782/canres-viandes/chorizos.jpg"
         ]
     },
     {
@@ -1257,7 +1257,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "/images/meat/chorizos.jpg"
+            "https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739782/canres-viandes/chorizos.jpg"
         ]
     },
     {
@@ -1291,7 +1291,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": true,
         "isNew": false,
         "images": [
-            "/images/meat/chorizos.jpg"
+            "https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739782/canres-viandes/chorizos.jpg"
         ]
     },
     {
@@ -1324,7 +1324,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": true,
         "isNew": true,
         "images": [
-            "/images/meat/chorizos.jpg"
+            "https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739782/canres-viandes/chorizos.jpg"
         ]
     },
     {
@@ -1358,7 +1358,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "/images/meat/meat_steak_raw.jpg"
+            "https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739783/canres-viandes/meat_steak_raw.jpg"
         ]
     },
     {
@@ -1391,7 +1391,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "/images/meat/meat_steak_raw.jpg"
+            "https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739783/canres-viandes/meat_steak_raw.jpg"
         ]
     },
     {
@@ -1423,7 +1423,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "/images/meat/meat_steak_raw.jpg"
+            "https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739783/canres-viandes/meat_steak_raw.jpg"
         ]
     },
     {
@@ -1455,7 +1455,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": false,
         "isNew": false,
         "images": [
-            "/images/meat/meat_steak_raw.jpg"
+            "https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739783/canres-viandes/meat_steak_raw.jpg"
         ]
     },
     {
@@ -1489,7 +1489,7 @@ export const SEED_PRODUCTS = [
         "isFeatured": true,
         "isNew": false,
         "images": [
-            "/images/meat/meat_steak_raw.jpg"
+            "https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739783/canres-viandes/meat_steak_raw.jpg"
         ]
     }
 ];
