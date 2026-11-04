@@ -14,7 +14,7 @@ import { getFinalPrice } from '@/domain/catalog/product.js';
  * }} deps
  */
 export const makePlaceOrder = ({ productRepository, orderRepository, notificationGateway, clock = () => new Date() }) =>
-    async ({ items, customer, paymentMethod }) => {
+    async ({ items, customer, paymentMethod, user = null, isVip = false }) => {
         const products = await productRepository.findByIds(items.map((i) => i.productId));
         const byId = new Map(products.map((p) => [p.id, p]));
 
@@ -30,7 +30,14 @@ export const makePlaceOrder = ({ productRepository, orderRepository, notificatio
             };
         });
 
-        const order = buildOrder({ items: verifiedItems, customer, paymentMethod, now: clock() });
+        const order = buildOrder({
+            items: verifiedItems,
+            customer,
+            paymentMethod,
+            now: clock(),
+            user,
+            isVip: Boolean(isVip || user?.isVip),
+        });
         const saved = await orderRepository.save(order);
 
         return {

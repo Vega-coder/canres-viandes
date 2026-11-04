@@ -174,6 +174,21 @@ describe('Carrito', () => {
         const totals = calculateTotals(cart);
         expect(totals.shipping).toBe(12);
     });
+
+    it('aplica 10% de descuento del Club VIP cuando isVip es true', () => {
+        const p = createProduct({ id: 'p1', name: 'Picaña Premium', price: 100, stock: 5, shippingCost: 15 });
+        const cart = addItem([], p, 1);
+        const regularTotals = calculateTotals(cart, { isVip: false });
+        expect(regularTotals.subtotal).toBe(100);
+        expect(regularTotals.vipDiscount).toBe(0);
+        expect(regularTotals.total).toBe(115);
+
+        const vipTotals = calculateTotals(cart, { isVip: true });
+        expect(vipTotals.isVip).toBe(true);
+        expect(vipTotals.vipDiscount).toBe(10); // 10% de 100
+        expect(vipTotals.discountedSubtotal).toBe(90);
+        expect(vipTotals.total).toBe(105); // 90 + 15
+    });
 });
 
 describe('Pedidos', () => {
@@ -198,6 +213,22 @@ describe('Pedidos', () => {
     it('falla con carrito vacío o método de pago inválido', () => {
         expect(() => buildOrder({ items: [], customer, paymentMethod: 'wompi' })).toThrow('vacío');
         expect(() => buildOrder({ items: [{ productId: '1', name: 'X', unitPrice: 1, quantity: 1 }], customer, paymentMethod: 'cheque' })).toThrow('pago');
+    });
+
+    it('construye pedido con beneficios VIP correctamente', () => {
+        const item = { productId: '1', name: 'Ribeye', brand: 'Res AAA', unitPrice: 100, quantity: 1, stock: 10, shippingCost: 15 };
+        const order = buildOrder({
+            items: [item],
+            customer,
+            paymentMethod: 'wompi',
+            isVip: true,
+            userId: 'user-vip-123',
+        });
+        expect(order.isVip).toBe(true);
+        expect(order.userId).toBe('user-vip-123');
+        expect(order.vipDiscount).toBe(10);
+        expect(order.total).toBe(105); // 90 + 15
+        expect(order.customer.isVip).toBe(true);
     });
 
     it('solo permite transiciones válidas de estado', () => {

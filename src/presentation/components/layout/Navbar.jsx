@@ -91,6 +91,28 @@ export default function Navbar() {
 
     return (
         <header className="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-cream shadow-sm">
+            {/* Barra superior de Beneficio Club VIP */}
+            <div className="bg-gradient-to-r from-brand-wine via-brand-dark to-brand-wine text-white py-1.5 px-4 text-center text-[11px] font-medium tracking-wide">
+                {isAuthenticated ? (
+                    <div className="container-luxe flex items-center justify-center gap-2">
+                        <span className="text-amber-300">👑</span>
+                        <span>
+                            ¡Hola, <strong className="font-semibold text-amber-200">{user?.fullName || user?.email?.split('@')[0]}</strong>! Tienes activo tu <strong className="font-semibold text-amber-200">10% de descuento del Club VIP</strong> en toda la carnicería.
+                        </span>
+                        <Link to="/cuenta" className="hidden sm:inline-block underline text-amber-300 hover:text-white ml-2 text-[10px]">
+                            Mi cuenta
+                        </Link>
+                    </div>
+                ) : (
+                    <div className="container-luxe flex items-center justify-center gap-2">
+                        <span>🥩 ¿Quieres 10% de descuento en todos tus cortes?</span>
+                        <span className="hidden sm:inline">Únete gratis al <strong>Club VIP CANRES</strong>.</span>
+                        <Link to="/registro" className="underline font-bold text-amber-300 hover:text-white">
+                            Regístrate aquí
+                        </Link>
+                    </div>
+                )}
+            </div>
             <div className="container-luxe flex h-16 sm:h-20 items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
                     <button

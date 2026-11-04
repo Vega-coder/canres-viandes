@@ -27,6 +27,7 @@ import {
     makeListProductsForAdmin, makeGetProductForAdmin, makeSaveProduct, makeDeleteProduct, makeToggleProductActive,
 } from '@/application/admin/productAdmin.js';
 import { makeListOrders, makeChangeOrderStatus, makeGetDashboard } from '@/application/admin/orderAdmin.js';
+import { makeListCustomers, makeToggleCustomerVip } from '@/application/admin/customerAdmin.js';
 import {
     makeSignInAdmin, makeGetCurrentAdmin, makeSignOut,
     makeSignInCustomer, makeSignUpCustomer, makeSignInWithGoogle, makeGetCurrentUser, makeGetUserOrders,
@@ -182,6 +183,8 @@ export const adminUseCases = Object.freeze({
     toggleProductActive: makeToggleProductActive({ productRepository }),
     listOrders: makeListOrders({ orderRepository }),
     changeOrderStatus: makeChangeOrderStatus({ orderRepository }),
+    listCustomers: makeListCustomers({ supabase, orderRepository }),
+    toggleCustomerVip: makeToggleCustomerVip({ supabase }),
     generateShippingGuide: (params) => generateShippingGuide(params),
     quoteShippingRates: (order) => shippingGateway.quoteRates({ order }),
     getShippingTracking: (orderCode) => getShippingTracking(orderCode),

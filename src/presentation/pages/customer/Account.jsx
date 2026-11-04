@@ -85,6 +85,40 @@ export default function Account() {
                 </div>
             </div>
 
+            {/* Tarjeta de Membresía Club VIP */}
+            <div className="mt-8 rounded-2xl bg-gradient-to-r from-amber-500/15 via-gold/20 to-amber-600/10 p-6 sm:p-8 border border-amber-300/60 shadow-xs">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+                    <div className="flex items-center gap-4">
+                        <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 text-3xl shadow-md">
+                            👑
+                        </div>
+                        <div>
+                            <div className="flex items-center gap-2">
+                                <span className="text-xs font-bold uppercase tracking-wider text-amber-900">
+                                    {user.isVip ? 'Membresía Club VIP Activa' : 'Membresía Estándar'}
+                                </span>
+                                {user.isVip && (
+                                    <span className="rounded-full bg-amber-500/20 px-2.5 py-0.5 text-[11px] font-bold text-amber-900 border border-amber-400/40">
+                                        10% OFF en todos tus cortes
+                                    </span>
+                                )}
+                            </div>
+                            <h2 className="font-display text-2xl font-bold text-ink mt-0.5">
+                                Club VIP CANRES Viandes
+                            </h2>
+                            <p className="mt-1 text-xs sm:text-sm text-ink/75 max-w-xl">
+                                {user.isVip
+                                    ? 'Como miembro de nuestro Club VIP, tienes garantizado un 10% de descuento automático en cualquier corte, carne o charcutería al comprar con tu cuenta.'
+                                    : 'Tu cuenta está en estado estándar. Realiza compras frecuentes para ser promovido al Club VIP.'}
+                            </p>
+                        </div>
+                    </div>
+                    <Link to="/tienda" className="btn-brand whitespace-nowrap self-start sm:self-auto text-xs shadow-md">
+                        Explorar carnicería con 10% VIP
+                    </Link>
+                </div>
+            </div>
+
             {/* Listado de pedidos */}
             <div className="mt-12">
                 <div className="flex items-center justify-between">

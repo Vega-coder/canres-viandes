@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { NavLink, Outlet, useNavigate, useLocation, Link } from 'react-router-dom';
 import {
-    HiOutlineSquares2X2, HiOutlineCube, HiOutlineClipboardDocumentList, HiOutlineArrowTopRightOnSquare,
+    HiOutlineSquares2X2, HiOutlineCube, HiOutlineClipboardDocumentList, HiOutlineUsers, HiOutlineArrowTopRightOnSquare,
     HiOutlineArrowRightOnRectangle, HiOutlineBars3, HiOutlineXMark,
 } from 'react-icons/hi2';
 import Monogram from '@/presentation/components/brand/Monogram.jsx';
@@ -12,6 +12,7 @@ const LINKS = [
     { to: '/admin', label: 'Resumen', icon: HiOutlineSquares2X2, end: true },
     { to: '/admin/productos', label: 'Productos', icon: HiOutlineCube },
     { to: '/admin/pedidos', label: 'Pedidos', icon: HiOutlineClipboardDocumentList },
+    { to: '/admin/clientes', label: 'Clientes VIP', icon: HiOutlineUsers },
 ];
 
 const linkClass = ({ isActive }) =>
@@ -31,7 +32,7 @@ function Sidebar({ onNavigate }) {
             <Link to="/admin" onClick={onNavigate} className="flex items-center gap-3 border-b border-cream/10 px-6 py-6">
                 <Monogram className="h-10 w-auto" variant="light" />
                 <span>
-                    <span className="block font-display tracking-[0.12em]">AROMA PREMIUM</span>
+                    <span className="block font-display tracking-[0.12em]">CANRES VIANDES</span>
                     <span className="eyebrow text-[8px] text-gold">Panel de administración</span>
                 </span>
             </Link>

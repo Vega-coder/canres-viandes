@@ -26,4 +26,22 @@ export const toastSuccess = (title) => toast(title, 'success');
 
 export const alertError = (title, text) => base.fire({ icon: 'error', title, text, iconColor: '#9C3B3B' });
 
+export const confirmAction = async ({
+    title = '¿Estás seguro?',
+    text = '',
+    confirmButtonText = 'Confirmar',
+    cancelButtonText = 'Cancelar',
+    icon = 'question',
+} = {}) => {
+    const res = await base.fire({
+        icon,
+        title,
+        text,
+        showCancelButton: true,
+        confirmButtonText,
+        cancelButtonText,
+    });
+    return res.isConfirmed;
+};
+
 export default base;

@@ -81,9 +81,9 @@ export const generateOrderCode = (now = new Date(), random = Math.random) => {
 
 /**
  * Construye un pedido válido a partir del carrito. Lanza error si algo no cumple las reglas.
- * @param {{ items: import('../cart/cart.js').CartItem[], customer: Customer, paymentMethod: string, now?: Date, random?: () => number }} input
+ * @param {{ items: import('../cart/cart.js').CartItem[], customer: Customer, paymentMethod: string, now?: Date, random?: () => number, isVip?: boolean, userId?: string, user?: Object }} input
  */
-export const buildOrder = ({ items, customer, paymentMethod, now = new Date(), random = Math.random }) => {
+export const buildOrder = ({ items, customer, paymentMethod, now = new Date(), random = Math.random, isVip = false, userId = null, user = null }) => {
     if (!items?.length) throw new Error('El carrito está vacío');
 
     const errors = validateCustomer(customer);
@@ -98,18 +98,29 @@ export const buildOrder = ({ items, customer, paymentMethod, now = new Date(), r
     const outOfStock = items.find((i) => i.quantity > i.stock);
     if (outOfStock) throw new Error(`No hay suficiente stock de ${outOfStock.name}`);
 
+    const resolvedIsVip = Boolean(isVip || user?.isVip);
+    const resolvedUserId = userId || user?.id || null;
+    const totals = calculateTotals(items, { isVip: resolvedIsVip });
+
     return {
         code: generateOrderCode(now, random),
         status: ORDER_STATUS.PENDING,
         paymentStatus: 'pending',
-        customer: { ...customer, phone: String(customer.phone).replace(/\D/g, '') },
+        customer: {
+            ...customer,
+            phone: String(customer.phone).replace(/\D/g, ''),
+            isVip: resolvedIsVip,
+            vipDiscount: totals.vipDiscount || 0,
+        },
+        userId: resolvedUserId,
+        isVip: resolvedIsVip,
         paymentMethod,
         items: items.map(({ productId, name, brand, unitPrice, quantity, hasFreeShipping, shippingCost }) => ({
             productId, name, brand, unitPrice, quantity, lineTotal: unitPrice * quantity,
             hasFreeShipping: Boolean(hasFreeShipping),
             shippingCost: Number(shippingCost) || 0,
         })),
-        ...calculateTotals(items),
+        ...totals,
         createdAt: now.toISOString(),
     };
 };

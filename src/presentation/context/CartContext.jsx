@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { addItem, updateQuantity, removeItem, countItems, calculateTotals } from '@/domain/cart/cart.js';
+import { useAuth } from '@/presentation/context/AuthContext.jsx';
 import { toast } from '@/presentation/utils/swal.js';
 
 // Adaptador: guarda el estado del carrito en React + localStorage y delega
@@ -23,6 +24,8 @@ const loadCart = () => {
 };
 
 export const CartProvider = ({ children }) => {
+    const { user, isAuthenticated } = useAuth();
+    const isVip = Boolean(isAuthenticated && user?.isVip);
     const [items, setItems] = useState(loadCart);
     const [isOpen, setIsOpen] = useState(false);
 
@@ -46,10 +49,13 @@ export const CartProvider = ({ children }) => {
     const open = useCallback(() => setIsOpen(true), []);
     const close = useCallback(() => setIsOpen(false), []);
 
+    const totals = useMemo(() => calculateTotals(items, { isVip }), [items, isVip]);
+
     const value = useMemo(() => ({
         items,
         count: countItems(items),
-        totals: calculateTotals(items),
+        totals,
+        isVip,
         isOpen,
         open,
         close,
@@ -57,7 +63,7 @@ export const CartProvider = ({ children }) => {
         setQuantity: (productId, qty) => setItems((prev) => updateQuantity(prev, productId, qty)),
         remove: (productId) => setItems((prev) => removeItem(prev, productId)),
         clear: () => setItems([]),
-    }), [items, isOpen, open, close, add]);
+    }), [items, totals, isVip, isOpen, open, close, add]);
 
     return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 };

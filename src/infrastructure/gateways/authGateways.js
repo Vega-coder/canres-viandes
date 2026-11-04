@@ -24,6 +24,7 @@ export const createSupabaseAuthGateway = (supabase) => {
             phone,
             role,
             avatarUrl,
+            isVip: profile?.is_vip !== false,
             isAdmin: ['superadmin', 'admin', 'gerente'].includes(role),
         };
     };
@@ -102,6 +103,7 @@ export const createSupabaseAuthGateway = (supabase) => {
                         phone,
                         email: data.user.email,
                         role: 'customer',
+                        is_vip: true,
                     });
                 } catch {
                     try {
@@ -110,6 +112,7 @@ export const createSupabaseAuthGateway = (supabase) => {
                             full_name: fullName,
                             phone,
                             role: 'customer',
+                            is_vip: true,
                         });
                     } catch {
                         // El trigger on_auth_user_created en DB lo respaldará
@@ -240,6 +243,7 @@ export const createDemoAuthGateway = ({ email, password, storage = globalThis.se
                 fullName: found.fullName,
                 phone: found.phone,
                 role: 'customer',
+                isVip: found.isVip !== false,
                 isAdmin: false,
             };
             storage?.setItem(DEMO_SESSION_KEY, JSON.stringify(customerUser));
@@ -252,6 +256,7 @@ export const createDemoAuthGateway = ({ email, password, storage = globalThis.se
                 fullName: 'Cliente Google Demo',
                 phone: '3001234567',
                 role: 'customer',
+                isVip: true,
                 isAdmin: false,
             };
             storage?.setItem(DEMO_SESSION_KEY, JSON.stringify(demoGoogleUser));
@@ -269,6 +274,7 @@ export const createDemoAuthGateway = ({ email, password, storage = globalThis.se
                 password: inputPassword,
                 fullName,
                 phone,
+                isVip: true,
             };
             customers.push(newCustomer);
             saveCustomers(customers);
@@ -279,6 +285,7 @@ export const createDemoAuthGateway = ({ email, password, storage = globalThis.se
                 fullName: newCustomer.fullName,
                 phone: newCustomer.phone,
                 role: 'customer',
+                isVip: true,
                 isAdmin: false,
             };
             storage?.setItem(DEMO_SESSION_KEY, JSON.stringify(customerUser));

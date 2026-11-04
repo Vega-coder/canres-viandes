@@ -5,6 +5,7 @@ import { createDemoAuthGateway } from '@/infrastructure/gateways/authGateways.js
 import { createWhatsappGateway } from '@/infrastructure/gateways/whatsappGateway.js';
 import { makeSaveProduct, makeDeleteProduct, makeToggleProductActive, makeListProductsForAdmin } from '@/application/admin/productAdmin.js';
 import { makeChangeOrderStatus, makeGetDashboard } from '@/application/admin/orderAdmin.js';
+import { makeListCustomers, makeToggleCustomerVip } from '@/application/admin/customerAdmin.js';
 import { makeSignInAdmin, makeGetCurrentAdmin } from '@/application/auth/authUseCases.js';
 import { makePlaceOrder } from '@/application/orders/placeOrder.js';
 import { makeBrowseCatalog } from '@/application/catalog/catalogUseCases.js';
@@ -146,5 +147,46 @@ describe('Autenticación demo', () => {
         const user = await signIn('admin@canres.test', 'demo-password');
         expect(user.isAdmin).toBe(true);
         expect((await getCurrent()).email).toBe('admin@canres.test');
+    });
+});
+
+describe('Clientes y Club VIP', () => {
+    it('lista clientes enriquecidos con métricas de pedidos', async () => {
+        const placeOrder = makePlaceOrder({
+            productRepository,
+            orderRepository,
+            notificationGateway: createWhatsappGateway('573146160642'),
+        });
+        await placeOrder({
+            items: [{ productId: 'lomo-ancho-rib-eye', quantity: 2, name: 'Ribeye', brand: 'Res AAA', stock: 10, shippingCost: 0 }],
+            customer,
+            paymentMethod: 'transfer',
+            isVip: true,
+        });
+
+        const listCustomers = makeListCustomers({ supabase: null, orderRepository });
+        const customers = await listCustomers();
+        expect(customers.length).toBeGreaterThan(0);
+        const marta = customers.find((c) => c.email === customer.email);
+        expect(marta).toBeDefined();
+        expect(marta.ordersCount).toBe(1);
+        expect(marta.isVip).toBe(true);
+    });
+
+    it('permite alternar el estado VIP manualmente', async () => {
+        const mockSupabase = {
+            from: () => ({
+                update: (fields) => ({
+                    eq: () => ({
+                        select: () => ({
+                            single: async () => ({ data: { id: 'user-1', is_vip: fields.is_vip }, error: null }),
+                        }),
+                    }),
+                }),
+            }),
+        };
+        const toggle = makeToggleCustomerVip({ supabase: mockSupabase });
+        const res = await toggle('user-1', true);
+        expect(res.is_vip).toBe(true);
     });
 });

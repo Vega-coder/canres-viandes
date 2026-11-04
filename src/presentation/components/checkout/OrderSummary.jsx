@@ -29,6 +29,15 @@ export default function OrderSummary({ items, totals }) {
             <div className="mt-4 space-y-3 border-t border-taupe/15 pt-5 text-sm">
                 <FreeShippingProgress missing={totals.missingForFreeShipping} />
                 <div className="flex justify-between pt-2"><span>Subtotal</span><span>{formatMoney(totals.subtotal)}</span></div>
+                {totals.vipDiscount > 0 && (
+                    <div className="flex justify-between text-amber-800 font-semibold bg-amber-50 px-2.5 py-1.5 rounded border border-amber-200">
+                        <span className="flex items-center gap-1.5">
+                            <span>👑</span>
+                            <span>Descuento Club VIP (10%)</span>
+                        </span>
+                        <span>-{formatMoney(totals.vipDiscount)}</span>
+                    </div>
+                )}
                 <div className="flex justify-between text-taupe"><span>Envío</span><span>{totals.shipping ? formatMoney(totals.shipping) : 'Gratis'}</span></div>
                 <div className="flex justify-between border-t border-taupe/15 pt-4 font-display text-2xl"><span>Total</span><span>{formatMoney(totals.total)}</span></div>
             </div>

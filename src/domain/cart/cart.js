@@ -4,6 +4,8 @@ import { getFinalPrice } from '../catalog/product.js';
 export const FREE_SHIPPING_THRESHOLD = 120; // $120 CAD para envío refrigerado gratis
 export const SHIPPING_COST = 15;            // $15 CAD envío refrigerado exprés
 export const MAX_QTY_PER_ITEM = 50;
+export const VIP_DISCOUNT_PERCENT = 10;     // 10% de descuento del Club VIP
+export const VIP_DISCOUNT_RATE = 0.10;
 
 /**
  * @typedef {Object} CartItem
@@ -60,27 +62,42 @@ export const removeItem = (items, productId) => items.filter((i) => i.productId 
 
 export const countItems = (items) => items.reduce((sum, i) => sum + i.quantity, 0);
 
-export const calculateTotals = (items) => {
+export const calculateTotals = (items, options = {}) => {
+    const isVip = Boolean(options?.isVip);
+    const discountRate = isVip ? (Number(options?.vipDiscountRate) || VIP_DISCOUNT_RATE) : 0;
+
     const rawSubtotal = items.reduce((sum, i) => sum + i.unitPrice * i.quantity, 0);
     const subtotal = Math.round(rawSubtotal * 100) / 100;
     const allFreeShipping = items.length > 0 && items.every((i) => i.hasFreeShipping);
 
+    const rawVipDiscount = isVip ? subtotal * discountRate : 0;
+    const vipDiscount = Math.round(rawVipDiscount * 100) / 100;
+    const discountedSubtotal = Math.max(0, Math.round((subtotal - vipDiscount) * 100) / 100);
+
     if (subtotal === 0 || subtotal >= FREE_SHIPPING_THRESHOLD || allFreeShipping) {
         return {
             subtotal,
+            isVip,
+            vipDiscountRate: discountRate,
+            vipDiscount,
+            discountedSubtotal,
             shipping: 0,
-            total: subtotal,
+            total: discountedSubtotal,
             missingForFreeShipping: 0,
         };
     }
 
     const costs = items.map((i) => (i.hasFreeShipping || !i.shippingCost || i.shippingCost <= 0 ? 0 : Number(i.shippingCost)));
     const shipping = costs.length > 0 && Math.max(0, ...costs) > 0 ? Math.max(0, ...costs) : (subtotal > 0 ? SHIPPING_COST : 0);
-    const total = Math.round((subtotal + shipping) * 100) / 100;
+    const total = Math.round((discountedSubtotal + shipping) * 100) / 100;
     const missingForFreeShipping = Math.max(0, Math.round((FREE_SHIPPING_THRESHOLD - subtotal) * 100) / 100);
 
     return {
         subtotal,
+        isVip,
+        vipDiscountRate: discountRate,
+        vipDiscount,
+        discountedSubtotal,
         shipping,
         total,
         missingForFreeShipping,

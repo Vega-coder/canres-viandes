@@ -76,7 +76,15 @@ export default function AdminOrders() {
                                         </span>
                                     )}
                                 </span>
-                                <span className="hidden min-w-0 truncate text-sm text-taupe sm:block">{o.customer.fullName} · {o.customer.city}</span>
+                                <span className="hidden min-w-0 truncate text-sm text-taupe sm:block">
+                                    <span className="font-medium text-ink">{o.customer.fullName}</span>
+                                    {o.isVip && (
+                                        <span className="ml-2 inline-flex items-center gap-1 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold text-amber-900 border border-amber-300">
+                                            👑 VIP
+                                        </span>
+                                    )}
+                                    <span className="text-taupe"> · {o.customer.city}</span>
+                                </span>
                                 <span className="hidden text-xs text-taupe sm:block">{formatDate(o.createdAt)}</span>
                                 <span className="flex items-center gap-3 justify-self-end">
                                     <span className="font-semibold">{formatMoney(o.total)}</span>
@@ -99,13 +107,31 @@ export default function AdminOrders() {
                                                 ))}
                                             </ul>
                                             <div className="mt-3 space-y-1 border-t border-taupe/15 pt-3 text-sm">
+                                                <div className="flex justify-between text-taupe"><span>Subtotal</span><span>{formatMoney(o.subtotal)}</span></div>
+                                                {o.vipDiscount > 0 && (
+                                                    <div className="flex justify-between font-semibold text-amber-800">
+                                                        <span className="flex items-center gap-1">👑 Descuento VIP (10%)</span>
+                                                        <span>-{formatMoney(o.vipDiscount)}</span>
+                                                    </div>
+                                                )}
                                                 <div className="flex justify-between text-taupe"><span>Envío</span><span>{o.shipping ? formatMoney(o.shipping) : 'Gratis'}</span></div>
                                                 <div className="flex justify-between font-semibold"><span>Total</span><span>{formatMoney(o.total)}</span></div>
                                             </div>
                                         </div>
                                         <div className="space-y-4 text-sm">
                                             <div>
-                                                <p className="eyebrow text-[10px] text-taupe">Cliente</p>
+                                                <div className="flex items-center gap-2">
+                                                    <p className="eyebrow text-[10px] text-taupe">Cliente</p>
+                                                    {o.isVip ? (
+                                                        <span className="rounded bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-900 border border-amber-300">
+                                                            👑 Miembro Club VIP CANRES
+                                                        </span>
+                                                    ) : (
+                                                        <span className="rounded bg-taupe/15 px-2 py-0.5 text-[10px] font-medium text-taupe">
+                                                            Invitado
+                                                        </span>
+                                                    )}
+                                                </div>
                                                 <p className="mt-2 font-medium">{o.customer.fullName}</p>
                                                 <p className="text-taupe">{o.customer.phone} · {o.customer.email}</p>
                                                 <p className="text-taupe">{o.customer.address}, {o.customer.city}</p>

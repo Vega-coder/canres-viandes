@@ -102,13 +102,22 @@ export default function Cart() {
                         <div className="mt-6"><FreeShippingProgress missing={totals.missingForFreeShipping} /></div>
                         <div className="mt-6 space-y-3 text-sm">
                             <div className="flex justify-between"><span>Subtotal</span><span>{formatMoney(totals.subtotal)}</span></div>
+                            {totals.vipDiscount > 0 && (
+                                <div className="flex justify-between text-amber-800 font-semibold bg-amber-50 px-2.5 py-1.5 rounded border border-amber-200">
+                                    <span className="flex items-center gap-1.5">
+                                        <span>👑</span>
+                                        <span>Descuento Club VIP (10%)</span>
+                                    </span>
+                                    <span>-{formatMoney(totals.vipDiscount)}</span>
+                                </div>
+                            )}
                             <div className="flex justify-between text-taupe"><span>Envío</span><span>{totals.shipping ? formatMoney(totals.shipping) : 'Gratis'}</span></div>
                             <div className="flex justify-between border-t border-taupe/15 pt-4 font-display text-2xl"><span>Total</span><span>{formatMoney(totals.total)}</span></div>
                         </div>
                         <Link to="/checkout" className="btn-brand mt-8 w-full py-4">
                             Finalizar compra <HiArrowLongRight className="h-4 w-4" />
                         </Link>
-                        <p className="mt-4 text-center text-[11px] text-taupe">Pago contra entrega o transferencia · 100% originales</p>
+                        <p className="mt-4 text-center text-[11px] text-taupe">Cortes premium en cadena de frío certificada · Empaque al vacío</p>
                     </div>
                 </aside>
             </div>

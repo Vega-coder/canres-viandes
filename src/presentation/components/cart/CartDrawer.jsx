@@ -90,10 +90,33 @@ export default function CartDrawer() {
                         </div>
 
                         <footer className="space-y-3 border-t border-cream bg-white px-6 py-5">
+                            {!totals.isVip && (
+                                <div className="rounded-lg bg-gradient-to-r from-amber-500/15 via-gold/20 to-amber-500/10 p-3 text-xs border border-amber-300/60 shadow-xs">
+                                    <p className="font-bold text-amber-900 flex items-center gap-1">
+                                        <span>👑</span>
+                                        <span>¿Quieres 10% de descuento?</span>
+                                    </p>
+                                    <p className="mt-0.5 text-[11px] text-amber-800/90 leading-snug">
+                                        <Link to="/registro" onClick={close} className="font-bold underline hover:text-ink">
+                                            Regístrate gratis
+                                        </Link>{' '}
+                                        o inicia sesión para activar el beneficio VIP al instante.
+                                    </p>
+                                </div>
+                            )}
                             <div className="flex justify-between text-xs font-medium">
                                 <span className="text-taupe uppercase">Subtotal</span>
                                 <span className="font-bold text-ink">{formatMoney(totals.subtotal)}</span>
                             </div>
+                            {totals.vipDiscount > 0 && (
+                                <div className="flex justify-between text-xs font-semibold text-amber-800 bg-amber-50 px-2.5 py-1.5 rounded border border-amber-200">
+                                    <span className="flex items-center gap-1.5">
+                                        <span>👑</span>
+                                        <span>Descuento Club VIP (10%)</span>
+                                    </span>
+                                    <span>-{formatMoney(totals.vipDiscount)}</span>
+                                </div>
+                            )}
                             <div className="flex justify-between text-xs font-medium text-taupe">
                                 <span className="uppercase">Envío Refrigerado</span>
                                 <span className="font-bold text-ink">{totals.shipping ? formatMoney(totals.shipping) : 'GRATIS'}</span>

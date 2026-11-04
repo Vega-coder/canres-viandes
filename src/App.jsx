@@ -34,6 +34,7 @@ const AdminDashboard = lazy(() => import('@/presentation/pages/admin/AdminDashbo
 const AdminProducts = lazy(() => import('@/presentation/pages/admin/AdminProducts.jsx'));
 const AdminProductEdit = lazy(() => import('@/presentation/pages/admin/AdminProductEdit.jsx'));
 const AdminOrders = lazy(() => import('@/presentation/pages/admin/AdminOrders.jsx'));
+const AdminCustomers = lazy(() => import('@/presentation/pages/admin/AdminCustomers.jsx'));
 
 class ErrorBoundary extends Component {
     constructor(props) {
@@ -117,6 +118,7 @@ export default function App() {
                                         <Route path="productos/nuevo" element={<AdminProductEdit />} />
                                         <Route path="productos/:id" element={<AdminProductEdit />} />
                                         <Route path="pedidos" element={<AdminOrders />} />
+                                        <Route path="clientes" element={<AdminCustomers />} />
                                     </Route>
                                 </Route>
                             </Routes>

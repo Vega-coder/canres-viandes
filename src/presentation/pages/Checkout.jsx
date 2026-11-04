@@ -62,7 +62,13 @@ export default function Checkout() {
 
         setSubmitting(true);
         try {
-            const { order, confirmationUrl } = await useCases.placeOrder({ items, customer, paymentMethod });
+            const { order, confirmationUrl } = await useCases.placeOrder({
+                items,
+                customer,
+                paymentMethod,
+                user,
+                isVip: Boolean(isAuthenticated && user?.isVip),
+            });
 
             if (paymentMethod === 'wompi') {
                 try {
@@ -127,23 +133,37 @@ export default function Checkout() {
             <div className="grid gap-12 lg:grid-cols-[1fr_420px]">
                 <div>
                     {isAuthenticated ? (
-                        <div className="mb-8 flex flex-col justify-between gap-3 border border-gold/40 bg-gold/10 p-4 text-xs text-ink sm:flex-row sm:items-center">
+                        <div className="mb-8 flex flex-col justify-between gap-3 border border-amber-400/60 bg-gradient-to-r from-amber-500/10 via-amber-400/15 to-amber-500/5 p-4 text-xs text-ink sm:flex-row sm:items-center rounded-lg shadow-xs">
                             <div>
-                                <span className="font-semibold text-gold-dark">Sesión iniciada:</span> Comprando como{' '}
-                                <span className="font-semibold">{user.fullName || user.email}</span> ({user.email}). Tu pedido quedará registrado en tu cuenta.
+                                <span className="font-bold text-amber-900 flex items-center gap-1.5">
+                                    <span>👑</span>
+                                    <span>Club VIP CANRES Activo:</span>
+                                </span>
+                                <p className="mt-1 text-ink/80">
+                                    Comprando como <span className="font-semibold">{user.fullName || user.email}</span> ({user.email}).
+                                    {user.isVip ? (
+                                        <span className="font-semibold text-amber-800"> ¡Tienes 10% de descuento VIP aplicado en este pedido!</span>
+                                    ) : (
+                                        ' Tu pedido quedará registrado en tu cuenta.'
+                                    )}
+                                </p>
                             </div>
-                            <Link to="/cuenta" className="font-medium text-gold-dark underline hover:text-ink">
-                                Mi cuenta
+                            <Link to="/cuenta" className="font-semibold text-amber-900 underline hover:text-ink whitespace-nowrap">
+                                Mi cuenta VIP
                             </Link>
                         </div>
                     ) : (
-                        <div className="mb-8 flex flex-col justify-between gap-3 border border-taupe/25 bg-cream/30 p-4 text-xs text-ink sm:flex-row sm:items-center">
+                        <div className="mb-8 flex flex-col justify-between gap-3 border border-amber-300/60 bg-amber-50/50 p-4 text-xs text-ink sm:flex-row sm:items-center rounded-lg">
                             <div>
-                                <span className="font-semibold text-ink">¿Ya tienes cuenta?</span>{' '}
-                                <Link to="/login?redirect=/checkout" className="font-semibold text-gold-dark underline hover:text-ink">
+                                <span className="font-bold text-amber-900">¿Quieres 10% de descuento en este pedido?</span>{' '}
+                                <Link to="/login?redirect=/checkout" className="font-bold text-brand-wine underline hover:text-ink">
                                     Inicia sesión
                                 </Link>{' '}
-                                para autocompletar tus datos, o continúa como invitado.
+                                o{' '}
+                                <Link to="/registro?redirect=/checkout" className="font-bold text-brand-wine underline hover:text-ink">
+                                    regístrate gratis
+                                </Link>{' '}
+                                para activar tu descuento del Club VIP, o continúa como invitado.
                             </div>
                             <span className="inline-block self-start rounded bg-taupe/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-taupe sm:self-auto">
                                 Compra como invitado
