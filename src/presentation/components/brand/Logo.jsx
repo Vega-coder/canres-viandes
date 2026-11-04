@@ -10,11 +10,11 @@ export default function Logo({ tone = 'dark', compact = false, iconOnly = false,
     return (
         <Link
             to="/"
-            className={`flex min-w-0 shrink-0 items-center gap-2.5 sm:gap-3.5 transition hover:opacity-95 ${className}`}
+            className={`flex shrink-0 items-center gap-2.5 sm:gap-3.5 transition hover:opacity-95 ${className}`}
             aria-label="CANRES Viandes, ir al inicio"
         >
             <Monogram
-                className={compact ? 'h-9 w-auto shrink-0 sm:h-10' : 'h-11 w-auto shrink-0 sm:h-12'}
+                className={compact ? 'h-9 w-auto shrink-0 sm:h-10' : 'h-10 w-auto shrink-0 sm:h-12'}
                 variant={isLight ? 'light' : 'dark'}
             />
             {!iconOnly && (

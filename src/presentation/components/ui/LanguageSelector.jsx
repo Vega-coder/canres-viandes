@@ -96,14 +96,14 @@ export default function LanguageSelector({ variant = 'default', className = '' }
     // Default compact pill for main header
     return (
         <div
-            className={`inline-flex items-center rounded-full border border-cream/90 bg-cream-paper p-0.5 shadow-xs ${className}`}
+            className={`inline-flex shrink-0 items-center rounded-full border border-cream/90 bg-cream-paper/90 p-0.5 shadow-xs ${className}`}
             role="group"
             aria-label="Sélection de la langue / Language selector"
         >
             <button
                 type="button"
                 onClick={() => setLanguage('fr')}
-                className={`rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider transition ${
+                className={`rounded-full px-1.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider transition ${
                     language === 'fr'
                         ? 'bg-brand-wine text-white shadow-xs'
                         : 'text-taupe hover:text-ink'
@@ -113,11 +113,11 @@ export default function LanguageSelector({ variant = 'default', className = '' }
             >
                 FR
             </button>
-            <span className="px-0.5 text-[10px] text-taupe/30">|</span>
+            <span className="text-[9px] text-taupe/30">|</span>
             <button
                 type="button"
                 onClick={() => setLanguage('en')}
-                className={`rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider transition ${
+                className={`rounded-full px-1.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider transition ${
                     language === 'en'
                         ? 'bg-brand-wine text-white shadow-xs'
                         : 'text-taupe hover:text-ink'
@@ -127,11 +127,11 @@ export default function LanguageSelector({ variant = 'default', className = '' }
             >
                 EN
             </button>
-            <span className="px-0.5 text-[10px] text-taupe/30">|</span>
+            <span className="text-[9px] text-taupe/30">|</span>
             <button
                 type="button"
                 onClick={() => setLanguage('es')}
-                className={`rounded-full px-1.5 py-0.5 text-[11px] font-bold uppercase tracking-wider transition ${
+                className={`rounded-full px-1.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider transition ${
                     language === 'es'
                         ? 'bg-brand-wine text-white shadow-xs'
                         : 'text-taupe hover:text-ink'

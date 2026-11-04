@@ -54,7 +54,7 @@ export default function EditorialBanners() {
                         }`}
                     >
                         <div className="relative z-10 flex flex-col items-center">
-                            <Monogram className="h-10 w-auto opacity-80" variant="light" />
+                            <Monogram className="h-10 w-auto opacity-95 transition-opacity group-hover:opacity-100 drop-shadow-sm" variant="light" />
                             <p className="eyebrow mt-4 text-amber-300 font-bold">{b.eyebrow}</p>
                             <h3 className="mt-2 font-display text-xl sm:text-2xl font-bold uppercase tracking-wider text-white">
                                 {b.title}

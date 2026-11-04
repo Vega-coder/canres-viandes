@@ -17,8 +17,10 @@ import { useWishlist } from '@/presentation/context/WishlistContext.jsx';
 import { useLanguage } from '@/presentation/context/LanguageContext.jsx';
 
 const linkClass = ({ isActive }) =>
-    `relative py-1 text-[11px] font-bold uppercase tracking-[0.14em] transition hover:text-brand-wine ${
-        isActive ? 'text-brand-wine after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-full after:bg-brand-wine' : 'text-ink/80'
+    `relative py-1 text-[10px] lg:text-[10.5px] xl:text-[11px] font-bold uppercase tracking-[0.05em] xl:tracking-[0.11em] transition hover:text-brand-wine whitespace-nowrap shrink-0 ${
+        isActive
+            ? 'text-brand-wine after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-full after:bg-brand-wine'
+            : 'text-ink/80'
     }`;
 
 function SearchForm({ onDone, className = '' }) {
@@ -40,12 +42,12 @@ function SearchForm({ onDone, className = '' }) {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={t('nav.search_placeholder')}
-                className="input py-2.5 pr-10 text-xs w-full"
+                className="input py-2 pr-9 text-xs w-full"
                 aria-label={t('nav.search_aria')}
             />
             <button
                 type="submit"
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-taupe hover:text-brand-wine transition"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-taupe hover:text-brand-wine transition"
                 aria-label={t('nav.search_button')}
             >
                 <HiOutlineMagnifyingGlass className="h-4 w-4" />
@@ -72,7 +74,24 @@ export default function Navbar() {
     const menuOpen = menuPath === pathname;
     const searchOpen = searchPath === pathname;
 
-    const navLinks = useMemo(
+    // Enlaces para la barra de escritorio (etiquetas concisas para evitar desbordamiento)
+    const desktopNavLinks = useMemo(
+        () => [
+            { to: '/', label: t('nav.home'), end: true },
+            { to: '/tienda', label: t('nav.shop') },
+            { to: '/tienda/res', label: t('nav.beef') },
+            { to: '/tienda/cerdo', label: t('nav.pork') },
+            { to: '/tienda/pollo', label: t('nav.chicken') },
+            { to: '/tienda/chivo', label: t('nav.goat_lamb_short') },
+            { to: '/tienda/chorizos', label: t('nav.sausages_short') },
+            { to: '/tienda/canales', label: t('nav.wholesale_short') },
+            { to: '/marcas', label: t('nav.brands') },
+        ],
+        [t],
+    );
+
+    // Enlaces para el menú móvil desplegable (nombres completos)
+    const mobileNavLinks = useMemo(
         () => [
             { to: '/', label: t('nav.home'), end: true },
             { to: '/tienda', label: t('nav.shop') },
@@ -152,41 +171,44 @@ export default function Navbar() {
                 </div>
             </div>
 
-            <div className="container-luxe flex h-16 sm:h-20 items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
+            <div className="container-luxe flex h-16 sm:h-20 items-center justify-between gap-2 xl:gap-4">
+                {/* Logo protegido con shrink-0 para evitar cualquier superposición */}
+                <div className="flex items-center gap-2 sm:gap-3 shrink-0 mr-2 sm:mr-4 lg:mr-6">
                     <button
                         type="button"
                         onClick={toggleMenu}
-                        className="p-2 text-ink lg:hidden hover:text-brand-wine transition"
+                        className="p-1.5 text-ink lg:hidden hover:text-brand-wine transition shrink-0"
                         aria-label={menuOpen ? t('nav.close_menu') : t('nav.open_menu')}
                     >
                         {menuOpen ? <HiOutlineXMark className="h-6 w-6" /> : <HiOutlineBars3 className="h-6 w-6" />}
                     </button>
-                    <Logo iconOnly />
+                    <Logo iconOnly className="shrink-0" />
                 </div>
 
-                <nav className="hidden items-center gap-5 lg:flex">
-                    {navLinks.map((link) => (
+                {/* Navegación central responsiva y con protección de espacio */}
+                <nav className="hidden items-center gap-1.5 lg:gap-2 xl:gap-3.5 2xl:gap-5 lg:flex shrink-0 justify-start">
+                    {desktopNavLinks.map((link) => (
                         <NavLink key={link.to} to={link.to} end={link.end} className={linkClass}>
                             {link.label}
                         </NavLink>
                     ))}
                 </nav>
 
-                <div className="flex items-center gap-1 sm:gap-2">
-                    <div className="hidden md:block w-48 lg:w-56">
+                {/* Acciones a la derecha agrupadas sin encogerse */}
+                <div className="flex items-center gap-1 sm:gap-1.5 xl:gap-2 shrink-0 ml-auto">
+                    <div className="hidden xl:block w-36 2xl:w-48">
                         <SearchForm />
                     </div>
 
-                    {/* Selector de idioma destacado en la barra principal */}
-                    <div className="hidden sm:block">
+                    {/* Selector de idioma compacto en el header principal */}
+                    <div className="hidden sm:block shrink-0">
                         <LanguageSelector />
                     </div>
 
                     <button
                         type="button"
                         onClick={toggleSearch}
-                        className="p-2 text-ink md:hidden hover:text-brand-wine transition"
+                        className="p-2 text-ink xl:hidden hover:text-brand-wine transition shrink-0"
                         aria-label={t('nav.search_button')}
                     >
                         <HiOutlineMagnifyingGlass className="h-5 w-5" />
@@ -194,7 +216,7 @@ export default function Navbar() {
 
                     <Link
                         to="/favoritos"
-                        className="relative p-2 text-ink hover:text-brand-wine transition"
+                        className="relative p-2 text-ink hover:text-brand-wine transition shrink-0"
                         aria-label={t('nav.wishlist_aria', { count: wishlistCount })}
                     >
                         <HiOutlineHeart className="h-5 w-5" />
@@ -207,7 +229,7 @@ export default function Navbar() {
 
                     <Link
                         to={isAuthenticated ? '/cuenta' : '/login'}
-                        className="p-2 text-ink hover:text-brand-wine transition"
+                        className="p-2 text-ink hover:text-brand-wine transition shrink-0"
                         aria-label={isAuthenticated ? `${t('nav.account')}: ${user?.fullName || user?.name || ''}` : t('nav.sign_in')}
                     >
                         <HiOutlineUser className="h-5 w-5" />
@@ -216,7 +238,7 @@ export default function Navbar() {
                     <button
                         type="button"
                         onClick={open}
-                        className="flex shrink-0 items-center gap-2 rounded-full bg-brand-wine px-3.5 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-sm hover:bg-brand-red transition active:scale-95 whitespace-nowrap"
+                        className="flex shrink-0 items-center gap-1.5 sm:gap-2 rounded-full bg-brand-wine px-3 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-sm hover:bg-brand-red transition active:scale-95 whitespace-nowrap"
                         aria-label={t('nav.cart_view_aria', { count, total: formatMoney(totals.total) })}
                     >
                         <HiOutlineShoppingBag className="h-4 w-4 shrink-0" />
@@ -227,7 +249,7 @@ export default function Navbar() {
             </div>
 
             {searchOpen && (
-                <div className="border-t border-cream bg-white p-3 md:hidden">
+                <div className="border-t border-cream bg-white p-3 xl:hidden">
                     <SearchForm onDone={closeSearch} />
                 </div>
             )}
@@ -259,7 +281,7 @@ export default function Navbar() {
                             </div>
 
                             <nav className="mt-4 flex flex-col gap-3">
-                                {navLinks.map((link) => (
+                                {mobileNavLinks.map((link) => (
                                     <NavLink
                                         key={link.to}
                                         to={link.to}
