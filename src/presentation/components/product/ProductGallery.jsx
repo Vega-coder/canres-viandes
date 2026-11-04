@@ -10,9 +10,22 @@ import BottleArt from './BottleArt.jsx';
 export default function ProductGallery({ product }) {
     // Normalizar imágenes del producto
     const images = useMemo(() => {
-        const raw = Array.isArray(product?.images) && product.images.length > 0
+        let raw = Array.isArray(product?.images) && product.images.length > 0
             ? product.images.filter(Boolean)
             : [product?.image].filter(Boolean);
+
+        // Protección activa contra imágenes legacy desactualizadas
+        raw = raw.map((src) => {
+            if (typeof src === 'string' && src.includes('canres-viandes/chorizos.jpg')) {
+                return (product?.gender === 'chorizos' || product?.gender === 'personalizados')
+                    ? '/images/products/chorizo-artesanal.jpg'
+                    : '/images/products/chicken-whole.jpg';
+            }
+            if (typeof src === 'string' && src.includes('canres-viandes/butcher.jpg')) {
+                return '/images/products/chicken-breasts.jpg';
+            }
+            return src;
+        });
 
         if (raw.length === 0) return [];
 

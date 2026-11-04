@@ -53,18 +53,25 @@ export const DEMO_ADMIN = Object.freeze({
     password: env.VITE_DEMO_ADMIN_PASSWORD || 'Canres2026!',
 });
 
-if (isDemoMode) {
-    console.info('[CANRES Viandes] Supabase no configurado.');
-} else if (typeof window !== 'undefined') {
+if (typeof window !== 'undefined') {
     // Limpia cualquier catálogo viejo guardado en el navegador
     try {
         localStorage.removeItem('ap_products');
         localStorage.removeItem('ap_cart');
         localStorage.removeItem('ap_wishlist');
         localStorage.removeItem('ap_recently_viewed');
+        localStorage.removeItem('canres_catalog_cache_v3');
+        localStorage.removeItem('canres_catalog_cache_v4');
+        localStorage.removeItem('canres_products_v4');
+        sessionStorage.removeItem('canres_catalog_cache_v3');
+        sessionStorage.removeItem('canres_catalog_cache_v4');
     } catch {
         // Ignorar si el almacenamiento está restringido en modo incógnito
     }
+}
+
+if (isDemoMode) {
+    console.info('[CANRES Viandes] Supabase no configurado.');
 }
 
 const productRepository = isDemoMode

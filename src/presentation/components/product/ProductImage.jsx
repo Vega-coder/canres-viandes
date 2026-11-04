@@ -1,5 +1,14 @@
 export default function ProductImage({ product, className = '' }) {
-    const image = product?.images?.[0] ?? product?.image;
+    let image = product?.images?.[0] ?? product?.image;
+
+    // Protección activa contra imágenes legacy desactualizadas
+    if (typeof image === 'string' && image.includes('canres-viandes/chorizos.jpg')) {
+        image = (product?.gender === 'chorizos' || product?.gender === 'personalizados')
+            ? '/images/products/chorizo-artesanal.jpg'
+            : '/images/products/chicken-whole.jpg';
+    } else if (typeof image === 'string' && image.includes('canres-viandes/butcher.jpg')) {
+        image = '/images/products/chicken-breasts.jpg';
+    }
 
     return (
         <div className={`relative flex items-center justify-center overflow-hidden bg-gradient-to-b from-[#FAF6EB] to-[#F0EAE1] ${className}`}>
