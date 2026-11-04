@@ -6,7 +6,7 @@ import { toast } from '@/presentation/utils/swal.js';
 // Adaptador: guarda el estado del carrito en React + localStorage y delega
 // todas las reglas (stock, máximos, envío) al dominio.
 
-const STORAGE_KEY = 'ap_cart';
+const LEGACY_STORAGE_KEY = 'ap_cart';
 const CartContext = createContext(null);
 
 export const useCart = () => {
@@ -15,9 +15,19 @@ export const useCart = () => {
     return ctx;
 };
 
-const loadCart = () => {
+export const getCartStorageKey = (userId) => (userId ? `canres_cart_${userId}` : 'canres_cart_guest');
+
+export const loadCartForUser = (userId) => {
+    if (typeof localStorage === 'undefined') return [];
     try {
-        return JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]');
+        localStorage.removeItem(LEGACY_STORAGE_KEY);
+        const key = getCartStorageKey(userId);
+        const stored = localStorage.getItem(key);
+        if (stored) {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed)) return parsed;
+        }
+        return [];
     } catch {
         return [];
     }
@@ -25,17 +35,29 @@ const loadCart = () => {
 
 export const CartProvider = ({ children }) => {
     const { user, isAuthenticated } = useAuth();
+    const userId = user?.id || null;
     const isVip = Boolean(isAuthenticated && user?.isVip);
-    const [items, setItems] = useState(loadCart);
+
+    const [currentUserId, setCurrentUserId] = useState(userId);
+    const [items, setItems] = useState(() => loadCartForUser(userId));
     const [isOpen, setIsOpen] = useState(false);
 
+    // Si el usuario cambia (cambio de cuenta Google, login o logout),
+    // se conmuta de inmediato el carrito al del nuevo usuario.
+    if (userId !== currentUserId) {
+        setCurrentUserId(userId);
+        setItems(loadCartForUser(userId));
+    }
+
     useEffect(() => {
+        if (typeof localStorage === 'undefined') return;
         try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+            const key = getCartStorageKey(userId);
+            localStorage.setItem(key, JSON.stringify(items));
         } catch {
             // Sin almacenamiento (modo privado): el carrito vive solo en memoria.
         }
-    }, [items]);
+    }, [items, userId]);
 
     const add = useCallback((product, quantity = 1) => {
         if (product.stock <= 0) {

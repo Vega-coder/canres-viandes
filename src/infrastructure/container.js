@@ -60,6 +60,8 @@ if (isDemoMode) {
     try {
         localStorage.removeItem('ap_products');
         localStorage.removeItem('ap_cart');
+        localStorage.removeItem('ap_wishlist');
+        localStorage.removeItem('ap_recently_viewed');
     } catch {
         // Ignorar si el almacenamiento está restringido en modo incógnito
     }
@@ -169,6 +171,8 @@ export const useCases = Object.freeze({
     resetPassword: makeResetPassword({ authGateway }),
     updatePassword: makeUpdatePassword({ authGateway }),
     onAuthStateChange: (cb) => authGateway.onAuthStateChange?.(cb),
+    exchangeCodeForSession: (code) => authGateway.exchangeCodeForSession?.(code),
+    updateUserWishlist: (wishlist) => authGateway.updateUserWishlist?.(wishlist),
 });
 
 export const adminUseCases = Object.freeze({

@@ -26,6 +26,7 @@ export const createSupabaseAuthGateway = (supabase) => {
             avatarUrl,
             isVip: profile?.is_vip !== false,
             isAdmin: ['superadmin', 'admin', 'gerente'].includes(role),
+            wishlist: Array.isArray(user.user_metadata?.wishlist) ? user.user_metadata.wishlist : [],
         };
     };
 
@@ -189,6 +190,18 @@ export const createSupabaseAuthGateway = (supabase) => {
             }
             return toAuthUser(data.user);
         },
+        updateUserWishlist: async (wishlist) => {
+            try {
+                const { error } = await supabase.auth.updateUser({
+                    data: { wishlist },
+                });
+                if (error) {
+                    console.warn('[CANRES Auth]: Error actualizando wishlist en Supabase:', error.message);
+                }
+            } catch (err) {
+                console.warn('[CANRES Auth]: Falló sync de wishlist:', err);
+            }
+        },
         onAuthStateChange: (callback) => {
             const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
                 const user = await toAuthUser(session?.user ?? null);
@@ -308,6 +321,18 @@ export const createDemoAuthGateway = ({ email, password, storage = globalThis.se
                 return rawOrders ? JSON.parse(rawOrders) : [];
             } catch {
                 return [];
+            }
+        },
+        updateUserWishlist: async (wishlist) => {
+            try {
+                const raw = storage?.getItem(DEMO_SESSION_KEY);
+                if (raw) {
+                    const user = JSON.parse(raw);
+                    user.wishlist = wishlist;
+                    storage?.setItem(DEMO_SESSION_KEY, JSON.stringify(user));
+                }
+            } catch {
+                // Ignorar en entornos sin storage
             }
         },
         resetPasswordForEmail: async () => {

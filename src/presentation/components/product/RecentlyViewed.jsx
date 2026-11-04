@@ -1,11 +1,17 @@
 import { useState, useEffect } from 'react';
+import { useAuth } from '@/presentation/context/AuthContext.jsx';
 import SectionHeading from '@/presentation/components/ui/SectionHeading.jsx';
 import ProductGrid from '@/presentation/components/product/ProductGrid.jsx';
 
-const STORAGE_KEY = 'ap_recently_viewed';
+const LEGACY_STORAGE_KEY = 'ap_recently_viewed';
 const MAX_STORED = 10;
 
+const getRecentlyViewedStorageKey = (userId) =>
+    (userId ? `canres_recently_viewed_${userId}` : 'canres_recently_viewed_guest');
+
 export default function RecentlyViewed({ currentProduct, currentProductId }) {
+    const { user } = useAuth();
+    const userId = user?.id || null;
     const [recentlyViewed, setRecentlyViewed] = useState([]);
     const targetId = currentProduct?.id || currentProductId;
 
@@ -14,7 +20,10 @@ export default function RecentlyViewed({ currentProduct, currentProductId }) {
 
         let items = [];
         try {
-            const raw = localStorage.getItem(STORAGE_KEY);
+            // Eliminar clave legada no aislada
+            localStorage.removeItem(LEGACY_STORAGE_KEY);
+            const key = getRecentlyViewedStorageKey(userId);
+            const raw = localStorage.getItem(key);
             if (raw) {
                 const parsed = JSON.parse(raw);
                 if (Array.isArray(parsed)) {
@@ -50,12 +59,13 @@ export default function RecentlyViewed({ currentProduct, currentProductId }) {
 
             const updated = [compactProduct, ...items.filter((p) => p.id !== targetId)].slice(0, MAX_STORED);
             try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+                const key = getRecentlyViewedStorageKey(userId);
+                localStorage.setItem(key, JSON.stringify(updated));
             } catch {
                 // Ignorar
             }
         }
-    }, [targetId, currentProduct]);
+    }, [targetId, currentProduct, userId]);
 
     if (!recentlyViewed.length) {
         return null;

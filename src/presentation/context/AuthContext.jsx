@@ -47,6 +47,15 @@ export const AuthProvider = ({ children }) => {
 
         const initAuth = async () => {
             try {
+                // Limpieza preventiva de claves legadas no aisladas
+                try {
+                    localStorage.removeItem('ap_wishlist');
+                    localStorage.removeItem('ap_cart');
+                    localStorage.removeItem('ap_recently_viewed');
+                } catch {
+                    // ignore
+                }
+
                 // Manejar posibles parámetros devueltos por Google OAuth en URL (Hash o Query)
                 if (typeof window !== 'undefined') {
                     const hashStr = window.location.hash ? window.location.hash.substring(1) : '';
@@ -138,6 +147,17 @@ export const AuthProvider = ({ children }) => {
             await useCases.signOutCustomer();
         } finally {
             persistUser(null);
+            try {
+                localStorage.removeItem('canres_wishlist_guest');
+                localStorage.removeItem('canres_cart_guest');
+                localStorage.removeItem('canres_recently_viewed_guest');
+                localStorage.removeItem('ap_wishlist');
+                localStorage.removeItem('ap_cart');
+                localStorage.removeItem('ap_recently_viewed');
+                sessionStorage.removeItem('canres_chatbot_history_v1');
+            } catch {
+                // ignore
+            }
         }
     }, [persistUser]);
 
