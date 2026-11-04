@@ -16,10 +16,9 @@ export default function ButcherAvatar({
     const isThinking = status === 'thinking';
     const isSpeaking = status === 'speaking';
 
+    // Se mantiene la animación natural de respiración, carne y parpadeo (sin alterar la boca)
     const imageSrc = isThinking
         ? '/images/butcher/butcher-thinking.webp'
-        : isSpeaking
-        ? '/images/butcher/butcher-talking.webp'
         : '/images/butcher/butcher-idle.webp';
 
     const sizeClasses = {
@@ -50,21 +49,6 @@ export default function ButcherAvatar({
                     loading="eager"
                 />
             </div>
-
-            {/* Ecualizador sutil cuando está hablando */}
-            {isSpeaking && showEqualizer && (
-                <div
-                    className="absolute inset-0 flex items-center justify-center rounded-full bg-black/30 backdrop-blur-[0.5px] transition-opacity"
-                    title="Hablando..."
-                >
-                    <div className="flex items-center gap-[2px]">
-                        <span className="w-[2.5px] rounded-full bg-gold-light animate-soundwave-1" />
-                        <span className="w-[2.5px] rounded-full bg-white animate-soundwave-2" />
-                        <span className="w-[2.5px] rounded-full bg-gold-light animate-soundwave-3" />
-                        <span className="w-[2.5px] rounded-full bg-white animate-soundwave-4" />
-                    </div>
-                </div>
-            )}
 
             {/* Icono de cuchillo cortando cuando está pensando */}
             {isThinking && (

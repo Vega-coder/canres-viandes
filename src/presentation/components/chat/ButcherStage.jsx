@@ -71,11 +71,9 @@ export default function ButcherStage({
         }
     };
 
-    // Fuente animada según estado activo
+    // Fuente animada según estado activo (mantiene la pose de respiración y parpadeo natural)
     const imageSrc = isThinking
         ? '/images/butcher/butcher-thinking.webp'
-        : isSpeaking
-        ? '/images/butcher/butcher-talking.webp'
         : '/images/butcher/butcher-idle.webp';
 
     return (
@@ -181,19 +179,6 @@ export default function ButcherStage({
                                 alt="Maestro Carnicero interactivo y animado"
                                 className="h-full w-full object-cover object-[50%_18%] transition-transform duration-300 group-hover:scale-105"
                             />
-
-                            {/* Overlay de ecualizador de voz interactivo */}
-                            {isSpeaking && (
-                                <div className="absolute inset-x-0 bottom-0 flex items-end justify-center gap-1 bg-gradient-to-t from-black/85 via-black/50 to-transparent pb-1.5 pt-4">
-                                    <span className="w-1 rounded-full bg-gold animate-soundwave-1" />
-                                    <span className="w-1 rounded-full bg-white animate-soundwave-2" />
-                                    <span className="w-1 rounded-full bg-gold animate-soundwave-3" />
-                                    <span className="w-1 rounded-full bg-white animate-soundwave-4" />
-                                    <span className="ml-1 text-[8.5px] font-bold text-gold uppercase tracking-wider">
-                                        Hablando
-                                    </span>
-                                </div>
-                            )}
 
                             {/* Badge flotante de estado en el escenario */}
                             {isThinking ? (
