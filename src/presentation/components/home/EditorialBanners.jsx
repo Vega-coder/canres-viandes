@@ -1,40 +1,47 @@
+import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import Monogram from '@/presentation/components/brand/Monogram.jsx';
-
-const BANNERS = [
-    {
-        theme: 'dark',
-        eyebrow: 'Parrilla & Brasa',
-        title: 'Cortes de Res AAA & Reservas Sterling',
-        to: '/tienda/res',
-        cta: 'Explorar Cortes de Res',
-        image: 'https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739782/canres-viandes/meat_beef_cut.jpg',
-        alt: 'Ribeye AAA y cortes premium',
-    },
-    {
-        theme: 'wine',
-        eyebrow: 'Exclusivo CANRES',
-        title: 'Chorizos Personalizados a Medida',
-        to: '/producto/chorizos-personalizados',
-        cta: 'Crear mi receta (desde 16$/kg)',
-        image: 'https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739782/canres-viandes/chorizos.jpg',
-        alt: 'Chorizos artesanales personalizados',
-    },
-    {
-        theme: 'dark',
-        eyebrow: 'Mayoreo & Eventos',
-        title: 'Medias Canales & Cajas de Ahorro Familiar',
-        to: '/tienda/canales',
-        cta: 'Ver Precios Mayoristas',
-        image: 'https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739785/canres-viandes/ribs.jpg',
-        alt: 'Medias canales y cajas de carne',
-    },
-];
+import { useLanguage } from '@/presentation/context/LanguageContext.jsx';
 
 export default function EditorialBanners() {
+    const { t } = useLanguage();
+
+    const banners = useMemo(
+        () => [
+            {
+                theme: 'dark',
+                eyebrow: t('editorialBanners.b1_eyebrow'),
+                title: t('editorialBanners.b1_title'),
+                to: '/tienda/res',
+                cta: t('editorialBanners.b1_cta'),
+                image: 'https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739782/canres-viandes/meat_beef_cut.jpg',
+                alt: t('editorialBanners.b1_title'),
+            },
+            {
+                theme: 'wine',
+                eyebrow: t('editorialBanners.b2_eyebrow'),
+                title: t('editorialBanners.b2_title'),
+                to: '/producto/chorizos-personalizados',
+                cta: t('editorialBanners.b2_cta'),
+                image: 'https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739782/canres-viandes/chorizos.jpg',
+                alt: t('editorialBanners.b2_title'),
+            },
+            {
+                theme: 'dark',
+                eyebrow: t('editorialBanners.b3_eyebrow'),
+                title: t('editorialBanners.b3_title'),
+                to: '/tienda/canales',
+                cta: t('editorialBanners.b3_cta'),
+                image: 'https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739785/canres-viandes/ribs.jpg',
+                alt: t('editorialBanners.b3_title'),
+            },
+        ],
+        [t],
+    );
+
     return (
         <section className="container-luxe grid gap-6 py-12 md:grid-cols-3">
-            {BANNERS.map((b) => {
+            {banners.map((b) => {
                 const isWine = b.theme === 'wine';
                 return (
                     <Link
@@ -58,15 +65,15 @@ export default function EditorialBanners() {
                             <img
                                 src={b.image}
                                 alt={b.alt}
-                                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110 rounded-xl"
+                                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
                                 loading="lazy"
                             />
-                            <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                         </div>
 
                         <div className="relative z-10">
-                            <span className={isWine ? 'btn-gold w-full text-xs' : 'btn-outline-light w-full text-xs'}>
-                                {b.cta}
+                            <span className="inline-block rounded-full bg-white/10 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white backdrop-blur transition-all group-hover:bg-brand-light group-hover:text-ink">
+                                {b.cta} →
                             </span>
                         </div>
                     </Link>

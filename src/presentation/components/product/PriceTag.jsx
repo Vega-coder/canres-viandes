@@ -1,7 +1,8 @@
-import { formatMoney, formatUnit } from '@/domain/shared/money.js';
 import { getFinalPrice, isOnSale } from '@/domain/catalog/product.js';
+import { useLanguage } from '@/presentation/context/LanguageContext.jsx';
 
 export default function PriceTag({ product, size = 'md' }) {
+    const { formatMoney, formatUnit } = useLanguage();
     const big = size === 'lg';
     const unitLabel = formatUnit(product.unit);
 

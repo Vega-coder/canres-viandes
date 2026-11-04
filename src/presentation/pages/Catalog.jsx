@@ -1,31 +1,36 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { HiOutlineAdjustmentsHorizontal, HiOutlineXMark } from 'react-icons/hi2';
 import { useCases } from '@/infrastructure/container.js';
 import { getCategoryBySlug } from '@/domain/catalog/categories.js';
 import { getAromaBySlug } from '@/domain/catalog/aromas.js';
-import { SORT_OPTIONS, PRICE_RANGES } from '@/domain/catalog/filters.js';
+import { PRICE_RANGES } from '@/domain/catalog/filters.js';
 import { useAsync } from '@/presentation/hooks/useAsync.js';
+import { useLanguage } from '@/presentation/context/LanguageContext.jsx';
 import FilterPanel from '@/presentation/components/catalog/FilterPanel.jsx';
 import SortDropdown from '@/presentation/components/catalog/SortDropdown.jsx';
 import ProductGrid, { ProductGridSkeleton } from '@/presentation/components/product/ProductGrid.jsx';
 import NotFound from './NotFound.jsx';
 
-const CATEGORY_TABS = [
-    { slug: '', label: 'Todos los Cortes', icon: '🥩' },
-    { slug: 'res', label: 'Res AAA', icon: '🥩' },
-    { slug: 'cerdo', label: 'Cerdo Selecto', icon: '🥓' },
-    { slug: 'chorizos', label: 'Chorizos Artesanales', icon: '🌭', isSpecial: true },
-    { slug: 'pollo', label: 'Pollo de Granja', icon: '🍗' },
-    { slug: 'chivo', label: 'Chivo & Cordero', icon: '🐐' },
-    { slug: 'canales', label: 'Mayoreo & Canales', icon: '📦' },
-];
-
 // Los filtros viven en la URL (?q=&aroma=&marca=&precio=&orden=) para que se puedan compartir.
 export default function Catalog() {
+    const { t, getCategoryLabel } = useLanguage();
     const { category } = useParams();
     const [params, setParams] = useSearchParams();
     const [filtersOpen, setFiltersOpen] = useState(false);
+
+    const categoryTabs = useMemo(
+        () => [
+            { slug: '', label: t('catalog.tab_all'), icon: '🥩' },
+            { slug: 'res', label: t('catalog.tab_beef'), icon: '🥩' },
+            { slug: 'cerdo', label: t('catalog.tab_pork'), icon: '🥓' },
+            { slug: 'chorizos', label: t('catalog.tab_sausages'), icon: '🌭', isSpecial: true },
+            { slug: 'pollo', label: t('catalog.tab_poultry'), icon: '🍗' },
+            { slug: 'chivo', label: t('catalog.tab_goat'), icon: '🐐' },
+            { slug: 'canales', label: t('catalog.tab_wholesale'), icon: '📦' },
+        ],
+        [t],
+    );
 
     const query = params.get('q') ?? '';
     const aroma = params.get('aroma') ?? '';
@@ -68,21 +73,21 @@ export default function Catalog() {
         />
     );
 
-    let title = 'Toda la colección';
+    let title = t('catalog.all_collection');
     let subtitle = null;
     if (query) {
-        title = `Resultados para “${query}”`;
+        title = t('catalog.results_for', { query });
     } else if (aromaInfo) {
-        title = `Cortes para ${aromaInfo.name}`;
+        title = t('catalog.cuts_for', { name: aromaInfo.name });
         subtitle = aromaInfo.description;
     } else if (categoryInfo) {
-        title = categoryInfo.label;
+        title = getCategoryLabel(categoryInfo.slug);
     }
 
     return (
         <div className="container-luxe py-12">
             <header className="mb-8 border-b border-taupe/15 pb-8 text-center">
-                <p className="eyebrow text-taupe">{aromaInfo ? 'Estilo & Método' : 'Carnicería'}</p>
+                <p className="eyebrow text-taupe">{aromaInfo ? t('catalog.style_method') : t('catalog.category_title')}</p>
                 <h1 className="mt-3 text-4xl sm:text-5xl">{title}</h1>
                 {subtitle && <p className="mx-auto mt-3 max-w-xl text-sm text-taupe">{subtitle}</p>}
                 {aromaInfo && (
@@ -93,7 +98,7 @@ export default function Catalog() {
                                 type="button"
                                 onClick={() => update((p) => p.delete('aroma'))}
                                 className="ml-1 text-taupe hover:text-ink"
-                                title="Quitar filtro de aroma"
+                                title="Quitar filtro"
                             >
                                 ✕
                             </button>
@@ -104,7 +109,7 @@ export default function Catalog() {
 
             {/* Pestañas de categoría rápida */}
             <div className="mb-10 flex flex-wrap items-center justify-center gap-2 sm:gap-2.5">
-                {CATEGORY_TABS.map((tab) => {
+                {categoryTabs.map((tab) => {
                     const isActive = (!category && !tab.slug) || category === tab.slug;
                     return (
                         <Link
@@ -122,7 +127,7 @@ export default function Catalog() {
                             <span>{tab.label}</span>
                             {tab.isSpecial && (
                                 <span className="ml-1 rounded-full bg-gold px-1.5 py-0.5 text-[8px] font-black uppercase text-ink">
-                                    ★ Especialidad
+                                    {t('catalog.specialty_tag')}
                                 </span>
                             )}
                         </Link>
@@ -136,21 +141,23 @@ export default function Catalog() {
                 <div className="flex-1">
                     <div className="mb-8 flex items-center justify-between gap-4">
                         <button className="btn-outline px-4 py-2 lg:hidden" onClick={() => setFiltersOpen(true)}>
-                            <HiOutlineAdjustmentsHorizontal className="h-4 w-4" /> Filtros
+                            <HiOutlineAdjustmentsHorizontal className="h-4 w-4" /> {t('catalog.filters_btn')}
                         </button>
-                        <p className="hidden text-xs text-taupe lg:block">{loading ? 'Cargando…' : `${data?.total ?? 0} productos`}</p>
+                        <p className="hidden text-xs text-taupe lg:block">
+                            {loading ? t('catalog.loading') : t('catalog.product_count', { count: data?.total ?? 0 })}
+                        </p>
                         <SortDropdown
                             value={sort}
                             onChange={(val) => update((p) => p.set('orden', val))}
                         />
                     </div>
 
-                    {error && <p className="py-20 text-center text-taupe">No pudimos cargar el catálogo. Intenta de nuevo en unos segundos.</p>}
+                    {error && <p className="py-20 text-center text-taupe">{t('catalog.error_loading')}</p>}
                     {loading && <ProductGridSkeleton count={6} />}
                     {!loading && !error && data.products.length === 0 && (
                         <div className="py-20 text-center">
-                            <p className="font-display text-2xl">No encontramos productos</p>
-                            <p className="mt-2 text-sm text-taupe">Prueba con otros filtros o términos de búsqueda.</p>
+                            <p className="font-display text-2xl">{t('catalog.no_products')}</p>
+                            <p className="mt-2 text-sm text-taupe">{t('catalog.no_products_hint')}</p>
                         </div>
                     )}
                     {!loading && !error && data.products.length > 0 && <ProductGrid products={data.products} columns="lg:grid-cols-3" />}
@@ -162,8 +169,8 @@ export default function Catalog() {
                     <div className="absolute inset-0 bg-ink/50" onClick={() => setFiltersOpen(false)} />
                     <div className="absolute inset-y-0 left-0 w-80 max-w-[85%] overflow-y-auto bg-cream-light p-6">
                         <div className="mb-8 flex items-center justify-between">
-                            <p className="font-display text-2xl">Filtros</p>
-                            <button onClick={() => setFiltersOpen(false)} aria-label="Cerrar filtros"><HiOutlineXMark className="h-6 w-6" /></button>
+                            <p className="font-display text-2xl">{t('catalog.filters_btn')}</p>
+                            <button onClick={() => setFiltersOpen(false)} aria-label={t('catalog.close_filters')}><HiOutlineXMark className="h-6 w-6" /></button>
                         </div>
                         {panel}
                     </div>

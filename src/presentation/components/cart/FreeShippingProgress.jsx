@@ -1,8 +1,9 @@
 import { FREE_SHIPPING_THRESHOLD } from '@/domain/cart/cart.js';
-import { formatMoney } from '@/domain/shared/money.js';
+import { useLanguage } from '@/presentation/context/LanguageContext.jsx';
 import { HiOutlineTruck, HiCheckCircle } from 'react-icons/hi2';
 
 export default function FreeShippingProgress({ missing }) {
+    const { t, formatMoney } = useLanguage();
     const clampedMissing = Math.max(0, missing);
     const pct = Math.min(100, Math.max(0, Math.round(((FREE_SHIPPING_THRESHOLD - clampedMissing) / FREE_SHIPPING_THRESHOLD) * 100)));
 
@@ -13,13 +14,13 @@ export default function FreeShippingProgress({ missing }) {
                     {pct >= 100 ? (
                         <>
                             <HiCheckCircle className="h-4 w-4 text-emerald-600" />
-                            <strong className="text-emerald-700 font-bold">¡Genial! Tu envío refrigerado es GRATIS</strong>
+                            <strong className="text-emerald-700 font-bold">{t('cart.free_ship_congrats')}</strong>
                         </>
                     ) : (
                         <>
                             <HiOutlineTruck className="h-4 w-4 text-brand-wine" />
                             <span>
-                                Te faltan <strong className="text-brand-wine font-bold">{formatMoney(clampedMissing)}</strong> para Envío Refrigerado Gratis
+                                {t('cart.free_ship_missing', { amount: formatMoney(clampedMissing) })}
                             </span>
                         </>
                     )}

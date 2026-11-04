@@ -1,12 +1,26 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { HiChevronDown, HiCheck, HiArrowsUpDown } from 'react-icons/hi2';
 import { SORT_OPTIONS } from '@/domain/catalog/filters.js';
+import { useLanguage } from '@/presentation/context/LanguageContext.jsx';
 
 export default function SortDropdown({ value, onChange }) {
+    const { t } = useLanguage();
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
 
-    const currentOption = SORT_OPTIONS.find((o) => o.id === value) || SORT_OPTIONS[0];
+    const localizedOptions = useMemo(() => {
+        return SORT_OPTIONS.map((o) => {
+            let label = o.label;
+            if (o.id === 'featured') label = t('catalog.sort_featured');
+            else if (o.id === 'newest') label = t('catalog.sort_newest');
+            else if (o.id === 'price-asc') label = t('catalog.sort_price_asc');
+            else if (o.id === 'price-desc') label = t('catalog.sort_price_desc');
+            else if (o.id === 'name') label = t('catalog.sort_name');
+            return { id: o.id, label };
+        });
+    }, [t]);
+
+    const currentOption = localizedOptions.find((o) => o.id === value) || localizedOptions[0];
 
     useEffect(() => {
         const handleClickOutside = (e) => {
@@ -35,7 +49,7 @@ export default function SortDropdown({ value, onChange }) {
                 aria-expanded={isOpen}
             >
                 <HiArrowsUpDown className="h-3.5 w-3.5 text-gold-dark shrink-0" />
-                <span className="text-taupe font-normal hidden sm:inline">Ordenar:</span>
+                <span className="text-taupe font-normal hidden sm:inline">{t('catalog.sort_label')}</span>
                 <span className="font-semibold text-ink truncate max-w-[130px] sm:max-w-none">
                     {currentOption.label}
                 </span>
@@ -53,9 +67,9 @@ export default function SortDropdown({ value, onChange }) {
                     role="listbox"
                 >
                     <div className="px-3.5 py-1.5 border-b border-taupe/10 text-[9px] font-bold uppercase tracking-wider text-taupe">
-                        Ordenar productos por
+                        {t('catalog.sort_modal_title')}
                     </div>
-                    {SORT_OPTIONS.map((option) => {
+                    {localizedOptions.map((option) => {
                         const isSelected = option.id === (value || 'featured');
                         return (
                             <button

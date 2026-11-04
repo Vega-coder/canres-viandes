@@ -1,14 +1,15 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { HiOutlineShoppingBag, HiHeart, HiOutlineHeart, HiCheck, HiStar } from 'react-icons/hi2';
+import { HiOutlineShoppingBag, HiHeart, HiOutlineHeart, HiCheck } from 'react-icons/hi2';
 import { isOnSale } from '@/domain/catalog/product.js';
-import { formatMoney } from '@/domain/shared/money.js';
 import { useCart } from '@/presentation/context/CartContext.jsx';
 import { useWishlist } from '@/presentation/context/WishlistContext.jsx';
+import { useLanguage } from '@/presentation/context/LanguageContext.jsx';
 import ProductImage from './ProductImage.jsx';
 import PriceTag from './PriceTag.jsx';
 
 export default function ProductCard({ product }) {
+    const { t, formatMoney, translateNote } = useLanguage();
     const { add } = useCart();
     const { isInWishlist, toggleWishlist } = useWishlist();
     const [justAdded, setJustAdded] = useState(false);
@@ -37,27 +38,27 @@ export default function ProductCard({ product }) {
                 <div className="pointer-events-none absolute left-2.5 top-2.5 flex flex-col gap-1">
                     {product.brand?.includes('AAA') && (
                         <span className="bg-brand-wine px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white rounded">
-                            Grado AAA
+                            {t('productCard.grade_aaa')}
                         </span>
                     )}
                     {product.gender === 'chorizos' && (
                         <span className="bg-brand-dark px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-amber-200 rounded">
-                            100% Artesanal
+                            {t('productCard.artisan')}
                         </span>
                     )}
                     {product.isNew && (
                         <span className="bg-ink px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white rounded">
-                            Novedad
+                            {t('productCard.new')}
                         </span>
                     )}
                     {isOnSale(product) && (
                         <span className="bg-amber-600 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white rounded">
-                            Oferta
+                            {t('productCard.sale')}
                         </span>
                     )}
                     {soldOut && (
                         <span className="bg-taupe px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white rounded">
-                            Agotado
+                            {t('productCard.sold_out')}
                         </span>
                     )}
                 </div>
@@ -70,7 +71,11 @@ export default function ProductCard({ product }) {
                         e.stopPropagation();
                         toggleWishlist(product);
                     }}
-                    aria-label={isFav ? `Quitar ${product.name} de favoritos` : `Guardar ${product.name} en favoritos`}
+                    aria-label={
+                        isFav
+                            ? t('productCard.fav_remove', { name: product.name })
+                            : t('productCard.fav_add', { name: product.name })
+                    }
                     className={`absolute right-2.5 top-2.5 flex h-8 w-8 items-center justify-center rounded-full transition shadow-sm active:scale-125 ${
                         isFav
                             ? 'bg-brand-wine text-white scale-105'
@@ -84,7 +89,7 @@ export default function ProductCard({ product }) {
                 {product.notes?.length > 0 && (
                     <div className="pointer-events-none absolute inset-x-2 bottom-2 z-10 flex justify-center opacity-0 translate-y-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0">
                         <span className="rounded-full bg-ink/90 px-3 py-1 text-[9.5px] font-semibold text-cream-light backdrop-blur-md shadow truncate max-w-[95%]">
-                            🔪 {product.notes.slice(0, 2).join(' · ')}
+                            🔪 {product.notes.slice(0, 2).map((n) => translateNote(n)).join(' · ')}
                         </span>
                     </div>
                 )}
@@ -104,9 +109,11 @@ export default function ProductCard({ product }) {
 
                     <div className="mt-2 flex items-center gap-1.5 text-[10.5px]">
                         {product.hasFreeShipping || !product.shippingCost || product.shippingCost <= 0 ? (
-                            <span className="font-semibold text-emerald-700">❄️ Envío refrigerado gratis</span>
+                            <span className="font-semibold text-emerald-700">{t('productCard.free_ship')}</span>
                         ) : (
-                            <span className="text-taupe">Envío refrigerado: <span className="font-semibold text-ink">{formatMoney(product.shippingCost)}</span></span>
+                            <span className="text-taupe">
+                                {t('productCard.ship_cost', { cost: formatMoney(product.shippingCost) })}
+                            </span>
                         )}
                     </div>
 
@@ -119,17 +126,17 @@ export default function ProductCard({ product }) {
                                 ? 'bg-emerald-700 text-white shadow-md'
                                 : 'bg-brand-wine text-white hover:bg-brand-red shadow-sm hover:shadow-brand-wine/25'
                         }`}
-                        aria-label={`Agregar ${product.name} al carrito`}
+                        aria-label={`${t('productCard.add')} ${product.name}`}
                     >
                         {justAdded ? (
                             <>
                                 <HiCheck className="h-4 w-4" />
-                                <span>¡Agregado al pedido!</span>
+                                <span>{t('productCard.added')}</span>
                             </>
                         ) : (
                             <>
                                 <HiOutlineShoppingBag className="h-4 w-4" />
-                                <span>{soldOut ? 'Agotado' : 'Agregar al pedido'}</span>
+                                <span>{soldOut ? t('productCard.sold_out') : t('productCard.add')}</span>
                             </>
                         )}
                     </button>

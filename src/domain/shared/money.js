@@ -1,28 +1,62 @@
 // Utilidades monetarias puras para CANRES Viandes.
-// Soporta moneda en dólares ($ CAD / USD) con soporte decimal para pesaje por kg y paquetes.
+// Soporta moneda en dólares ($ CAD) con formato bilingüe canadiense (en-CA y fr-CA).
 
 export const CURRENCY = 'CAD';
 
-const formatter = new Intl.NumberFormat('en-CA', {
+const formatterEn = new Intl.NumberFormat('en-CA', {
     style: 'currency',
     currency: 'CAD',
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
 });
 
-export const formatMoney = (amount) => {
+const formatterFr = new Intl.NumberFormat('fr-CA', {
+    style: 'currency',
+    currency: 'CAD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+});
+
+export const formatMoney = (amount, lang = 'en') => {
     const num = Number(amount) || 0;
-    return formatter.format(num);
+    const isFr = String(lang).toLowerCase().startsWith('fr');
+    return (isFr ? formatterFr : formatterEn).format(num);
 };
 
-export const formatUnit = (unit = 'kg') => {
+export const formatUnit = (unit = 'kg', lang = 'es') => {
+    const isFr = String(lang).toLowerCase().startsWith('fr');
+    const isEn = String(lang).toLowerCase().startsWith('en');
+
     if (unit === 'kg') return '/ kg';
-    if (unit === '450g') return '/ pqte (450g)';
-    if (unit === 'caja-4kg') return '/ caja (4 kg)';
-    if (unit === 'caja-13kg') return '/ caja (13 kg)';
-    if (unit === 'caja-11kg') return '/ caja (11 kg)';
-    if (unit === 'boite-5kg') return '/ boîte (5 kg)';
-    if (unit === 'unidad') return '/ unid.';
+    if (unit === '450g') {
+        if (isFr) return '/ paq. (450g)';
+        if (isEn) return '/ pack (450g)';
+        return '/ pqte (450g)';
+    }
+    if (unit === 'caja-4kg') {
+        if (isFr) return '/ boîte (4 kg)';
+        if (isEn) return '/ box (4 kg)';
+        return '/ caja (4 kg)';
+    }
+    if (unit === 'caja-13kg') {
+        if (isFr) return '/ boîte (13 kg)';
+        if (isEn) return '/ box (13 kg)';
+        return '/ caja (13 kg)';
+    }
+    if (unit === 'caja-11kg') {
+        if (isFr) return '/ boîte (11 kg)';
+        if (isEn) return '/ box (11 kg)';
+        return '/ caja (11 kg)';
+    }
+    if (unit === 'boite-5kg') {
+        if (isEn) return '/ box (5 kg)';
+        return '/ boîte (5 kg)';
+    }
+    if (unit === 'unidad') {
+        if (isFr) return '/ unité';
+        if (isEn) return '/ unit';
+        return '/ unid.';
+    }
     return unit ? `/ ${unit}` : '';
 };
 

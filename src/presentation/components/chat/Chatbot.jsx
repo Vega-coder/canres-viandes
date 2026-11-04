@@ -1,33 +1,42 @@
-import { useState, useEffect, useRef } from 'react';
-import { HiSparkles, HiPaperAirplane, HiXMark, HiArrowPath, HiMinus } from 'react-icons/hi2';
+import { useState, useEffect, useRef, useMemo } from 'react';
+import { HiSparkles, HiPaperAirplane, HiXMark, HiArrowPath } from 'react-icons/hi2';
 import { FaWhatsapp, FaCrown } from 'react-icons/fa6';
 import { useCases, STORE_WHATSAPP } from '@/infrastructure/container.js';
+import { useLanguage } from '@/presentation/context/LanguageContext.jsx';
 import ChatMarkdown from './ChatMarkdown.jsx';
 
-const STORAGE_KEY = 'canres_chatbot_history_v1';
-
-const SUGGESTIONS = [
-    { label: '🥩 ¿Cuál es el mejor corte para asar?', query: '¿Qué corte me recomiendas para hacer un asado a la parrilla con amigos?' },
-    { label: '🌭 Chorizos artesanales de la casa', query: '¿Qué variedades de chorizos artesanales tienen y cómo prepararlos?' },
-    { label: '📦 Precios de mayoreo y medias canales', query: '¿Cómo funciona la venta de medias canales y pedidos al por mayor?' },
-    { label: '🇨🇴 Sabor tradicional colombiano', query: '¿Qué cortes tienen para preparar sobrebarriga criolla o sancocho?' },
-    { label: '🚚 Envíos, empaque al vacío y pedidos', query: '¿Cómo despachan los productos frescos y cómo puedo ordenar por WhatsApp?' },
-];
-
-const INITIAL_WELCOME = {
-    role: 'assistant',
-    content: '¡Bienvenido a **CANRES Viandes**! 🥩✨\n\nSoy tu **Maestro Carnicero Virtual**. La perfecta alianza entre la tradición colombiana y el savoir-faire québécois. ¿Buscas un corte noble para la parrilla, chorizos artesanales de autor o asesoría para pedidos por mayor?',
-    time: 'Ahora',
-};
+const STORAGE_KEY = 'canres_chatbot_history_v2';
 
 export default function Chatbot() {
+    const { t, language } = useLanguage();
     const [isOpen, setIsOpen] = useState(false);
+
+    const initialWelcome = useMemo(
+        () => ({
+            role: 'assistant',
+            content: t('chatbot.welcome'),
+            time: 'Maintenant',
+        }),
+        [t],
+    );
+
+    const suggestions = useMemo(
+        () => [
+            { label: t('chatbot.sug1_label'), query: t('chatbot.sug1_query') },
+            { label: t('chatbot.sug2_label'), query: t('chatbot.sug2_query') },
+            { label: t('chatbot.sug3_label'), query: t('chatbot.sug3_query') },
+            { label: t('chatbot.sug4_label'), query: t('chatbot.sug4_query') },
+            { label: t('chatbot.sug5_label'), query: t('chatbot.sug5_query') },
+        ],
+        [t],
+    );
+
     const [messages, setMessages] = useState(() => {
         try {
-            const saved = sessionStorage.getItem(STORAGE_KEY);
-            return saved ? JSON.parse(saved) : [INITIAL_WELCOME];
+            const saved = sessionStorage.getItem(`${STORAGE_KEY}_${language}`);
+            return saved ? JSON.parse(saved) : [initialWelcome];
         } catch {
-            return [INITIAL_WELCOME];
+            return [initialWelcome];
         }
     });
     const [input, setInput] = useState('');
@@ -35,14 +44,27 @@ export default function Chatbot() {
     const messagesEndRef = useRef(null);
     const inputRef = useRef(null);
 
+    // Si no ha habido interacción y cambia el idioma, actualizamos el mensaje de bienvenida
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setMessages((prev) => {
+                if (prev.length === 1 && prev[0].role === 'assistant') {
+                    return [initialWelcome];
+                }
+                return prev;
+            });
+        }, 0);
+        return () => clearTimeout(timer);
+    }, [initialWelcome]);
+
     // Guardar en sessionStorage al cambiar mensajes
     useEffect(() => {
         try {
-            sessionStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+            sessionStorage.setItem(`${STORAGE_KEY}_${language}`, JSON.stringify(messages));
         } catch {
             // ignore
         }
-    }, [messages]);
+    }, [messages, language]);
 
     // Auto-scroll al final del chat
     const scrollToBottom = (behavior = 'smooth') => {
@@ -72,7 +94,6 @@ export default function Chatbot() {
         setLoading(true);
 
         try {
-            // Preparamos los mensajes para enviar a Groq (filtrando campos de UI)
             const apiMessages = newHistory.map((m) => ({
                 role: m.role,
                 content: m.content,
@@ -90,7 +111,8 @@ export default function Chatbot() {
             console.error('[Chatbot Error]:', error);
             const errorMsg = {
                 role: 'assistant',
-                content: error.message || 'Lo sentimos, tuvimos un problema de conexión temporal. Puedes escribirnos directamente a nuestro [WhatsApp de Atención Oficial](https://wa.me/573146160642) para asesorarte de inmediato.',
+                content:
+                    'Disculpas, ocurrió una interrupción de conexión. Por favor reintenta o escríbenos a WhatsApp.',
                 time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             };
             setMessages((prev) => [...prev, errorMsg]);
@@ -100,43 +122,45 @@ export default function Chatbot() {
     };
 
     const handleClear = () => {
-        setMessages([INITIAL_WELCOME]);
+        const resetMessages = [initialWelcome];
+        setMessages(resetMessages);
         try {
-            sessionStorage.removeItem(STORAGE_KEY);
+            sessionStorage.removeItem(`${STORAGE_KEY}_${language}`);
         } catch {
             // ignore
         }
     };
 
+    const handleSuggestionClick = (query) => {
+        handleSend(query);
+    };
+
     return (
         <>
-            {/* Botón flotante para abrir el Chatbot (ubicado en la esquina inferior izquierda, separado de WhatsApp) */}
+            {/* Botón flotante para abrir el Chatbot (esquina inferior izquierda) */}
             {!isOpen && (
-                <aside aria-label="Asesor Virtual IA" className="fixed bottom-5 left-4 z-30 sm:left-5">
-                    <button
-                        type="button"
-                        onClick={() => setIsOpen(true)}
-                        className="group flex items-center gap-2 rounded-full bg-gradient-to-r from-ink via-ink-light to-ink p-1.5 sm:py-2 sm:pl-3 sm:pr-4 text-gold shadow-luxe ring-1 ring-gold/40 transition-all duration-300 hover:scale-105 hover:ring-gold"
-                        aria-label="Abrir Asesor Carnicero IA"
-                        title="Asesor Experto CANRES Viandes"
-                    >
-                        <div className="relative flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-gold/15 text-gold transition group-hover:bg-gold group-hover:text-ink">
-                            <HiSparkles className="h-4 w-4 sm:h-5 sm:w-5 animate-pulse text-gold group-hover:text-ink" />
-                            <span className="absolute -top-0.5 -right-0.5 flex h-2.5 w-2.5">
-                                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gold opacity-75" />
-                                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-gold" />
-                            </span>
-                        </div>
-                        <div className="flex flex-col text-left leading-tight pr-1.5 sm:pr-0">
-                            <span className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-gold">
-                                <FaCrown className="h-2 w-2" /> Asesor Carnicero
-                            </span>
-                            <span className="hidden sm:block text-[11px] font-medium text-cream-light">
-                                ¿Qué corte buscas?
-                            </span>
-                        </div>
-                    </button>
-                </aside>
+                <button
+                    type="button"
+                    onClick={() => setIsOpen(true)}
+                    className="fixed bottom-5 left-5 z-40 flex items-center gap-2.5 rounded-full border border-gold/40 bg-gradient-to-r from-ink via-[#241F1C] to-ink px-4 py-3 text-cream-light shadow-2xl transition-all duration-300 hover:scale-105 hover:border-gold hover:shadow-gold/20 active:scale-95 group"
+                    aria-label="Abrir asistente virtual de carnicería"
+                >
+                    <div className="relative flex h-8 w-8 items-center justify-center rounded-full bg-gold/15 text-gold border border-gold/40">
+                        <HiSparkles className="h-4 w-4 transition-transform group-hover:rotate-12" />
+                        <span className="absolute -top-0.5 -right-0.5 flex h-2.5 w-2.5">
+                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
+                        </span>
+                    </div>
+                    <div className="text-left hidden sm:block">
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-gold-light">
+                            {t('chatbot.title')}
+                        </p>
+                        <p className="text-[11px] font-medium text-cream/80">
+                            {t('chatbot.subtitle')}
+                        </p>
+                    </div>
+                </button>
             )}
 
             {/* Ventana Modal / Drawer del Chatbot */}
@@ -147,7 +171,7 @@ export default function Chatbot() {
                     aria-label="Chat con Asesor Virtual CANRES Viandes"
                     className="fixed inset-x-3 bottom-3 top-20 z-50 flex flex-col overflow-hidden rounded-2xl border border-gold/40 bg-cream-light shadow-2xl backdrop-blur-md transition-all duration-300 sm:inset-auto sm:bottom-5 sm:left-5 sm:h-[580px] sm:w-[410px] sm:max-h-[85vh]"
                 >
-                    {/* Encabezado de Lujo */}
+                    {/* Encabezado */}
                     <header className="relative flex items-center justify-between border-b border-gold/20 bg-gradient-to-r from-[#171513] via-[#24211D] to-[#171513] px-4 py-3 text-cream-light shadow-sm">
                         <div className="flex items-center gap-3">
                             <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gold/50 bg-gold/10 text-gold shadow-xs">
@@ -157,14 +181,14 @@ export default function Chatbot() {
                             <div>
                                 <div className="flex items-center gap-2">
                                     <h3 className="font-display text-sm font-bold uppercase tracking-wider text-white">
-                                        Asesor CANRES Viandes
+                                        CANRES Viandes
                                     </h3>
                                     <span className="rounded-full bg-gold/20 px-1.5 py-0.2 text-[9px] font-semibold tracking-wider text-gold uppercase">
-                                        IA Carnicero
+                                        IA Boucher
                                     </span>
                                 </div>
                                 <p className="text-[11px] text-cream/70">
-                                    En línea · Maestro Carnicero
+                                    {t('chatbot.title')}
                                 </p>
                             </div>
                         </div>
@@ -174,8 +198,8 @@ export default function Chatbot() {
                                 type="button"
                                 onClick={handleClear}
                                 className="rounded-lg p-1.5 text-cream/70 transition hover:bg-white/10 hover:text-white"
-                                title="Reiniciar conversación"
-                                aria-label="Reiniciar conversación"
+                                title="Réinitialiser"
+                                aria-label="Réinitialiser"
                             >
                                 <HiArrowPath className="h-4 w-4" />
                             </button>
@@ -183,8 +207,8 @@ export default function Chatbot() {
                                 type="button"
                                 onClick={() => setIsOpen(false)}
                                 className="rounded-lg p-1.5 text-cream/70 transition hover:bg-white/10 hover:text-white"
-                                title="Cerrar chat"
-                                aria-label="Cerrar chat"
+                                title="Fermer"
+                                aria-label="Fermer"
                             >
                                 <HiXMark className="h-5 w-5" />
                             </button>
@@ -210,15 +234,13 @@ export default function Chatbot() {
                                         <ChatMarkdown
                                             content={msg.content}
                                             onLinkClick={() => {
-                                                // Al hacer clic en un enlace de producto o sección, cerramos el chat
-                                                // y nos desplazamos al inicio para que el cliente vea la página completa
                                                 setIsOpen(false);
                                                 window.scrollTo({ top: 0, behavior: 'instant' });
                                             }}
                                         />
                                     </div>
                                     {msg.time && (
-                                        <span className="mt-1 px-1 text-[10px] text-taupe/70">
+                                        <span className="mt-1 text-[9.5px] text-taupe px-1">
                                             {msg.time}
                                         </span>
                                     )}
@@ -226,35 +248,14 @@ export default function Chatbot() {
                             );
                         })}
 
-                        {/* Indicador de escritura */}
                         {loading && (
                             <div className="flex items-start">
-                                <div className="flex items-center gap-1.5 rounded-2xl rounded-tl-none border border-taupe/20 bg-white px-4 py-3 text-xs text-taupe shadow-xs">
-                                    <span className="h-2 w-2 animate-bounce rounded-full bg-gold" />
-                                    <span className="h-2 w-2 animate-bounce rounded-full bg-gold [animation-delay:0.2s]" />
-                                    <span className="h-2 w-2 animate-bounce rounded-full bg-gold [animation-delay:0.4s]" />
-                                    <span className="ml-1 text-[11px] text-taupe">El asesor está pensando…</span>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Preguntas Frecuentes / Chips Sugeridos (visibles cuando hay pocos mensajes) */}
-                        {messages.length <= 2 && !loading && (
-                            <div className="mt-4 pt-2">
-                                <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-taupe">
-                                    Sugerencias rápidas:
-                                </p>
-                                <div className="flex flex-wrap gap-1.5">
-                                    {SUGGESTIONS.map((item, sIdx) => (
-                                        <button
-                                            key={sIdx}
-                                            type="button"
-                                            onClick={() => handleSend(item.query)}
-                                            className="rounded-full border border-gold/40 bg-gold/5 px-3 py-1.5 text-left text-xs text-ink transition hover:border-gold hover:bg-gold/15 active:scale-95"
-                                        >
-                                            {item.label}
-                                        </button>
-                                    ))}
+                                <div className="rounded-2xl rounded-tl-none border border-taupe/20 bg-white px-4 py-3 shadow-xs">
+                                    <div className="flex items-center gap-1.5">
+                                        <span className="h-2 w-2 animate-bounce rounded-full bg-gold-dark" style={{ animationDelay: '0ms' }} />
+                                        <span className="h-2 w-2 animate-bounce rounded-full bg-gold-dark" style={{ animationDelay: '150ms' }} />
+                                        <span className="h-2 w-2 animate-bounce rounded-full bg-gold-dark" style={{ animationDelay: '300ms' }} />
+                                    </div>
                                 </div>
                             </div>
                         )}
@@ -262,21 +263,29 @@ export default function Chatbot() {
                         <div ref={messagesEndRef} />
                     </div>
 
-                    {/* Enlace directo a WhatsApp en caso de querer humano */}
-                    <div className="flex items-center justify-between border-t border-taupe/15 bg-cream/60 px-4 py-1.5 text-[11px]">
-                        <span className="text-taupe">¿Prefieres atención humana?</span>
-                        <a
-                            href={`https://wa.me/${STORE_WHATSAPP}?text=${encodeURIComponent('Hola Aroma Premium, deseo hablar con un asesor humano 💬')}`}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="flex items-center gap-1 font-semibold text-emerald-700 hover:underline"
-                        >
-                            <FaWhatsapp className="h-3.5 w-3.5" /> Escribir a WhatsApp
-                        </a>
-                    </div>
+                    {/* Sugerencias Rápidas */}
+                    {messages.length <= 2 && (
+                        <div className="border-t border-taupe/15 bg-white/60 p-2.5 backdrop-blur-xs">
+                            <p className="mb-2 text-[10px] font-bold uppercase tracking-wider text-taupe px-1">
+                                Questions fréquentes :
+                            </p>
+                            <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto">
+                                {suggestions.map((sug, i) => (
+                                    <button
+                                        key={i}
+                                        type="button"
+                                        onClick={() => handleSuggestionClick(sug.query)}
+                                        className="rounded-full border border-gold/30 bg-white px-2.5 py-1 text-[11px] font-medium text-ink transition hover:border-gold hover:bg-gold/10 hover:text-gold-dark text-left"
+                                    >
+                                        {sug.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
 
-                    {/* Formulario de Entrada */}
-                    <footer className="border-t border-taupe/20 bg-white p-3">
+                    {/* Footer y Entrada de Texto */}
+                    <div className="border-t border-taupe/15 bg-white p-3">
                         <form
                             onSubmit={(e) => {
                                 e.preventDefault();
@@ -289,20 +298,34 @@ export default function Chatbot() {
                                 type="text"
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
-                                placeholder="Escribe tu consulta sobre cortes, maduración, recetas..."
+                                placeholder={t('chatbot.placeholder')}
                                 disabled={loading}
-                                className="flex-1 rounded-full border border-taupe/30 bg-cream-light/40 px-4 py-2.5 text-xs text-ink placeholder:text-taupe focus:border-gold focus:bg-white focus:outline-none focus:ring-1 focus:ring-gold sm:text-sm"
+                                className="input flex-1 py-2 text-xs"
                             />
                             <button
                                 type="submit"
                                 disabled={!input.trim() || loading}
-                                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gold text-white shadow-sm transition hover:bg-gold-dark disabled:opacity-40 disabled:hover:bg-gold active:scale-95"
-                                aria-label="Enviar mensaje"
+                                className="btn-brand p-2.5 text-xs disabled:opacity-40"
+                                aria-label="Envoyer le message"
                             >
                                 <HiPaperAirplane className="h-4 w-4" />
                             </button>
                         </form>
-                    </footer>
+
+                        <div className="mt-2.5 flex items-center justify-between text-[10px] text-taupe px-1">
+                            <span className="flex items-center gap-1">
+                                <FaCrown className="h-3 w-3 text-gold" /> CANRES Viandes · Boucherie Artisanale
+                            </span>
+                            <a
+                                href={`https://wa.me/${STORE_WHATSAPP}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="flex items-center gap-1 font-semibold text-emerald-700 hover:underline"
+                            >
+                                <FaWhatsapp className="h-3 w-3" /> WhatsApp
+                            </a>
+                        </div>
+                    </div>
                 </div>
             )}
         </>

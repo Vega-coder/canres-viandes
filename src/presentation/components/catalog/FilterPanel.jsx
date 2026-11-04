@@ -2,6 +2,7 @@ import { NavLink } from 'react-router-dom';
 import { CATEGORIES } from '@/domain/catalog/categories.js';
 import { PRICE_RANGES } from '@/domain/catalog/filters.js';
 import { AROMAS } from '@/domain/catalog/aromas.js';
+import { useLanguage } from '@/presentation/context/LanguageContext.jsx';
 
 export default function FilterPanel({
     brands,
@@ -13,20 +14,33 @@ export default function FilterPanel({
     onAroma,
     onClear,
 }) {
+    const { t, getCategoryLabel, formatMoney } = useLanguage();
+
     return (
         <div className="space-y-10">
             <div>
-                <p className="eyebrow text-ink font-bold">Categorías de Carne</p>
+                <p className="eyebrow text-ink font-bold">{t('catalog.filter_categories')}</p>
                 <ul className="mt-4 space-y-2.5 text-sm">
                     <li>
-                        <NavLink to="/tienda" end className={({ isActive }) => (isActive ? 'font-bold text-brand-wine' : 'text-ink/70 hover:text-brand-wine')}>
-                            Todo el Catálogo
+                        <NavLink
+                            to="/tienda"
+                            end
+                            className={({ isActive }) =>
+                                isActive ? 'font-bold text-brand-wine' : 'text-ink/70 hover:text-brand-wine'
+                            }
+                        >
+                            {t('catalog.all_catalog')}
                         </NavLink>
                     </li>
                     {CATEGORIES.map((c) => (
                         <li key={c.slug}>
-                            <NavLink to={`/tienda/${c.slug}`} className={({ isActive }) => (isActive ? 'font-bold text-brand-wine' : 'text-ink/70 hover:text-brand-wine')}>
-                                {c.label}
+                            <NavLink
+                                to={`/tienda/${c.slug}`}
+                                className={({ isActive }) =>
+                                    isActive ? 'font-bold text-brand-wine' : 'text-ink/70 hover:text-brand-wine'
+                                }
+                            >
+                                {getCategoryLabel(c.slug)}
                             </NavLink>
                         </li>
                     ))}
@@ -34,7 +48,7 @@ export default function FilterPanel({
             </div>
 
             <div>
-                <p className="eyebrow text-ink font-bold">Estilo & Preparación</p>
+                <p className="eyebrow text-ink font-bold">{t('catalog.style_prep')}</p>
                 <ul className="mt-4 space-y-2 text-sm">
                     {AROMAS.map((a) => {
                         const isSelected = aroma === a.slug;
@@ -58,7 +72,7 @@ export default function FilterPanel({
 
             {brands.length > 0 && (
                 <fieldset>
-                    <legend className="eyebrow text-ink font-bold">Línea de Origen</legend>
+                    <legend className="eyebrow text-ink font-bold">{t('catalog.origin_line')}</legend>
                     <ul className="mt-4 space-y-2.5 text-sm">
                         {brands.map((b) => (
                             <li key={b}>
@@ -78,10 +92,15 @@ export default function FilterPanel({
             )}
 
             <fieldset>
-                <legend className="eyebrow text-ink font-bold">Rango de Precio</legend>
+                <legend className="eyebrow text-ink font-bold">{t('catalog.price_range')}</legend>
                 <ul className="mt-4 space-y-2 text-sm">
                     {PRICE_RANGES.map((r) => {
                         const isSelected = priceRange === r.id;
+                        const label = r.max === null
+                            ? `> ${formatMoney(r.min)}`
+                            : r.min === 0
+                            ? `< ${formatMoney(r.max)}`
+                            : `${formatMoney(r.min)} – ${formatMoney(r.max)}`;
                         return (
                             <li key={r.id}>
                                 <button
@@ -91,7 +110,7 @@ export default function FilterPanel({
                                         isSelected ? 'font-bold text-brand-wine' : 'text-ink/70 hover:text-brand-wine'
                                     }`}
                                 >
-                                    <span>{r.label}</span>
+                                    <span>{label}</span>
                                     {isSelected && <span className="text-xs text-brand-wine">✓</span>}
                                 </button>
                             </li>
@@ -106,7 +125,7 @@ export default function FilterPanel({
                     onClick={onClear}
                     className="btn-outline w-full text-xs text-center uppercase tracking-wider"
                 >
-                    Limpiar Filtros
+                    {t('catalog.clear_filters')}
                 </button>
             )}
         </div>

@@ -1,17 +1,18 @@
-import { useState, useEffect } from 'react';import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCases } from '@/infrastructure/container.js';
 import { validateCustomer } from '@/domain/orders/order.js';
 import { useCart } from '@/presentation/context/CartContext.jsx';
 import { useAuth } from '@/presentation/context/AuthContext.jsx';
+import { useLanguage } from '@/presentation/context/LanguageContext.jsx';
 import { alertError } from '@/presentation/utils/swal.js';
 import CheckoutForm from '@/presentation/components/checkout/CheckoutForm.jsx';
 import OrderSummary from '@/presentation/components/checkout/OrderSummary.jsx';
 
-const EMPTY_CUSTOMER = { fullName: '', email: '', phone: '', city: '', address: '', notes: '' };
-
 export default function Checkout() {
+    const { t } = useLanguage();
     const { items, totals, clear } = useCart();
-    const { user, isAuthenticated } = useAuth();
+    const { user } = useAuth();
     const navigate = useNavigate();
     const [customer, setCustomer] = useState(() => ({
         fullName: user?.fullName || '',
@@ -41,9 +42,9 @@ export default function Checkout() {
     if (items.length === 0) {
         return (
             <div className="container-luxe flex flex-col items-center py-32 text-center">
-                <h1 className="text-4xl">Tu pedido está vacío</h1>
-                <p className="mt-3 text-taupe">Agrega cortes de carne o charcutería para continuar con tu pedido.</p>
-                <Link to="/tienda" className="btn-brand mt-8">Ir a la tienda</Link>
+                <h1 className="text-4xl">{t('checkout.empty_title')}</h1>
+                <p className="mt-3 text-taupe">{t('checkout.empty_desc')}</p>
+                <Link to="/tienda" className="btn-brand mt-8">{t('checkout.go_to_shop')}</Link>
             </div>
         );
     }
@@ -58,67 +59,32 @@ export default function Checkout() {
         e.preventDefault();
         const found = validateCustomer(customer);
         setErrors(found);
-        if (Object.keys(found).length) return;
+        if (Object.keys(found).length > 0) return;
 
         setSubmitting(true);
         try {
-            const { order, confirmationUrl } = await useCases.placeOrder({
+            const redirectUrl = `${window.location.origin}/pedido/{code}`;
+            const result = await useCases.placeOrder({
                 items,
                 customer,
                 paymentMethod,
-                user,
-                isVip: Boolean(isAuthenticated && user?.isVip),
+                redirectUrl,
             });
 
-            if (paymentMethod === 'wompi') {
-                try {
-                    const result = await useCases.openWompiCheckout({
-                        order,
-                        customer,
-                        redirectUrl: `${window.location.origin}/pedido/${order.code}`,
-                    });
+            clear();
 
-                    const transactionId = result?.transaction?.id;
-                    const status = result?.status || 'PENDING';
-
-                    if (transactionId) {
-                        try {
-                            await useCases.updateWompiPayment(order.code, transactionId, status);
-                        } catch {
-                            // Ignorar si falla la sincronización local en background
-                        }
-                    }
-
-                    if (status === 'APPROVED' || (status === 'PENDING' && transactionId)) {
-                        clear();
-                        navigate(`/pedido/${order.code}${transactionId ? `?id=${transactionId}` : ''}`, {
-                            state: {
-                                order: { ...order, wompiTransactionId: transactionId, paymentStatus: status },
-                                confirmationUrl,
-                            },
-                        });
-                        return;
-                    }
-
-                    if (status === 'CANCELLED_BY_USER' || !transactionId) {
-                        // El usuario cerró la ventana de Wompi sin pagar: se conserva el carrito intacto y no se altera el inventario
-                        return;
-                    }
-
-                    alertError(
-                        'Pago no completado',
-                        'La transacción no fue aprobada por el banco. Tu carrito sigue guardado para que puedas reintentar con otro medio de pago.'
-                    );
-                } catch (wompiErr) {
-                    alertError('Error con la pasarela Wompi', wompiErr.message || 'No pudimos abrir Wompi en este momento.');
-                }
-            } else {
-                clear();
-                navigate(`/pedido/${order.code}`, { state: { order, confirmationUrl } });
+            if (result.checkoutUrl) {
+                window.location.href = result.checkoutUrl;
+                return;
             }
-        } catch (error) {
-            if (error.fields) setErrors(error.fields);
-            alertError('No pudimos confirmar tu pedido', error.message);
+
+            navigate(`/pedido/${result.order.code}`, {
+                replace: true,
+                state: { order: result.order },
+            });
+        } catch (err) {
+            console.error('[Checkout Error]:', err);
+            await alertError('No pudimos procesar tu pedido', err.message || 'Por favor verifica tus datos e inténtalo de nuevo.');
         } finally {
             setSubmitting(false);
         }
@@ -127,61 +93,21 @@ export default function Checkout() {
     return (
         <div className="container-luxe py-12">
             <header className="mb-10 text-center">
-                <p className="eyebrow text-taupe">Checkout</p>
-                <h1 className="mt-3 text-4xl sm:text-5xl">Finalizar compra</h1>
+                <p className="eyebrow text-taupe">{t('cart.page_title')}</p>
+                <h1 className="mt-3 text-4xl sm:text-5xl">{t('cart.checkout_btn')}</h1>
             </header>
-            <div className="grid gap-12 lg:grid-cols-[1fr_420px]">
-                <div>
-                    {isAuthenticated ? (
-                        <div className="mb-8 flex flex-col justify-between gap-3 border border-amber-400/60 bg-gradient-to-r from-amber-500/10 via-amber-400/15 to-amber-500/5 p-4 text-xs text-ink sm:flex-row sm:items-center rounded-lg shadow-xs">
-                            <div>
-                                <span className="font-bold text-amber-900 flex items-center gap-1.5">
-                                    <span>👑</span>
-                                    <span>Club VIP CANRES Activo:</span>
-                                </span>
-                                <p className="mt-1 text-ink/80">
-                                    Comprando como <span className="font-semibold">{user.fullName || user.email}</span> ({user.email}).
-                                    {user.isVip ? (
-                                        <span className="font-semibold text-amber-800"> ¡Tienes 10% de descuento VIP aplicado en este pedido!</span>
-                                    ) : (
-                                        ' Tu pedido quedará registrado en tu cuenta.'
-                                    )}
-                                </p>
-                            </div>
-                            <Link to="/cuenta" className="font-semibold text-amber-900 underline hover:text-ink whitespace-nowrap">
-                                Mi cuenta VIP
-                            </Link>
-                        </div>
-                    ) : (
-                        <div className="mb-8 flex flex-col justify-between gap-3 border border-amber-300/60 bg-amber-50/50 p-4 text-xs text-ink sm:flex-row sm:items-center rounded-lg">
-                            <div>
-                                <span className="font-bold text-amber-900">¿Quieres 10% de descuento en este pedido?</span>{' '}
-                                <Link to="/login?redirect=/checkout" className="font-bold text-brand-wine underline hover:text-ink">
-                                    Inicia sesión
-                                </Link>{' '}
-                                o{' '}
-                                <Link to="/registro?redirect=/checkout" className="font-bold text-brand-wine underline hover:text-ink">
-                                    regístrate gratis
-                                </Link>{' '}
-                                para activar tu descuento del Club VIP, o continúa como invitado.
-                            </div>
-                            <span className="inline-block self-start rounded bg-taupe/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-taupe sm:self-auto">
-                                Compra como invitado
-                            </span>
-                        </div>
-                    )}
 
-                    <CheckoutForm
-                        values={customer}
-                        errors={errors}
-                        onChange={handleChange}
-                        onSubmit={handleSubmit}
-                        submitting={submitting}
-                    />
-                </div>
-                <div className="lg:sticky lg:top-36 lg:self-start">
+            <div className="grid gap-12 lg:grid-cols-[1fr_420px]">
+                <CheckoutForm
+                    values={customer}
+                    errors={errors}
+                    onChange={handleChange}
+                    onSubmit={handleSubmit}
+                    submitting={submitting}
+                />
+                <aside className="h-fit">
                     <OrderSummary items={items} totals={totals} />
-                </div>
+                </aside>
             </div>
         </div>
     );

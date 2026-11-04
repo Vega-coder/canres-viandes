@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { HiArrowLongRight } from 'react-icons/hi2';
-import { formatMoney, formatUnit } from '@/domain/shared/money.js';
+import { useLanguage } from '@/presentation/context/LanguageContext.jsx';
 
 const DEFAULT_FALLBACK_CUTS = [
     {
@@ -12,7 +12,6 @@ const DEFAULT_FALLBACK_CUTS = [
         price: 32.0,
         unit: 'kg',
         image: 'https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739782/canres-viandes/meat_beef_cut.jpg',
-        tag: 'Corte Estrella · Marmoleo Superior',
         glow: 'bg-brand-red/35',
     },
     {
@@ -23,7 +22,6 @@ const DEFAULT_FALLBACK_CUTS = [
         price: 20.0,
         unit: 'kg',
         image: 'https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739785/canres-viandes/ribeye.jpg',
-        tag: 'Grasa Uniforme · Asador al Carbón',
         glow: 'bg-gold/30',
     },
     {
@@ -34,7 +32,6 @@ const DEFAULT_FALLBACK_CUTS = [
         price: 8.0,
         unit: '450g',
         image: 'https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739782/canres-viandes/chorizos.jpg',
-        tag: 'Receta de Autor · Tradición Colombiana',
         glow: 'bg-brand-wine/40',
     },
     {
@@ -45,12 +42,12 @@ const DEFAULT_FALLBACK_CUTS = [
         price: 12.0,
         unit: 'kg',
         image: 'https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739785/canres-viandes/ribs.jpg',
-        tag: 'Tierno & Carnudo · Ideal BBQ',
         glow: 'bg-brand-light/35',
     },
 ];
 
 export default function Hero({ cuts = [] }) {
+    const { t, formatMoney, formatUnit, translateNote } = useLanguage();
     const [currentIndex, setCurrentIndex] = useState(0);
     const [tilt, setTilt] = useState({ x: 0, y: 0 });
 
@@ -63,15 +60,16 @@ export default function Hero({ cuts = [] }) {
                 slug: c.slug || c.id,
                 price: `${formatMoney(c.price)} ${formatUnit(c.unit)}`,
                 image: (Array.isArray(c.images) && c.images[0]) || 'https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739782/canres-viandes/meat_beef_cut.jpg',
-                tag: (Array.isArray(c.notes) && c.notes[0]) || 'Corte Noble Seleccionado',
+                tag: (Array.isArray(c.notes) && c.notes[0] ? translateNote(c.notes[0]) : t('hero.featured_tag')),
                 glow: c.gender === 'cerdo' ? 'bg-brand-light/35' : c.gender === 'chorizos' ? 'bg-brand-wine/40' : 'bg-brand-red/35',
             }));
         }
         return DEFAULT_FALLBACK_CUTS.map((c) => ({
             ...c,
             price: `${formatMoney(c.price)} ${formatUnit(c.unit)}`,
+            tag: t('hero.featured_tag'),
         }));
-    }, [cuts]);
+    }, [cuts, formatMoney, formatUnit, translateNote, t]);
 
     useEffect(() => {
         if (featuredCuts.length <= 1) return;
@@ -99,47 +97,47 @@ export default function Hero({ cuts = [] }) {
             {/* Luces y velo ambiental */}
             <div className="pointer-events-none absolute -right-32 top-1/2 h-96 w-96 -translate-y-1/2 rounded-full bg-brand-red/25 blur-3xl" />
             <div className="pointer-events-none absolute -left-20 bottom-0 h-64 w-64 rounded-full bg-brand-wine/30 blur-3xl" />
-            
+
             <div className="container-luxe relative grid min-h-[420px] items-center gap-8 md:grid-cols-2 md:gap-12">
                 {/* Texto principal */}
                 <div className="animate-fade-up">
                     <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3.5 py-1.5 text-[10.5px] font-bold tracking-[0.2em] text-cream-light backdrop-blur border border-white/10 uppercase">
                         <span className="h-2 w-2 rounded-full bg-brand-light animate-pulse" />
-                        Boucherie Artisanale · Viandes d'Exception
+                        {t('hero.badge')}
                     </div>
 
                     <h1 className="mt-4 font-display text-4xl sm:text-5xl lg:text-6xl tracking-wide font-extrabold uppercase leading-[1.05] text-white">
-                        La viande <br />
+                        {t('hero.title_line1')} <br />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 via-amber-200 to-red-500">
-                            comme il faut.
+                            {t('hero.title_line2')}
                         </span>
                     </h1>
 
                     <p className="mt-4 max-w-lg text-sm sm:text-base leading-relaxed text-cream/80">
-                        La perfecta alianza entre la <strong className="text-white">tradición colombiana</strong> y el riguroso <strong className="text-white">savoir-faire québécois</strong>. Cortes nobles madurados, desposte artesanal a medida y embutidos de autor sin conservantes.
+                        {t('hero.description')}
                     </p>
 
                     <div className="mt-8 flex flex-wrap items-center gap-4">
                         <Link to="/tienda" className="btn-brand px-6 py-3.5 text-xs tracking-wider shadow-lg shadow-brand-red/30">
-                            Explorar Cortes <HiArrowLongRight className="h-4 w-4" />
+                            {t('hero.cta_explore')} <HiArrowLongRight className="h-4 w-4" />
                         </Link>
                         <Link to="/tienda/chorizos" className="btn-outline-light px-6 py-3.5 text-xs tracking-wider">
-                            Charcutería Artesanal
+                            {t('hero.cta_charcuterie')}
                         </Link>
                     </div>
 
                     <div className="mt-8 grid grid-cols-3 gap-3 border-t border-white/10 pt-6 text-left">
                         <div>
                             <span className="block font-display text-xl sm:text-2xl font-bold text-white">100%</span>
-                            <span className="text-[10px] uppercase tracking-wider text-cream/70">Artesanal Puro</span>
+                            <span className="text-[10px] uppercase tracking-wider text-cream/70">{t('hero.stat_artisan')}</span>
                         </div>
                         <div>
                             <span className="block font-display text-xl sm:text-2xl font-bold text-brand-light">AAA</span>
-                            <span className="text-[10px] uppercase tracking-wider text-cream/70">Cortes Certificados</span>
+                            <span className="text-[10px] uppercase tracking-wider text-cream/70">{t('hero.stat_cuts')}</span>
                         </div>
                         <div>
-                            <span className="block font-display text-xl sm:text-2xl font-bold text-amber-400">16 $/kg</span>
-                            <span className="text-[10px] uppercase tracking-wider text-cream/70">Chorizo Personalizado</span>
+                            <span className="block font-display text-xl sm:text-2xl font-bold text-amber-400">{t('hero.custom_price')}</span>
+                            <span className="text-[10px] uppercase tracking-wider text-cream/70">{t('hero.stat_custom')}</span>
                         </div>
                     </div>
                 </div>
@@ -191,7 +189,7 @@ export default function Hero({ cuts = [] }) {
                                         </h3>
                                     </div>
                                     <div className="text-right">
-                                        <p className="text-xs uppercase text-cream/70 font-mono">Desde</p>
+                                        <p className="text-xs uppercase text-cream/70 font-mono">{t('hero.from')}</p>
                                         <p className="font-display text-lg sm:text-xl font-extrabold text-white">{activeCut.price}</p>
                                     </div>
                                 </div>
@@ -216,7 +214,7 @@ export default function Hero({ cuts = [] }) {
                                         to={`/producto/${activeCut.slug}`}
                                         className="text-xs font-bold text-white hover:text-brand-light flex items-center gap-1 transition"
                                     >
-                                        Ver corte <HiArrowLongRight className="h-3.5 w-3.5" />
+                                        {t('hero.view_cut')} <HiArrowLongRight className="h-3.5 w-3.5" />
                                     </Link>
                                 </div>
                             </div>

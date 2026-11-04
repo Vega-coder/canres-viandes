@@ -1,5 +1,6 @@
 import { lazy, Suspense, Component } from 'react';
 import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
+import { LanguageProvider } from '@/presentation/context/LanguageContext.jsx';
 import { AuthProvider } from '@/presentation/context/AuthContext.jsx';
 import { CartProvider } from '@/presentation/context/CartContext.jsx';
 import { WishlistProvider } from '@/presentation/context/WishlistContext.jsx';
@@ -82,50 +83,52 @@ const AdminRoot = () => (
 export default function App() {
     return (
         <BrowserRouter>
-            <AuthProvider>
-                <WishlistProvider>
-                    <CartProvider>
-                        <ErrorBoundary>
-                            <Routes>
-                                <Route element={<Layout />}>
-                                    <Route index element={<Home />} />
-                                    <Route path="tienda" element={<Catalog />} />
-                                    <Route path="tienda/:category" element={<Catalog />} />
-                                    <Route path="marcas" element={<Brands />} />
-                                    <Route path="marcas/:brandSlug" element={<BrandDetail />} />
-                                    <Route path="marca/:brandSlug" element={<BrandDetail />} />
-                                    <Route path="producto/:slug" element={<ProductDetail />} />
-                                    <Route path="favoritos" element={<Wishlist />} />
-                                    <Route path="carrito" element={<Cart />} />
-                                    <Route path="checkout" element={<Checkout />} />
-                                    <Route path="pedido/:code" element={<OrderConfirmation />} />
-                                    <Route path="login" element={<CustomerLogin />} />
-                                    <Route path="registro" element={<CustomerRegister />} />
-                                    <Route path="cuenta" element={<CustomerAccount />} />
-                                    <Route path="recuperar-contrasena" element={<CustomerForgotPassword />} />
-                                    <Route path="restablecer-contrasena" element={<CustomerResetPassword />} />
-                                    <Route path="terminos" element={<TermsConditions />} />
-                                    <Route path="terminos-y-condiciones" element={<TermsConditions />} />
-                                    <Route path="politicas" element={<TermsConditions />} />
-                                    <Route path="*" element={<NotFound />} />
-                                </Route>
-
-                                <Route path="admin" element={<AdminRoot />}>
-                                    <Route path="login" element={<AdminLogin />} />
-                                    <Route element={<RequireAdmin><Suspense fallback={<div className="min-h-screen" />}><AdminLayout /></Suspense></RequireAdmin>}>
-                                        <Route index element={<AdminDashboard />} />
-                                        <Route path="productos" element={<AdminProducts />} />
-                                        <Route path="productos/nuevo" element={<AdminProductEdit />} />
-                                        <Route path="productos/:id" element={<AdminProductEdit />} />
-                                        <Route path="pedidos" element={<AdminOrders />} />
-                                        <Route path="clientes" element={<AdminCustomers />} />
+            <LanguageProvider>
+                <AuthProvider>
+                    <WishlistProvider>
+                        <CartProvider>
+                            <ErrorBoundary>
+                                <Routes>
+                                    <Route element={<Layout />}>
+                                        <Route index element={<Home />} />
+                                        <Route path="tienda" element={<Catalog />} />
+                                        <Route path="tienda/:category" element={<Catalog />} />
+                                        <Route path="marcas" element={<Brands />} />
+                                        <Route path="marcas/:brandSlug" element={<BrandDetail />} />
+                                        <Route path="marca/:brandSlug" element={<BrandDetail />} />
+                                        <Route path="producto/:slug" element={<ProductDetail />} />
+                                        <Route path="favoritos" element={<Wishlist />} />
+                                        <Route path="carrito" element={<Cart />} />
+                                        <Route path="checkout" element={<Checkout />} />
+                                        <Route path="pedido/:code" element={<OrderConfirmation />} />
+                                        <Route path="login" element={<CustomerLogin />} />
+                                        <Route path="registro" element={<CustomerRegister />} />
+                                        <Route path="cuenta" element={<CustomerAccount />} />
+                                        <Route path="recuperar-contrasena" element={<CustomerForgotPassword />} />
+                                        <Route path="restablecer-contrasena" element={<CustomerResetPassword />} />
+                                        <Route path="terminos" element={<TermsConditions />} />
+                                        <Route path="terminos-y-condiciones" element={<TermsConditions />} />
+                                        <Route path="politicas" element={<TermsConditions />} />
+                                        <Route path="*" element={<NotFound />} />
                                     </Route>
-                                </Route>
-                            </Routes>
-                        </ErrorBoundary>
-                    </CartProvider>
-                </WishlistProvider>
-            </AuthProvider>
+
+                                    <Route path="admin" element={<AdminRoot />}>
+                                        <Route path="login" element={<AdminLogin />} />
+                                        <Route element={<RequireAdmin><Suspense fallback={<div className="min-h-screen" />}><AdminLayout /></Suspense></RequireAdmin>}>
+                                            <Route index element={<AdminDashboard />} />
+                                            <Route path="productos" element={<AdminProducts />} />
+                                            <Route path="productos/nuevo" element={<AdminProductEdit />} />
+                                            <Route path="productos/:id" element={<AdminProductEdit />} />
+                                            <Route path="pedidos" element={<AdminOrders />} />
+                                            <Route path="clientes" element={<AdminCustomers />} />
+                                        </Route>
+                                    </Route>
+                                </Routes>
+                            </ErrorBoundary>
+                        </CartProvider>
+                    </WishlistProvider>
+                </AuthProvider>
+            </LanguageProvider>
         </BrowserRouter>
     );
 }

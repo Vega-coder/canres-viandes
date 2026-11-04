@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import ProductGrid from '@/presentation/components/product/ProductGrid.jsx';
+import { useLanguage } from '@/presentation/context/LanguageContext.jsx';
 import { HiArrowRight } from 'react-icons/hi2';
 
 export default function MeatCategorySection({
@@ -15,7 +16,10 @@ export default function MeatCategorySection({
     badgeText,
     icon,
 }) {
+    const { t } = useLanguage();
     if (!products.length) return null;
+
+    const count = totalCount ?? products.length;
 
     return (
         <section id={id} className={`py-14 sm:py-20 border-b border-taupe/10 ${bgClass}`}>
@@ -46,7 +50,9 @@ export default function MeatCategorySection({
                         to={`/tienda/${categorySlug}`}
                         className="group inline-flex items-center gap-2 self-start md:self-end font-semibold text-xs uppercase tracking-wider text-brand-wine hover:text-brand-red transition whitespace-nowrap"
                     >
-                        <span>Ver todo de {categoryLabel} ({totalCount ?? products.length})</span>
+                        <span>
+                            {t('homeSections.view_all_prefix')} {categoryLabel} ({count})
+                        </span>
                         <HiArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                     </Link>
                 </div>
@@ -60,7 +66,7 @@ export default function MeatCategorySection({
                         to={`/tienda/${categorySlug}`}
                         className="btn-outline w-full py-3 text-xs font-bold uppercase tracking-wider"
                     >
-                        Ver todos los cortes de {categoryLabel} ({totalCount ?? products.length}) →
+                        {t('homeSections.view_all_cuts', { category: categoryLabel, count })}
                     </Link>
                 </div>
             </div>

@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useCases } from '@/infrastructure/container.js';
 import { useAsync } from '@/presentation/hooks/useAsync.js';
+import { useLanguage } from '@/presentation/context/LanguageContext.jsx';
 import Hero from '@/presentation/components/home/Hero.jsx';
 import LuxuryTicker from '@/presentation/components/home/LuxuryTicker.jsx';
 import GenderExplore from '@/presentation/components/home/GenderExplore.jsx';
@@ -13,7 +14,8 @@ import BrandStatement from '@/presentation/components/home/BrandStatement.jsx';
 import BrandCarousel from '@/presentation/components/home/BrandCarousel.jsx';
 
 export default function Home() {
-    const { data, loading } = useAsync(() => useCases.getHomeShowcase(), []);
+    const { t } = useLanguage();
+    const { data } = useAsync(() => useCases.getHomeShowcase(), []);
 
     const allProducts = useMemo(() => data?.allProducts ?? data?.featured ?? [], [data]);
 
@@ -61,13 +63,13 @@ export default function Home() {
             <MeatCategorySection
                 id="seccion-res"
                 icon="🥩"
-                eyebrow="Boeuf de Première Qualité"
-                badgeText="Grado AAA & Sterling"
-                title="Cortes Nobles de Res AAA"
-                description="Maduración controlada, terneza garantizada y cortes gruesos para asados memorables: Ribeye, Chatas New York, Picaña AAA, Sobrebarriga y más."
+                eyebrow={t('homeSections.beef_eyebrow')}
+                badgeText={t('homeSections.beef_badge')}
+                title={t('homeSections.beef_title')}
+                description={t('homeSections.beef_desc')}
                 products={resProducts}
                 categorySlug="res"
-                categoryLabel="Res AAA"
+                categoryLabel={t('homeSections.beef_label')}
                 totalCount={resProducts.length}
                 bgClass="bg-cream/25"
             />
@@ -76,13 +78,13 @@ export default function Home() {
             <MeatCategorySection
                 id="seccion-cerdo"
                 icon="🥓"
-                eyebrow="Porc Fermier de Québec"
-                badgeText="Granja Selecta"
-                title="Cerdo Selecto de Primera"
-                description="Cortes jugosos y tiernos listos para tu parrilla u horno: Costillas Baby Back caramelizadas, pancetas con cuero crocante para chicharrón y hombros para pernil."
+                eyebrow={t('homeSections.pork_eyebrow')}
+                badgeText={t('homeSections.pork_badge')}
+                title={t('homeSections.pork_title')}
+                description={t('homeSections.pork_desc')}
                 products={cerdoProducts}
                 categorySlug="cerdo"
-                categoryLabel="Cerdo"
+                categoryLabel={t('homeSections.pork_label')}
                 totalCount={cerdoProducts.length}
                 bgClass="bg-white"
             />
@@ -91,13 +93,13 @@ export default function Home() {
             <MeatCategorySection
                 id="seccion-pollo"
                 icon="🍗"
-                eyebrow="Volaille Fermière"
-                badgeText="Fresco del Día"
-                title="Pollo Fresco de Granja & Especialidades"
-                description="Pechugas frescas tiernas, alitas marinadas listas para BBQ al carbón, pollo campesino de textura firme para caldos y menudencias frescas."
+                eyebrow={t('homeSections.poultry_eyebrow')}
+                badgeText={t('homeSections.poultry_badge')}
+                title={t('homeSections.poultry_title')}
+                description={t('homeSections.poultry_desc')}
                 products={polloProducts}
                 categorySlug="pollo"
-                categoryLabel="Pollo"
+                categoryLabel={t('homeSections.poultry_label')}
                 totalCount={polloProducts.length}
                 bgClass="bg-cream/25"
             />
@@ -106,13 +108,13 @@ export default function Home() {
             <MeatCategorySection
                 id="seccion-chivo"
                 icon="🐐"
-                eyebrow="Agneau & Chèvre de Pastoreo"
-                badgeText="Tradición"
-                title="Chivo & Cordero Selecto"
-                description="Pierna tierna de cordero para asados lentos, cuarto delantero y carcasas enteras para reuniones familiares y celebraciones."
+                eyebrow={t('homeSections.goat_eyebrow')}
+                badgeText={t('homeSections.goat_badge')}
+                title={t('homeSections.goat_title')}
+                description={t('homeSections.goat_desc')}
                 products={chivoProducts}
                 categorySlug="chivo"
-                categoryLabel="Chivo & Cordero"
+                categoryLabel={t('homeSections.goat_label')}
                 totalCount={chivoProducts.length}
                 bgClass="bg-white"
             />
