@@ -5,6 +5,8 @@ import {
     HiChevronUp,
     HiChevronDown,
     HiSparkles,
+    HiMicrophone,
+    HiStop,
 } from 'react-icons/hi2';
 import { FaFire } from 'react-icons/fa6';
 
@@ -28,6 +30,9 @@ export default function ButcherStage({
     onSpeakCustom,
     canSpeak = false,
     onQuickPrompt,
+    isListening = false,
+    onToggleListen,
+    userTranscript = '',
     isCollapsed = false,
     onToggleCollapse,
     t,
@@ -88,7 +93,9 @@ export default function ButcherStage({
                 <div className="flex items-center gap-1.5">
                     <span
                         className={`inline-block h-2 w-2 rounded-full ${
-                            isSpeaking
+                            isListening
+                                ? 'bg-red-500 animate-ping'
+                                : isSpeaking
                                 ? 'bg-gold animate-ping'
                                 : isThinking
                                 ? 'bg-amber-400 animate-pulse'
@@ -100,21 +107,49 @@ export default function ButcherStage({
                     </span>
                     <span className="hidden sm:inline text-taupe-light">·</span>
                     <span className="hidden sm:inline text-cream/75 text-[9.5px]">
-                        {isThinking
+                        {isListening
+                            ? '🎙️ Escuchando tu voz en vivo...'
+                            : isThinking
                             ? 'Cortando carne y preparando respuesta...'
                             : isSpeaking
                             ? '🗣️ Hablando en vivo'
-                            : 'Animado · Listo para asesorarte'}
+                            : 'Animado · Listo para conversar'}
                     </span>
                 </div>
 
                 <div className="flex items-center gap-2">
+                    {/* Botón interactivo de micrófono para conversar por voz */}
+                    {onToggleListen && (
+                        <button
+                            type="button"
+                            onClick={onToggleListen}
+                            className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wider transition ${
+                                isListening
+                                    ? 'bg-red-600 text-white animate-pulse shadow-sm shadow-red-500/50'
+                                    : 'bg-gold/15 text-gold-light hover:bg-gold/25 hover:text-white border border-gold/30'
+                            }`}
+                            title={isListening ? 'Detener grabación' : 'Hablarle por voz'}
+                        >
+                            {isListening ? (
+                                <>
+                                    <HiStop className="h-3 w-3" />
+                                    <span>Parar</span>
+                                </>
+                            ) : (
+                                <>
+                                    <HiMicrophone className="h-3 w-3" />
+                                    <span>Conversar</span>
+                                </>
+                            )}
+                        </button>
+                    )}
+
                     {/* Botón interactivo de voz / locución */}
                     {canSpeak && (
                         <button
                             type="button"
                             onClick={onToggleSpeech}
-                            className={`flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[9.5px] font-bold uppercase tracking-wider transition ${
+                            className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wider transition ${
                                 isSpeaking
                                     ? 'bg-gold text-ink animate-pulse shadow-sm shadow-gold/30'
                                     : 'bg-white/10 text-gold-light hover:bg-gold/20 hover:text-white'
@@ -129,7 +164,7 @@ export default function ButcherStage({
                             ) : (
                                 <>
                                     <HiSpeakerWave className="h-3 w-3" />
-                                    <span>Escuchar voz</span>
+                                    <span>Voz</span>
                                 </>
                             )}
                         </button>
@@ -164,7 +199,9 @@ export default function ButcherStage({
                                 transition: 'transform 0.15s ease-out',
                             }}
                             className={`group relative h-28 w-24 sm:h-32 sm:w-28 shrink-0 cursor-pointer overflow-hidden rounded-2xl border-2 transition-all duration-300 ${
-                                isSpeaking
+                                isListening
+                                    ? 'border-red-500 shadow-xl shadow-red-500/30 ring-2 ring-red-400/50'
+                                    : isSpeaking
                                     ? 'border-gold shadow-xl shadow-gold/30 animate-gold-ring ring-2 ring-gold/40'
                                     : isThinking
                                     ? 'border-amber-400 shadow-lg shadow-amber-500/25'
@@ -181,7 +218,12 @@ export default function ButcherStage({
                             />
 
                             {/* Badge flotante de estado en el escenario */}
-                            {isThinking ? (
+                            {isListening ? (
+                                <div className="absolute top-1 left-1 flex items-center gap-1 rounded bg-red-900/85 px-1.5 py-0.5 text-[8.5px] font-bold text-white backdrop-blur-xs border border-red-400 animate-pulse">
+                                    <span>🎙️</span>
+                                    <span>Oyendo...</span>
+                                </div>
+                            ) : isThinking ? (
                                 <div className="absolute top-1 left-1 flex items-center gap-1 rounded bg-black/75 px-1.5 py-0.5 text-[8.5px] font-bold text-amber-300 backdrop-blur-xs border border-amber-400/40 animate-pulse">
                                     <span>🔪</span>
                                     <span>Rebanando...</span>
@@ -198,18 +240,22 @@ export default function ButcherStage({
                             <div className="relative rounded-2xl border border-gold/35 bg-[#161311]/95 p-3 shadow-md backdrop-blur-xs">
                                 <p className="text-[10.5px] font-bold uppercase tracking-wider text-gold flex items-center gap-1">
                                     <HiSparkles className="h-3 w-3 text-gold-light" />
-                                    {isThinking
+                                    {isListening
+                                        ? '🎙️ Te estoy escuchando...'
+                                        : isThinking
                                         ? 'Preparando consejo gastronómico...'
                                         : isSpeaking
                                         ? 'Explicando recomendación en vivo...'
                                         : '¡Hola! Te doy la bienvenida a mi carnicería'}
                                 </p>
                                 <p className="mt-1 text-[11.5px] leading-snug text-cream/95 font-medium line-clamp-3">
-                                    {isThinking
+                                    {isListening
+                                        ? userTranscript || 'Habla ahora con tu voz... ¿Qué corte o consejo de asado necesitas?'
+                                        : isThinking
                                         ? THINKING_MESSAGES[thinkingIndex]
                                         : isSpeaking
                                         ? 'Presta atención a los secretos para lograr el mejor sabor y punto de cocción de tu corte.'
-                                        : 'Toca al carnicero o hazme cualquier pregunta sobre cortes nobles, maduración y salchichas de autor.'}
+                                        : 'Toca el botón «Conversar» para hablarme por voz o escríbeme cualquier pregunta de carnes.'}
                                 </p>
                             </div>
 

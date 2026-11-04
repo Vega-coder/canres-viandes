@@ -5,6 +5,8 @@ import {
     HiArrowPath,
     HiSpeakerWave,
     HiSpeakerXMark,
+    HiMicrophone,
+    HiStop,
 } from 'react-icons/hi2';
 import { FaWhatsapp, FaCrown } from 'react-icons/fa6';
 import { useCases, STORE_WHATSAPP } from '@/infrastructure/container.js';
@@ -14,6 +16,7 @@ import ButcherAvatar from './ButcherAvatar.jsx';
 import ButcherStage from './ButcherStage.jsx';
 import FloatingButcherTrigger from './FloatingButcherTrigger.jsx';
 import { useSpeech } from './useSpeech.js';
+import { useSpeechRecognition } from './useSpeechRecognition.js';
 
 const STORAGE_KEY = 'canres_chatbot_history_v2';
 
@@ -22,8 +25,17 @@ export default function Chatbot() {
     const [isOpen, setIsOpen] = useState(false);
     const [isStageCollapsed, setIsStageCollapsed] = useState(false);
 
-    // Sistema interactivo de Text-to-Speech (voz)
+    // Sistema interactivo de Text-to-Speech (voz saliente del carnicero)
     const { isSpeaking, speakingId, speak, stop } = useSpeech(language);
+
+    // Sistema interactivo de Speech-to-Text (micrófono / voz entrante del cliente)
+    const {
+        isListening,
+        transcript,
+        startListening,
+        stopListening,
+        isSupported: isMicSupported,
+    } = useSpeechRecognition(language);
 
     const initialWelcome = useMemo(
         () => ({
@@ -91,10 +103,11 @@ export default function Chatbot() {
             scrollToBottom('auto');
             setTimeout(() => inputRef.current?.focus(), 150);
         } else {
-            // Detener voz si se cierra el chat
+            // Detener voz y micrófono si se cierra el chat
             stop();
+            stopListening();
         }
-    }, [isOpen, messages, loading, scrollToBottom, stop]);
+    }, [isOpen, messages, loading, scrollToBottom, stop, stopListening]);
 
     // Estado visual activo del Maestro Carnicero
     const activeMascotStatus = useMemo(() => {
@@ -113,12 +126,13 @@ export default function Chatbot() {
         return null;
     }, [messages]);
 
-    const handleSend = async (textToSend) => {
+    const handleSend = async (textToSend, autoSpeakResponse = false) => {
         const query = (textToSend || input).trim();
         if (!query || loading) return;
 
-        // Detener voz previa si estaba hablando
+        // Detener voz y micrófono previos si estaban activos
         stop();
+        stopListening();
         setInput('');
 
         const userMsg = {
@@ -145,6 +159,13 @@ export default function Chatbot() {
                 time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             };
             setMessages((prev) => [...prev, botMsg]);
+
+            // Si el mensaje se envió mediante audio/voz, el carnicero responde hablando
+            if (autoSpeakResponse) {
+                setTimeout(() => {
+                    speak(response, newHistory.length);
+                }, 200);
+            }
         } catch (error) {
             console.error('[Chatbot Error]:', error);
             const errorMsg = {
@@ -159,8 +180,27 @@ export default function Chatbot() {
         }
     };
 
+    // Alternar grabación por micrófono para hablar con el carnicero
+    const handleToggleMic = () => {
+        if (isListening) {
+            stopListening();
+            const text = (transcript || input).trim();
+            if (text) {
+                handleSend(text, true);
+            }
+        } else {
+            stop(); // Pausar locución si el carnicero estaba hablando
+            startListening((finalText) => {
+                if (finalText && finalText.trim()) {
+                    handleSend(finalText.trim(), true);
+                }
+            });
+        }
+    };
+
     const handleClear = () => {
         stop();
+        stopListening();
         const resetMessages = [initialWelcome];
         setMessages(resetMessages);
         try {
@@ -199,17 +239,17 @@ export default function Chatbot() {
                     role="dialog"
                     aria-modal="true"
                     aria-label="Chat con el Maestro Carnicero CANRES Viandes"
-                    className="fixed inset-x-3 bottom-3 top-20 z-50 flex flex-col overflow-hidden rounded-2xl border border-gold/40 bg-cream-light shadow-2xl backdrop-blur-md transition-all duration-300 sm:inset-auto sm:bottom-5 sm:left-5 sm:h-[620px] sm:w-[420px] sm:max-h-[88vh]"
+                    className="fixed inset-x-3 bottom-3 top-20 z-50 flex flex-col overflow-hidden rounded-2xl border border-gold/40 bg-cream-light shadow-2xl backdrop-blur-md transition-all duration-300 sm:inset-auto sm:bottom-5 sm:left-5 sm:h-[630px] sm:w-[420px] sm:max-h-[88vh]"
                 >
                     {/* Encabezado con Identidad del Maestro Carnicero */}
                     <header className="relative flex items-center justify-between border-b border-gold/25 bg-gradient-to-r from-[#171513] via-[#24211D] to-[#171513] px-3.5 py-2.5 text-cream-light shadow-sm">
                         <div className="flex items-center gap-2.5">
-                            {/* Avatar del Maestro Carnicero con animaciones de estado */}
+                            {/* Avatar del Maestro Carnicero */}
                             <ButcherAvatar
                                 status={activeMascotStatus}
                                 size="sm"
                                 showStatusDot={true}
-                                showEqualizer={isSpeaking}
+                                showEqualizer={false}
                                 onClick={handleToggleLatestSpeech}
                                 className="cursor-pointer"
                             />
@@ -224,7 +264,11 @@ export default function Chatbot() {
                                     </span>
                                 </div>
                                 <p className="text-[10px] text-cream/70 flex items-center gap-1">
-                                    {loading ? (
+                                    {isListening ? (
+                                        <span className="text-red-400 font-semibold animate-pulse">
+                                            🎙️ {t('chatbot.mic_listening')}
+                                        </span>
+                                    ) : loading ? (
                                         <span className="text-amber-300 font-semibold">
                                             🔪 {t('chatbot.status_thinking')}
                                         </span>
@@ -241,6 +285,27 @@ export default function Chatbot() {
 
                         {/* Botones de acción del encabezado */}
                         <div className="flex items-center gap-1">
+                            {/* Toggle rápido de micrófono / conversar */}
+                            {isMicSupported && (
+                                <button
+                                    type="button"
+                                    onClick={handleToggleMic}
+                                    className={`rounded-lg p-1.5 transition ${
+                                        isListening
+                                            ? 'bg-red-600 text-white animate-pulse'
+                                            : 'text-cream/70 hover:bg-white/10 hover:text-white'
+                                    }`}
+                                    title={isListening ? 'Detener micrófono' : 'Conversar por voz'}
+                                    aria-label="Conversar por voz"
+                                >
+                                    {isListening ? (
+                                        <HiStop className="h-4 w-4" />
+                                    ) : (
+                                        <HiMicrophone className="h-4 w-4" />
+                                    )}
+                                </button>
+                            )}
+
                             {/* Toggle rápido de locución */}
                             {latestAssistantMessage && (
                                 <button
@@ -294,6 +359,9 @@ export default function Chatbot() {
                         onSpeakCustom={(text) => speak(text, -1)}
                         canSpeak={Boolean(latestAssistantMessage)}
                         onQuickPrompt={handleSend}
+                        isListening={isListening}
+                        onToggleListen={isMicSupported ? handleToggleMic : null}
+                        userTranscript={transcript}
                         isCollapsed={isStageCollapsed}
                         onToggleCollapse={() => setIsStageCollapsed((prev) => !prev)}
                         t={t}
@@ -315,7 +383,7 @@ export default function Chatbot() {
                                     {/* Avatar del Carnicero junto al mensaje del asistente */}
                                     {!isUser && (
                                         <ButcherAvatar
-                                            status={isThisSpeaking ? 'speaking' : 'idle'}
+                                            status="idle"
                                             size="xs"
                                             showStatusDot={false}
                                             showEqualizer={false}
@@ -442,8 +510,35 @@ export default function Chatbot() {
                         </div>
                     )}
 
-                    {/* Footer y Entrada de Texto */}
+                    {/* Footer y Entrada de Texto / Audio */}
                     <div className="border-t border-taupe/15 bg-white p-3">
+                        {/* Banner flotante de grabación por voz activa */}
+                        {isListening && (
+                            <div className="mb-2 flex items-center justify-between rounded-xl border border-red-500/40 bg-red-950/15 px-3 py-1.5 text-xs backdrop-blur-xs animate-fade-up">
+                                <div className="flex items-center gap-2 text-red-600 font-semibold text-[11px] min-w-0">
+                                    <span className="h-2 w-2 rounded-full bg-red-500 animate-ping shrink-0" />
+                                    <span className="shrink-0">{t('chatbot.mic_listening')}</span>
+                                    <div className="flex items-center gap-[2px] shrink-0">
+                                        <span className="w-1 rounded-full bg-red-500 animate-soundwave-1" />
+                                        <span className="w-1 rounded-full bg-red-400 animate-soundwave-2" />
+                                        <span className="w-1 rounded-full bg-red-500 animate-soundwave-3" />
+                                    </div>
+                                    {transcript && (
+                                        <span className="truncate italic text-ink/80 text-[10.5px] ml-1 font-normal">
+                                            «{transcript}»
+                                        </span>
+                                    )}
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={handleToggleMic}
+                                    className="shrink-0 ml-2 rounded-md bg-red-600 px-2.5 py-0.5 text-[10px] font-bold text-white hover:bg-red-700 transition"
+                                >
+                                    {t('chatbot.mic_stop_btn') || 'Enviar'} ✔
+                                </button>
+                            </div>
+                        )}
+
                         <form
                             onSubmit={(e) => {
                                 e.preventDefault();
@@ -451,18 +546,40 @@ export default function Chatbot() {
                             }}
                             className="flex items-center gap-2"
                         >
+                            {/* Botón de Micrófono / Enviar Audio al carnicero */}
+                            {isMicSupported && (
+                                <button
+                                    type="button"
+                                    onClick={handleToggleMic}
+                                    className={`flex items-center justify-center rounded-xl p-2.5 transition-all duration-300 ${
+                                        isListening
+                                            ? 'bg-red-600 text-white animate-pulse shadow-md shadow-red-500/40 ring-2 ring-red-400'
+                                            : 'border border-gold/40 bg-gold/10 text-gold-dark hover:bg-gold/25 hover:text-ink'
+                                    }`}
+                                    title={isListening ? 'Detener y enviar voz' : t('chatbot.mic_speak_btn')}
+                                    aria-label="Hablar por micrófono"
+                                >
+                                    {isListening ? (
+                                        <HiStop className="h-4 w-4" />
+                                    ) : (
+                                        <HiMicrophone className="h-4 w-4" />
+                                    )}
+                                </button>
+                            )}
+
                             <input
                                 ref={inputRef}
                                 type="text"
-                                value={input}
+                                value={input || (isListening ? transcript : '')}
                                 onChange={(e) => setInput(e.target.value)}
-                                placeholder={t('chatbot.placeholder')}
+                                placeholder={isListening ? t('chatbot.mic_listening') : t('chatbot.placeholder')}
                                 disabled={loading}
                                 className="input flex-1 py-2 text-xs"
                             />
+
                             <button
                                 type="submit"
-                                disabled={!input.trim() || loading}
+                                disabled={(!input.trim() && !transcript.trim()) || loading}
                                 className="btn-brand p-2.5 text-xs disabled:opacity-40"
                                 aria-label="Envoyer le message"
                             >

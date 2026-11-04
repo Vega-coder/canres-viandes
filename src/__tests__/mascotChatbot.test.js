@@ -32,6 +32,9 @@ describe('Asistente Virtual Interactivo - Mascota Maestro Carnicero CANRES', () 
             expect(bot.status_speaking).toBeDefined();
             expect(bot.speech_listen).toBeDefined();
             expect(bot.speech_stop).toBeDefined();
+            expect(bot.mic_speak_btn).toBeDefined();
+            expect(bot.mic_listening).toBeDefined();
+            expect(bot.conversation_mode_btn).toBeDefined();
             expect(bot.floating_prompt).toBeDefined();
         });
     });
