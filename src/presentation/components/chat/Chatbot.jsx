@@ -171,6 +171,7 @@ export default function Chatbot() {
             const errorMsg = {
                 role: 'assistant',
                 content:
+                    t('chatbot.error_connection') ||
                     'Disculpas, ocurrió una interrupción de conexión. Por favor reintenta o escríbenos a WhatsApp.',
                 time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             };
@@ -238,7 +239,7 @@ export default function Chatbot() {
                 <div
                     role="dialog"
                     aria-modal="true"
-                    aria-label="Chat con el Maestro Carnicero CANRES Viandes"
+                    aria-label={t('chatbot.title') || 'CANRES Master Butcher'}
                     className="fixed inset-x-3 bottom-3 top-20 z-50 flex flex-col overflow-hidden rounded-2xl border border-gold/40 bg-cream-light shadow-2xl backdrop-blur-md transition-all duration-300 sm:inset-auto sm:bottom-5 sm:left-5 sm:h-[630px] sm:w-[420px] sm:max-h-[88vh]"
                 >
                     {/* Encabezado con Identidad del Maestro Carnicero */}
@@ -295,8 +296,12 @@ export default function Chatbot() {
                                             ? 'bg-red-600 text-white animate-pulse'
                                             : 'text-cream/70 hover:bg-white/10 hover:text-white'
                                     }`}
-                                    title={isListening ? 'Detener micrófono' : 'Conversar por voz'}
-                                    aria-label="Conversar por voz"
+                                    title={
+                                        isListening
+                                            ? t('chatbot.btn_stop_record_title') || 'Detener micrófono'
+                                            : t('chatbot.conversation_mode_btn') || 'Conversar por voz'
+                                    }
+                                    aria-label={t('chatbot.conversation_mode_btn') || 'Conversar por voz'}
                                 >
                                     {isListening ? (
                                         <HiStop className="h-4 w-4" />
@@ -316,8 +321,16 @@ export default function Chatbot() {
                                             ? 'bg-gold text-ink animate-pulse'
                                             : 'text-cream/70 hover:bg-white/10 hover:text-white'
                                     }`}
-                                    title={isSpeaking ? 'Detener voz' : 'Escuchar respuesta'}
-                                    aria-label={isSpeaking ? 'Detener voz' : 'Escuchar respuesta'}
+                                    title={
+                                        isSpeaking
+                                            ? t('chatbot.speech_stop') || 'Detener voz'
+                                            : t('chatbot.speech_listen') || 'Escuchar respuesta'
+                                    }
+                                    aria-label={
+                                        isSpeaking
+                                            ? t('chatbot.speech_stop') || 'Detener voz'
+                                            : t('chatbot.speech_listen') || 'Escuchar respuesta'
+                                    }
                                 >
                                     {isSpeaking ? (
                                         <HiSpeakerXMark className="h-4 w-4" />
@@ -332,8 +345,8 @@ export default function Chatbot() {
                                 type="button"
                                 onClick={handleClear}
                                 className="rounded-lg p-1.5 text-cream/70 transition hover:bg-white/10 hover:text-white"
-                                title="Réinitialiser"
-                                aria-label="Réinitialiser"
+                                title={t('chatbot.btn_reset') || 'Réinitialiser'}
+                                aria-label={t('chatbot.btn_reset') || 'Réinitialiser'}
                             >
                                 <HiArrowPath className="h-4 w-4" />
                             </button>
@@ -343,8 +356,8 @@ export default function Chatbot() {
                                 type="button"
                                 onClick={() => setIsOpen(false)}
                                 className="rounded-lg p-1.5 text-cream/70 transition hover:bg-white/10 hover:text-white"
-                                title="Fermer"
-                                aria-label="Fermer"
+                                title={t('chatbot.btn_close') || 'Fermer'}
+                                aria-label={t('chatbot.btn_close') || 'Fermer'}
                             >
                                 <HiXMark className="h-4.5 w-4.5" />
                             </button>
@@ -493,7 +506,7 @@ export default function Chatbot() {
                     {messages.length <= 2 && (
                         <div className="border-t border-taupe/15 bg-white/70 p-2.5 backdrop-blur-xs">
                             <p className="mb-1.5 px-1 text-[9.5px] font-bold uppercase tracking-wider text-taupe">
-                                Questions fréquentes :
+                                {t('chatbot.faq_title') || 'Questions fréquentes :'}
                             </p>
                             <div className="flex max-h-20 flex-wrap gap-1.5 overflow-y-auto">
                                 {suggestions.map((sug, i) => (
@@ -556,8 +569,8 @@ export default function Chatbot() {
                                             ? 'bg-red-600 text-white animate-pulse shadow-md shadow-red-500/40 ring-2 ring-red-400'
                                             : 'border border-gold/40 bg-gold/10 text-gold-dark hover:bg-gold/25 hover:text-ink'
                                     }`}
-                                    title={isListening ? 'Detener y enviar voz' : t('chatbot.mic_speak_btn')}
-                                    aria-label="Hablar por micrófono"
+                                    title={isListening ? (t('chatbot.btn_stop_record_title') || 'Detener voz') : t('chatbot.mic_speak_btn')}
+                                    aria-label={t('chatbot.mic_speak_btn') || 'Parler au micro'}
                                 >
                                     {isListening ? (
                                         <HiStop className="h-4 w-4" />
@@ -581,7 +594,7 @@ export default function Chatbot() {
                                 type="submit"
                                 disabled={(!input.trim() && !transcript.trim()) || loading}
                                 className="btn-brand p-2.5 text-xs disabled:opacity-40"
-                                aria-label="Envoyer le message"
+                                aria-label={t('chatbot.btn_send') || 'Envoyer le message'}
                             >
                                 <HiPaperAirplane className="h-4 w-4" />
                             </button>

@@ -47,8 +47,8 @@ export default function FloatingButcherTrigger({
                         type="button"
                         onClick={handleDismissBalloon}
                         className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-ink border border-gold/40 text-cream/70 hover:text-white hover:bg-brand-wine transition shadow-sm"
-                        title="Cerrar saludo"
-                        aria-label="Cerrar saludo"
+                        title={t ? t('chatbot.btn_close') : 'Cerrar saludo'}
+                        aria-label={t ? t('chatbot.btn_close') : 'Cerrar saludo'}
                     >
                         <HiXMark className="h-3 w-3" />
                     </button>
@@ -63,7 +63,7 @@ export default function FloatingButcherTrigger({
                                 {bubbleText}
                             </p>
                             <span className="mt-1.5 inline-block text-[9.5px] font-bold text-gold-light group-hover:underline">
-                                Abrir chat interactivo →
+                                {t ? t('chatbot.open_chat_cta') : 'Abrir chat interactivo →'}
                             </span>
                         </div>
                     </div>
@@ -78,7 +78,7 @@ export default function FloatingButcherTrigger({
                 type="button"
                 onClick={onClick}
                 className="group flex items-center gap-3 rounded-full border border-gold/50 bg-gradient-to-r from-ink via-[#241F1C] to-ink p-1.5 pr-4 text-cream-light shadow-2xl transition-all duration-300 hover:scale-105 hover:border-gold hover:shadow-gold/25 active:scale-95"
-                aria-label="Abrir asesor virtual interactivo - Maestro Carnicero"
+                aria-label={t ? t('chatbot.open_trigger_aria') : 'Abrir asesor virtual interactivo - Maestro Carnicero'}
             >
                 {/* Avatar circular del carnicero */}
                 <div className="relative">
