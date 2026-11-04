@@ -291,6 +291,7 @@ export default function Chatbot() {
                         status={activeMascotStatus}
                         isSpeaking={isSpeaking}
                         onToggleSpeech={handleToggleLatestSpeech}
+                        onSpeakCustom={(text) => speak(text, -1)}
                         canSpeak={Boolean(latestAssistantMessage)}
                         onQuickPrompt={handleSend}
                         isCollapsed={isStageCollapsed}

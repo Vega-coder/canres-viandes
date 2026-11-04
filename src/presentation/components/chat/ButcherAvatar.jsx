@@ -1,9 +1,9 @@
-import { HiSparkles } from 'react-icons/hi2';
-
 /**
- * Avatar interactivo del Maestro Carnicero CANRES.
- * Cambia dinámicamente entre la pose de concentración (pensando/cortando carne)
- * y la pose sonriente presentando la carne (hablando/bienvenida).
+ * Avatar interactivo y animado del Maestro Carnicero CANRES.
+ * Utiliza animaciones WebP fluidas en bucle:
+ * - Idle: respiración orgánica, balanceo de la carne y parpadeo natural.
+ * - Speaking: boca abierta con dientes y lengua, movimiento real de mandíbula y cabeceo.
+ * - Thinking: rebanado artesanal con cuchillo de chef en la tabla.
  */
 export default function ButcherAvatar({
     status = 'idle', // 'idle' | 'thinking' | 'speaking'
@@ -13,16 +13,15 @@ export default function ButcherAvatar({
     className = '',
     onClick,
 }) {
-    // Si está pensando, mira hacia abajo a los cortes de carne
-    // Si está hablando o en reposo, mira al frente sonriendo y presentando el corte
     const isThinking = status === 'thinking';
     const isSpeaking = status === 'speaking';
 
     const imageSrc = isThinking
-        ? '/images/butcher/butcher-thinking.jpg'
-        : '/images/butcher/butcher-presenting.jpg';
+        ? '/images/butcher/butcher-thinking.webp'
+        : isSpeaking
+        ? '/images/butcher/butcher-talking.webp'
+        : '/images/butcher/butcher-idle.webp';
 
-    // Medidas según el tamaño
     const sizeClasses = {
         xs: 'h-7 w-7',
         sm: 'h-9 w-9',
@@ -35,29 +34,27 @@ export default function ButcherAvatar({
         <div
             className={`relative inline-flex shrink-0 items-center justify-center rounded-full border-2 transition-all duration-300 ${
                 isSpeaking
-                    ? 'border-gold shadow-lg shadow-gold/30 animate-gold-ring'
+                    ? 'border-gold shadow-lg shadow-gold/40 animate-gold-ring scale-[1.03]'
                     : isThinking
-                    ? 'border-amber-400/80 shadow-md shadow-amber-500/20'
-                    : 'border-gold/50 shadow-sm'
+                    ? 'border-amber-400/90 shadow-md shadow-amber-500/25'
+                    : 'border-gold/50 shadow-sm hover:scale-105 hover:border-gold'
             } ${sizeClasses} ${className}`}
             onClick={onClick}
         >
-            {/* Contenedor de la imagen con recorte óptimo centrado en el rostro del carnicero */}
-            <div className="h-full w-full overflow-hidden rounded-full bg-[#201C19]">
+            {/* Contenedor circular con encuadre óptimo en el rostro animado */}
+            <div className="h-full w-full overflow-hidden rounded-full bg-[#1A1614]">
                 <img
                     src={imageSrc}
-                    alt="Maestro Carnicero CANRES Viandes"
-                    className={`h-full w-full object-cover object-[50%_16%] transition-all duration-500 ${
-                        isSpeaking ? 'scale-105 animate-mascot-talk' : isThinking ? 'scale-100 brightness-95' : 'scale-100 hover:scale-105'
-                    }`}
+                    alt="Maestro Carnicero interactivo CANRES Viandes"
+                    className="h-full w-full object-cover object-[50%_18%] transition-transform duration-300"
                     loading="eager"
                 />
             </div>
 
-            {/* Ecualizador de ondas de voz cuando está hablando */}
+            {/* Ecualizador sutil cuando está hablando */}
             {isSpeaking && showEqualizer && (
                 <div
-                    className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 backdrop-blur-[1px] transition-opacity"
+                    className="absolute inset-0 flex items-center justify-center rounded-full bg-black/30 backdrop-blur-[0.5px] transition-opacity"
                     title="Hablando..."
                 >
                     <div className="flex items-center gap-[2px]">
@@ -69,17 +66,17 @@ export default function ButcherAvatar({
                 </div>
             )}
 
-            {/* Icono de cuchillo / destello cuando está pensando / preparando */}
+            {/* Icono de cuchillo cortando cuando está pensando */}
             {isThinking && (
                 <div
-                    className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-brand-wine text-[9px] text-white shadow-xs border border-gold/40"
+                    className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-brand-wine text-[9px] text-white shadow-xs border border-gold/40 animate-bounce"
                     title="Preparando corte y respuesta..."
                 >
                     🔪
                 </div>
             )}
 
-            {/* Punto de estado en vivo (verde en reposo, ámbar al pensar, oro al hablar) */}
+            {/* Punto de estado en vivo */}
             {showStatusDot && !isThinking && (
                 <span
                     className={`absolute bottom-0 right-0 flex h-3 w-3 items-center justify-center rounded-full border-2 border-[#171513] ${
