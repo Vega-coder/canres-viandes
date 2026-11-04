@@ -53,8 +53,8 @@ export default function GenderExplore() {
     );
 
     return (
-        <section className="container-luxe py-10 sm:py-14">
-            <div className="text-center mb-8">
+        <section className="container-luxe py-6 sm:py-14">
+            <div className="text-center mb-5 sm:mb-8">
                 <p className="eyebrow text-gold-dark font-bold">{t('specialties.eyebrow')}</p>
                 <h2 className="mt-1 font-display text-2xl font-bold uppercase tracking-[0.16em] text-ink sm:text-3xl">
                     {t('specialties.title')}

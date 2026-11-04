@@ -93,40 +93,40 @@ export default function Hero({ cuts = [] }) {
     const activeCut = featuredCuts[currentIndex % featuredCuts.length] || featuredCuts[0];
 
     return (
-        <section className="relative overflow-hidden bg-gradient-to-br from-[#1A0B0C] via-[#2D0A0E] to-[#121212] text-cream-light py-10 sm:py-16">
+        <section className="relative overflow-hidden bg-gradient-to-br from-[#1A0B0C] via-[#2D0A0E] to-[#121212] text-cream-light py-5 sm:py-10 md:py-16">
             {/* Luces y velo ambiental */}
             <div className="pointer-events-none absolute -right-32 top-1/2 h-96 w-96 -translate-y-1/2 rounded-full bg-brand-red/25 blur-3xl" />
             <div className="pointer-events-none absolute -left-20 bottom-0 h-64 w-64 rounded-full bg-brand-wine/30 blur-3xl" />
 
-            <div className="container-luxe relative grid min-h-[420px] items-center gap-8 md:grid-cols-2 md:gap-12">
+            <div className="container-luxe relative grid min-h-0 md:min-h-[420px] items-center gap-4 sm:gap-6 md:grid-cols-2 md:gap-12">
                 {/* Texto principal */}
                 <div className="animate-fade-up">
-                    <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3.5 py-1.5 text-[10.5px] font-bold tracking-[0.2em] text-cream-light backdrop-blur border border-white/10 uppercase">
-                        <span className="h-2 w-2 rounded-full bg-brand-light animate-pulse" />
+                    <div className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full bg-white/10 px-2.5 py-1 sm:px-3.5 sm:py-1.5 text-[9px] sm:text-[10.5px] font-bold tracking-[0.16em] sm:tracking-[0.2em] text-cream-light backdrop-blur border border-white/10 uppercase">
+                        <span className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-brand-light animate-pulse" />
                         {t('hero.badge')}
                     </div>
 
-                    <h1 className="mt-4 font-display text-4xl sm:text-5xl lg:text-6xl tracking-wide font-extrabold uppercase leading-[1.05] text-white">
-                        {t('hero.title_line1')} <br />
+                    <h1 className="mt-2.5 sm:mt-4 font-display text-2xl sm:text-4xl lg:text-6xl tracking-wide font-extrabold uppercase leading-tight sm:leading-[1.05] text-white">
+                        {t('hero.title_line1')} <br className="hidden sm:inline" />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 via-amber-200 to-red-500">
                             {t('hero.title_line2')}
                         </span>
                     </h1>
 
-                    <p className="mt-4 max-w-lg text-sm sm:text-base leading-relaxed text-cream/80">
+                    <p className="mt-2 sm:mt-4 max-w-lg text-xs sm:text-base leading-relaxed text-cream/80 line-clamp-2 md:line-clamp-none">
                         {t('hero.description')}
                     </p>
 
-                    <div className="mt-8 flex flex-wrap items-center gap-4">
-                        <Link to="/tienda" className="btn-brand px-6 py-3.5 text-xs tracking-wider shadow-lg shadow-brand-red/30">
+                    <div className="mt-4 sm:mt-8 flex flex-row flex-wrap items-center gap-2.5 sm:gap-4">
+                        <Link to="/tienda" className="btn-brand px-4 py-2.5 sm:px-6 sm:py-3.5 text-xs tracking-wider shadow-lg shadow-brand-red/30">
                             {t('hero.cta_explore')} <HiArrowLongRight className="h-4 w-4" />
                         </Link>
-                        <Link to="/tienda/chorizos" className="btn-outline-light px-6 py-3.5 text-xs tracking-wider">
+                        <Link to="/tienda/chorizos" className="btn-outline-light px-4 py-2.5 sm:px-6 sm:py-3.5 text-xs tracking-wider">
                             {t('hero.cta_charcuterie')}
                         </Link>
                     </div>
 
-                    <div className="mt-8 grid grid-cols-3 gap-3 border-t border-white/10 pt-6 text-left">
+                    <div className="hidden md:grid mt-8 grid-cols-3 gap-3 border-t border-white/10 pt-6 text-left">
                         <div>
                             <span className="block font-display text-xl sm:text-2xl font-bold text-white">100%</span>
                             <span className="text-[10px] uppercase tracking-wider text-cream/70">{t('hero.stat_artisan')}</span>
@@ -142,8 +142,8 @@ export default function Hero({ cuts = [] }) {
                     </div>
                 </div>
 
-                {/* Tarjeta de producto dinámico 3D */}
-                <div className="relative flex flex-col items-center justify-center">
+                {/* Tarjeta de producto dinámico 3D (visible en tablet y escritorio) */}
+                <div className="hidden md:flex relative flex-col items-center justify-center">
                     <div
                         className="relative flex h-72 sm:h-80 md:h-[360px] w-full max-w-md items-center justify-center"
                         onMouseMove={handleMouseMove}

@@ -127,8 +127,8 @@ export default function Navbar() {
 
     return (
         <header className="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-cream shadow-sm">
-            {/* Barra superior de Beneficio Club VIP y selector rápido de idioma */}
-            <div className="bg-gradient-to-r from-brand-wine via-brand-dark to-brand-wine text-white py-1.5 px-4 text-center text-[11px] font-medium tracking-wide">
+            {/* Barra superior de Beneficio Club VIP y selector rápido de idioma (oculta en mobile, visible en desktop) */}
+            <div className="hidden md:block bg-gradient-to-r from-brand-wine via-brand-dark to-brand-wine text-white py-1.5 px-4 text-center text-[11px] font-medium tracking-wide">
                 <div className="container-luxe flex items-center justify-between gap-2">
                     <div className="flex-1 text-center">
                         {isAuthenticated ? (
