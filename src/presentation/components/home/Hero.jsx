@@ -11,7 +11,7 @@ const DEFAULT_FALLBACK_CUTS = [
         slug: 'lomo-ancho-rib-eye',
         price: 32.0,
         unit: 'kg',
-        image: 'https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739782/canres-viandes/meat_beef_cut.jpg',
+        image: '/images/products/beef-ribeye.jpg',
         glow: 'bg-brand-red/35',
     },
     {
@@ -21,7 +21,7 @@ const DEFAULT_FALLBACK_CUTS = [
         slug: 'punta-de-picanha-aaa',
         price: 20.0,
         unit: 'kg',
-        image: 'https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739785/canres-viandes/ribeye.jpg',
+        image: '/images/products/picanha.jpg',
         glow: 'bg-gold/30',
     },
     {
@@ -31,7 +31,7 @@ const DEFAULT_FALLBACK_CUTS = [
         slug: 'chorizo-jarabe-de-cana',
         price: 8.0,
         unit: '450g',
-        image: 'https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739782/canres-viandes/chorizos.jpg',
+        image: '/images/products/chorizo-artesanal.jpg',
         glow: 'bg-brand-wine/40',
     },
     {
@@ -41,7 +41,7 @@ const DEFAULT_FALLBACK_CUTS = [
         slug: 'costilla-de-cerdo-baby',
         price: 12.0,
         unit: 'kg',
-        image: 'https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739785/canres-viandes/ribs.jpg',
+        image: '/images/products/pork-baby-ribs.jpg',
         glow: 'bg-brand-light/35',
     },
 ];
@@ -59,7 +59,7 @@ export default function Hero({ cuts = [] }) {
                 brand: c.brand || 'Boucherie CANRES',
                 slug: c.slug || c.id,
                 price: `${formatMoney(c.price)} ${formatUnit(c.unit)}`,
-                image: (Array.isArray(c.images) && c.images[0]) || 'https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739782/canres-viandes/meat_beef_cut.jpg',
+                image: (Array.isArray(c.images) && c.images[0]) || '/images/products/beef-ribeye.jpg',
                 tag: (Array.isArray(c.notes) && c.notes[0] ? translateNote(c.notes[0]) : t('hero.featured_tag')),
                 glow: c.gender === 'cerdo' ? 'bg-brand-light/35' : c.gender === 'chorizos' ? 'bg-brand-wine/40' : 'bg-brand-red/35',
             }));

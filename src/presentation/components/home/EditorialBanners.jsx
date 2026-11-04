@@ -14,7 +14,7 @@ export default function EditorialBanners() {
                 title: t('editorialBanners.b1_title'),
                 to: '/tienda/res',
                 cta: t('editorialBanners.b1_cta'),
-                image: 'https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739782/canres-viandes/meat_beef_cut.jpg',
+                image: '/images/products/beef-ribeye.jpg',
                 alt: t('editorialBanners.b1_title'),
             },
             {
@@ -23,7 +23,7 @@ export default function EditorialBanners() {
                 title: t('editorialBanners.b2_title'),
                 to: '/producto/chorizos-personalizados',
                 cta: t('editorialBanners.b2_cta'),
-                image: 'https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739782/canres-viandes/chorizos.jpg',
+                image: '/images/products/chorizo-artesanal.jpg',
                 alt: t('editorialBanners.b2_title'),
             },
             {
@@ -32,7 +32,7 @@ export default function EditorialBanners() {
                 title: t('editorialBanners.b3_title'),
                 to: '/tienda/canales',
                 cta: t('editorialBanners.b3_cta'),
-                image: 'https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739785/canres-viandes/ribs.jpg',
+                image: '/images/products/beef-butcher-cuts.jpg',
                 alt: t('editorialBanners.b3_title'),
             },
         ],

@@ -11,7 +11,7 @@ export default function ProductImage({ product, className = '' }) {
                     className="h-full w-full object-cover transition duration-300"
                     onError={(e) => {
                         e.target.onerror = null;
-                        e.target.src = 'https://res.cloudinary.com/v3zsy3cm/image/upload/v1793739782/canres-viandes/meat_beef_cut.jpg';
+                        e.target.src = '/images/products/beef-ribeye.jpg';
                     }}
                 />
             ) : (
