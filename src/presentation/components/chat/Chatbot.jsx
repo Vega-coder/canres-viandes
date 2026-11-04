@@ -21,7 +21,7 @@ import { useSpeechRecognition } from './useSpeechRecognition.js';
 const STORAGE_KEY = 'canres_chatbot_history_v2';
 
 export default function Chatbot() {
-    const { t, language } = useLanguage();
+    const { t, language, setLanguage } = useLanguage();
     const [isOpen, setIsOpen] = useState(false);
     const [isStageCollapsed, setIsStageCollapsed] = useState(false);
 
@@ -71,23 +71,29 @@ export default function Chatbot() {
     const messagesEndRef = useRef(null);
     const inputRef = useRef(null);
 
-    // Si no ha habido interacción y cambia el idioma, actualizamos el mensaje de bienvenida
+    // Cargar historial correspondiente a cada idioma aislado al cambiar de idioma
     useEffect(() => {
-        const timer = setTimeout(() => {
-            setMessages((prev) => {
-                if (prev.length === 1 && prev[0].role === 'assistant') {
-                    return [initialWelcome];
+        try {
+            const saved = sessionStorage.getItem(`${STORAGE_KEY}_${language}`);
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    setMessages(parsed);
+                    return;
                 }
-                return prev;
-            });
-        }, 0);
-        return () => clearTimeout(timer);
-    }, [initialWelcome]);
+            }
+            setMessages([initialWelcome]);
+        } catch {
+            setMessages([initialWelcome]);
+        }
+    }, [language, initialWelcome]);
 
     // Guardar en sessionStorage al cambiar mensajes
     useEffect(() => {
         try {
-            sessionStorage.setItem(`${STORAGE_KEY}_${language}`, JSON.stringify(messages));
+            if (messages.length > 0) {
+                sessionStorage.setItem(`${STORAGE_KEY}_${language}`, JSON.stringify(messages));
+            }
         } catch {
             // ignore
         }
@@ -151,7 +157,7 @@ export default function Chatbot() {
                 content: m.content,
             }));
 
-            const response = await useCases.sendChatMessage(apiMessages);
+            const response = await useCases.sendChatMessage(apiMessages, language);
 
             const botMsg = {
                 role: 'assistant',
@@ -378,6 +384,8 @@ export default function Chatbot() {
                         isCollapsed={isStageCollapsed}
                         onToggleCollapse={() => setIsStageCollapsed((prev) => !prev)}
                         t={t}
+                        language={language}
+                        onLanguageChange={setLanguage}
                     />
 
                     {/* Área de Mensajes */}

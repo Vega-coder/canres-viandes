@@ -23,6 +23,8 @@ export default function ButcherStage({
     isCollapsed = false,
     onToggleCollapse,
     t,
+    language = 'fr',
+    onLanguageChange,
 }) {
     const [thinkingIndex, setThinkingIndex] = useState(0);
     const [tilt, setTilt] = useState({ x: 0, y: 0 });
@@ -134,7 +136,28 @@ export default function ButcherStage({
                     </span>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                    {/* Selector rápido de idioma para el carnicero y micrófono */}
+                    {onLanguageChange && (
+                        <div className="flex items-center rounded-full bg-white/10 p-0.5 text-[8.5px] font-bold border border-gold/25" role="group" aria-label="Langue du boucher">
+                            {['fr', 'en', 'es'].map((l) => (
+                                <button
+                                    key={l}
+                                    type="button"
+                                    onClick={() => onLanguageChange(l)}
+                                    className={`px-1.5 py-0.2 rounded-full uppercase transition ${
+                                        language === l
+                                            ? 'bg-gold text-ink font-extrabold shadow-xs'
+                                            : 'text-cream/70 hover:text-white'
+                                    }`}
+                                    title={l === 'fr' ? 'Français' : l === 'en' ? 'English' : 'Español'}
+                                >
+                                    {l}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+
                     {/* Botón interactivo de micrófono para conversar por voz */}
                     {onToggleListen && (
                         <button

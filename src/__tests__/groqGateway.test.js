@@ -1,11 +1,34 @@
 import { describe, it, expect, vi } from 'vitest';
-import { createGroqGateway, SYSTEM_PROMPT } from '@/infrastructure/gateways/groqGateway.js';
+import {
+    createGroqGateway,
+    SYSTEM_PROMPT,
+    detectMessageLanguage,
+    buildDynamicSystemPrompt,
+} from '@/infrastructure/gateways/groqGateway.js';
 
 describe('Groq Gateway de CANRES Viandes', () => {
     it('contiene el prompt del sistema orientado a carnicería artesanal', () => {
         expect(SYSTEM_PROMPT).toContain('CANRES Viandes');
         expect(SYSTEM_PROMPT).toContain('Maître Boucher');
         expect(SYSTEM_PROMPT).toContain('Ribeye AAA');
+    });
+
+    it('detecta correctamente el idioma del mensaje o hereda la sesión', () => {
+        expect(detectMessageLanguage('Bonjour, quelle est la meilleure viande ?')).toBe('fr');
+        expect(detectMessageLanguage('Allô, c\'est quoi votre spécialité ?')).toBe('fr');
+        expect(detectMessageLanguage('Hello, what is the best cut for grilling?')).toBe('en');
+        expect(detectMessageLanguage('¿Cuál es el corte más cotizado?')).toBe('es');
+        expect(detectMessageLanguage('', 'fr')).toBe('fr');
+    });
+
+    it('genera directivas lingüísticas estrictas para francés e inglés', () => {
+        const frPrompt = buildDynamicSystemPrompt('fr');
+        expect(frPrompt).toContain('FRANÇAIS');
+        expect(frPrompt).toContain('IL EST TOTALEMENT INTERDIT DE RÉPONDRE EN ESPAGNOL');
+
+        const enPrompt = buildDynamicSystemPrompt('en');
+        expect(enPrompt).toContain('ENGLISH');
+        expect(enPrompt).toContain('IT IS STRICTLY FORBIDDEN TO RESPOND IN SPANISH');
     });
 
     it('envía los mensajes a Groq con el prompt de carnicería', async () => {
@@ -35,5 +58,9 @@ describe('Groq Gateway de CANRES Viandes', () => {
         const reply = await gateway.generateResponse([{ role: 'user', content: 'Hola' }]);
 
         expect(reply).toContain('WhatsApp');
+
+        const replyFr = await gateway.generateResponse([{ role: 'user', content: 'Bonjour' }]);
+        expect(replyFr).toContain('WhatsApp');
+        expect(replyFr).toContain('Bonjour');
     });
 });

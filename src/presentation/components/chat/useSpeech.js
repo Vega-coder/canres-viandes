@@ -60,6 +60,22 @@ function findBestNaturalVoice(voices, lang) {
 }
 
 /**
+ * Detecta el idioma del texto a reproducir para seleccionar el motor fonético correcto.
+ */
+function detectTextLanguage(text, fallbackLang = 'fr') {
+    if (!text) return fallbackLang;
+    const lower = text.toLowerCase();
+    const frCount = (lower.match(/\b(bonjour|salut|allô|allo|bœuf|boeuf|grill|grillade|viande|saucisse|saucisses|pour|avec|dans|notre|votre|c'est|est|que|vous|nous|bienvenue|bon|bonne|midi|soir|matin|merci|prix|kg)\b/g) || []).length;
+    const esCount = (lower.match(/\b(hola|bienvenido|carne|corte|cortes|asado|parrilla|nuestro|nuestra|para|con|gracias|está|este|esta|salchicha|chorizo|pedido|tienda|carnicero)\b/g) || []).length;
+    const enCount = (lower.match(/\b(hello|welcome|meat|cut|cuts|beef|grill|steak|our|with|for|the|and|this|ribeye|sausage|shop|butcher|price)\b/g) || []).length;
+
+    if (frCount > esCount && frCount > enCount) return 'fr';
+    if (esCount > frCount && esCount > enCount) return 'es';
+    if (enCount > frCount && enCount > esCount) return 'en';
+    return fallbackLang;
+}
+
+/**
  * Hook para Text-to-Speech (TTS) con voz humana natural para el Maestro Carnicero.
  */
 export function useSpeech(language = 'fr') {
@@ -140,7 +156,7 @@ export function useSpeech(language = 'fr') {
 
             try {
                 const utterance = new SpeechSynthesisUtterance(cleanText);
-                const activeLang = overrideLang || language;
+                const activeLang = overrideLang || detectTextLanguage(cleanText, language);
 
                 // Idiomas canadienses oficiales y español
                 let targetLang = 'fr-CA';

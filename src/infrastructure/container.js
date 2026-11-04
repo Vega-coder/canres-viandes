@@ -147,9 +147,9 @@ const getDynamicCatalogSummary = async () => {
 };
 
 export const useCases = Object.freeze({
-    sendChatMessage: async (messages) => {
+    sendChatMessage: async (messages, sessionLang = 'fr') => {
         const catalogSummary = await getDynamicCatalogSummary();
-        return groqGateway.sendChat(messages, catalogSummary);
+        return groqGateway.sendChat(messages, catalogSummary, sessionLang);
     },
     browseCatalog: makeBrowseCatalog({ productRepository }),
     getProductDetail: makeGetProductDetail({ productRepository }),
