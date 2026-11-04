@@ -3,15 +3,36 @@
 import { createProduct } from '@/domain/catalog/product.js';
 import { SEED_PRODUCTS } from '@/infrastructure/data/seedProducts.js';
 
-const KEY = 'canres_products_v4';
+const KEY = 'canres_products_v5';
+
+const sanitizeImages = (images, gender) => {
+    if (!Array.isArray(images) || images.length === 0) return ['/images/products/beef-ribeye.jpg'];
+    return images.map((img) => {
+        if (typeof img === 'string' && img.includes('canres-viandes/chorizos.jpg')) {
+            return gender === 'chorizos' || gender === 'personalizados'
+                ? '/images/products/chorizo-artesanal.jpg'
+                : '/images/products/chicken-whole.jpg';
+        }
+        if (typeof img === 'string' && img.includes('canres-viandes/butcher.jpg')) {
+            return '/images/products/chicken-breasts.jpg';
+        }
+        return img;
+    });
+};
 
 const load = (storage, seed) => {
     try {
+        storage?.removeItem('canres_products_v4');
+        storage?.removeItem('canres_catalog_cache_v3');
+        storage?.removeItem('canres_catalog_cache_v4');
         const saved = storage?.getItem(KEY);
         if (saved) {
             const parsed = JSON.parse(saved);
             if (Array.isArray(parsed) && parsed.length >= 30) {
-                return parsed.map(createProduct);
+                return parsed.map((p) => createProduct({
+                    ...p,
+                    images: sanitizeImages(p.images, p.gender),
+                }));
             }
         }
     } catch {
@@ -23,7 +44,10 @@ const load = (storage, seed) => {
     } catch {
         // ignore
     }
-    return initial.map(createProduct);
+    return initial.map((p) => createProduct({
+        ...p,
+        images: sanitizeImages(p.images, p.gender),
+    }));
 };
 
 const enrichWithReviews = (product, storage) => {

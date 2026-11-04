@@ -95,4 +95,54 @@
         -ms-overflow-style: none;
         scrollbar-width: none;
     }
+
+    /* Micro-animaciones para el Maestro Carnicero (Mascota IA) */
+    @keyframes soundwave-1 {
+        0%, 100% { height: 4px; }
+        50% { height: 16px; }
+    }
+    @keyframes soundwave-2 {
+        0%, 100% { height: 14px; }
+        50% { height: 5px; }
+    }
+    @keyframes soundwave-3 {
+        0%, 100% { height: 6px; }
+        50% { height: 18px; }
+    }
+    @keyframes soundwave-4 {
+        0%, 100% { height: 12px; }
+        50% { height: 6px; }
+    }
+    @keyframes mascot-talk {
+        0%, 100% { transform: translateY(0) scale(1); }
+        25% { transform: translateY(-1.5px) scale(1.015); }
+        75% { transform: translateY(0.5px) scale(0.995); }
+    }
+    @keyframes gold-ring-pulse {
+        0%, 100% {
+            box-shadow: 0 0 0 0 rgba(217, 119, 6, 0.5), 0 0 15px rgba(217, 119, 6, 0.3);
+        }
+        50% {
+            box-shadow: 0 0 0 8px rgba(217, 119, 6, 0), 0 0 25px rgba(217, 119, 6, 0.5);
+        }
+    }
+
+    .animate-soundwave-1 {
+        animation: soundwave-1 0.7s ease-in-out infinite;
+    }
+    .animate-soundwave-2 {
+        animation: soundwave-2 0.6s ease-in-out infinite;
+    }
+    .animate-soundwave-3 {
+        animation: soundwave-3 0.8s ease-in-out infinite;
+    }
+    .animate-soundwave-4 {
+        animation: soundwave-4 0.65s ease-in-out infinite;
+    }
+    .animate-mascot-talk {
+        animation: mascot-talk 0.35s ease-in-out infinite;
+    }
+    .animate-gold-ring {
+        animation: gold-ring-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
 }
