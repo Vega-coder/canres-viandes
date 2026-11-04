@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { createProduct, getFinalPrice, slugify } from '@/domain/catalog/product.js';
 import { filterProducts, sortProducts, matchesAroma } from '@/domain/catalog/filters.js';
 import { AROMAS, getAromaBySlug } from '@/domain/catalog/aromas.js';
-import { addItem, updateQuantity, removeItem, calculateTotals, FREE_SHIPPING_THRESHOLD, SHIPPING_COST, MAX_QTY_PER_ITEM } from '@/domain/cart/cart.js';
+import { addItem, updateQuantity, removeItem, calculateTotals, isVipEligible, FREE_SHIPPING_THRESHOLD, SHIPPING_COST, MAX_QTY_PER_ITEM } from '@/domain/cart/cart.js';
 import { buildOrder, validateCustomer, canTransition } from '@/domain/orders/order.js';
 import { brandToSlug, buildBrandsCatalog, resolveBrandBySlug, getBrandMetadata } from '@/domain/catalog/brands.js';
 

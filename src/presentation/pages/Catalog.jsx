@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { HiOutlineAdjustmentsHorizontal, HiOutlineXMark } from 'react-icons/hi2';
 import { useCases } from '@/infrastructure/container.js';
 import { getCategoryBySlug } from '@/domain/catalog/categories.js';
@@ -10,6 +10,16 @@ import FilterPanel from '@/presentation/components/catalog/FilterPanel.jsx';
 import SortDropdown from '@/presentation/components/catalog/SortDropdown.jsx';
 import ProductGrid, { ProductGridSkeleton } from '@/presentation/components/product/ProductGrid.jsx';
 import NotFound from './NotFound.jsx';
+
+const CATEGORY_TABS = [
+    { slug: '', label: 'Todos los Cortes', icon: '🥩' },
+    { slug: 'res', label: 'Res AAA', icon: '🥩' },
+    { slug: 'cerdo', label: 'Cerdo Selecto', icon: '🥓' },
+    { slug: 'chorizos', label: 'Chorizos Artesanales', icon: '🌭', isSpecial: true },
+    { slug: 'pollo', label: 'Pollo de Granja', icon: '🍗' },
+    { slug: 'chivo', label: 'Chivo & Cordero', icon: '🐐' },
+    { slug: 'canales', label: 'Mayoreo & Canales', icon: '📦' },
+];
 
 // Los filtros viven en la URL (?q=&aroma=&marca=&precio=&orden=) para que se puedan compartir.
 export default function Catalog() {
@@ -71,7 +81,7 @@ export default function Catalog() {
 
     return (
         <div className="container-luxe py-12">
-            <header className="mb-10 border-b border-taupe/15 pb-8 text-center">
+            <header className="mb-8 border-b border-taupe/15 pb-8 text-center">
                 <p className="eyebrow text-taupe">{aromaInfo ? 'Estilo & Método' : 'Carnicería'}</p>
                 <h1 className="mt-3 text-4xl sm:text-5xl">{title}</h1>
                 {subtitle && <p className="mx-auto mt-3 max-w-xl text-sm text-taupe">{subtitle}</p>}
@@ -91,6 +101,34 @@ export default function Catalog() {
                     </div>
                 )}
             </header>
+
+            {/* Pestañas de categoría rápida */}
+            <div className="mb-10 flex flex-wrap items-center justify-center gap-2 sm:gap-2.5">
+                {CATEGORY_TABS.map((tab) => {
+                    const isActive = (!category && !tab.slug) || category === tab.slug;
+                    return (
+                        <Link
+                            key={tab.slug || 'all'}
+                            to={tab.slug ? `/tienda/${tab.slug}` : '/tienda'}
+                            className={`group relative flex items-center justify-center gap-1.5 overflow-hidden rounded-full px-4 py-2 sm:px-5 sm:py-2.5 text-[11px] sm:text-xs font-bold tracking-[0.12em] uppercase select-none transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 ${
+                                isActive
+                                    ? 'bg-brand-wine text-white shadow-md ring-1 ring-brand-wine scale-105'
+                                    : tab.isSpecial
+                                    ? 'bg-gold/15 border-2 border-gold/60 text-ink hover:bg-gold/25 hover:border-gold hover:scale-105 shadow-xs'
+                                    : 'bg-white border border-cream text-ink/80 hover:border-brand-wine hover:text-brand-wine hover:scale-105 hover:shadow-xs'
+                            }`}
+                        >
+                            <span>{tab.icon}</span>
+                            <span>{tab.label}</span>
+                            {tab.isSpecial && (
+                                <span className="ml-1 rounded-full bg-gold px-1.5 py-0.5 text-[8px] font-black uppercase text-ink">
+                                    ★ Especialidad
+                                </span>
+                            )}
+                        </Link>
+                    );
+                })}
+            </div>
 
             <div className="flex gap-12">
                 <aside className="hidden w-60 shrink-0 lg:block">{panel}</aside>

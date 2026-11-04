@@ -14,10 +14,14 @@ const STATUS_LABELS = {
 };
 
 export default function Account() {
-    const { user, isAuthenticated, loading: authLoading, signOut } = useAuth();
+    const { user, isAuthenticated, loading: authLoading, signOut, isVip, vipConfig } = useAuth();
     const navigate = useNavigate();
     const [orders, setOrders] = useState([]);
     const [loadingOrders, setLoadingOrders] = useState(true);
+
+    const vipPercent = vipConfig?.discountPercent || 10;
+    const isFirstOrders = vipConfig?.mode === 'first_orders';
+    const maxOrders = vipConfig?.maxOrders || 1;
 
     useEffect(() => {
         if (!authLoading && !isAuthenticated) {
@@ -95,11 +99,13 @@ export default function Account() {
                         <div>
                             <div className="flex items-center gap-2">
                                 <span className="text-xs font-bold uppercase tracking-wider text-amber-900">
-                                    {user.isVip ? 'Membresía Club VIP Activa' : 'Membresía Estándar'}
+                                    {isVip
+                                        ? (isFirstOrders ? 'Beneficio de Bienvenida Activo' : 'Membresía VIP Activa')
+                                        : (isFirstOrders && (user.ordersCount || 0) >= maxOrders ? 'Bienvenida Redimida' : 'Membresía Estándar')}
                                 </span>
-                                {user.isVip && (
+                                {isVip && (
                                     <span className="rounded-full bg-amber-500/20 px-2.5 py-0.5 text-[11px] font-bold text-amber-900 border border-amber-400/40">
-                                        10% OFF en todos tus cortes
+                                        {vipPercent}% OFF {isFirstOrders ? (maxOrders === 1 ? '1ª compra' : `primeras ${maxOrders} compras`) : 'en todos tus cortes'}
                                     </span>
                                 )}
                             </div>
@@ -107,15 +113,19 @@ export default function Account() {
                                 Club VIP CANRES Viandes
                             </h2>
                             <p className="mt-1 text-xs sm:text-sm text-ink/75 max-w-xl">
-                                {user.isVip
-                                    ? 'Como miembro de nuestro Club VIP, tienes garantizado un 10% de descuento automático en cualquier corte, carne o charcutería al comprar con tu cuenta.'
-                                    : 'Tu cuenta está en estado estándar. Realiza compras frecuentes para ser promovido al Club VIP.'}
+                                {isVip
+                                    ? `Tienes garantizado un ${vipPercent}% de descuento automático ${isFirstOrders ? (maxOrders === 1 ? 'en tu primera compra de bienvenida' : `en tus primeras ${maxOrders} compras`) : 'en cualquier corte, carne o charcutería al comprar con tu cuenta'}.`
+                                    : (isFirstOrders && (user.ordersCount || 0) >= maxOrders
+                                        ? `Ya redimiste tu descuento de bienvenida del Club VIP (${orders.length} pedidos realizados). ¡Gracias por ser cliente fiel de CANRES!`
+                                        : 'Tu cuenta está en estado estándar.')}
                             </p>
                         </div>
                     </div>
-                    <Link to="/tienda" className="btn-brand whitespace-nowrap self-start sm:self-auto text-xs shadow-md">
-                        Explorar carnicería con 10% VIP
-                    </Link>
+                    {isVip && (
+                        <Link to="/tienda" className="btn-brand whitespace-nowrap self-start sm:self-auto text-xs shadow-md">
+                            Comprar con {vipPercent}% VIP
+                        </Link>
+                    )}
                 </div>
             </div>
 

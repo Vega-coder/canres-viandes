@@ -1,114 +1,133 @@
-import { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { useMemo } from 'react';
 import { useCases } from '@/infrastructure/container.js';
 import { useAsync } from '@/presentation/hooks/useAsync.js';
 import Hero from '@/presentation/components/home/Hero.jsx';
 import LuxuryTicker from '@/presentation/components/home/LuxuryTicker.jsx';
 import GenderExplore from '@/presentation/components/home/GenderExplore.jsx';
+import ChorizosShowcase from '@/presentation/components/home/ChorizosShowcase.jsx';
+import MeatCategorySection from '@/presentation/components/home/MeatCategorySection.jsx';
 import AromaExplore from '@/presentation/components/home/AromaExplore.jsx';
 import CategoryCircles from '@/presentation/components/home/CategoryCircles.jsx';
 import EditorialBanners from '@/presentation/components/home/EditorialBanners.jsx';
 import BrandStatement from '@/presentation/components/home/BrandStatement.jsx';
 import BrandCarousel from '@/presentation/components/home/BrandCarousel.jsx';
-import SectionHeading from '@/presentation/components/ui/SectionHeading.jsx';
-import ProductGrid, { ProductGridSkeleton } from '@/presentation/components/product/ProductGrid.jsx';
-
-const TABS = [
-    { id: 'all', label: 'Todos los Cortes' },
-    { id: 'res', label: 'Res AAA' },
-    { id: 'cerdo', label: 'Cerdo Selecto' },
-    { id: 'pollo', label: 'Pollo de Granja' },
-    { id: 'chivo', label: 'Chivo & Cordero' },
-    { id: 'chorizos', label: 'Chorizos 100% Artesanales' },
-    { id: 'canales', label: 'Mayoreo & Canales' },
-];
 
 export default function Home() {
     const { data, loading } = useAsync(() => useCases.getHomeShowcase(), []);
-    const [selectedTab, setSelectedTab] = useState('all');
 
-    const rawFeatured = data?.featured;
-    const allProducts = data?.allProducts ?? rawFeatured ?? [];
-    const filteredProducts = useMemo(() => {
-        if (selectedTab === 'all') return (rawFeatured?.length ? rawFeatured : allProducts).slice(0, 8);
-        if (selectedTab === 'canales') {
-            return allProducts.filter((p) => p.gender === 'canales' || p.type === 'canal' || p.type === 'caja');
-        }
-        return allProducts.filter((p) => p.gender === selectedTab);
-    }, [allProducts, rawFeatured, selectedTab]);
+    const allProducts = useMemo(() => data?.allProducts ?? data?.featured ?? [], [data]);
+
+    // Filtrar productos por sección especializada
+    const chorizos = useMemo(
+        () => allProducts.filter((p) => p.gender === 'chorizos' || p.gender === 'personalizados'),
+        [allProducts]
+    );
+
+    const resProducts = useMemo(
+        () => allProducts.filter((p) => p.gender === 'res' && p.type !== 'canal' && p.type !== 'caja'),
+        [allProducts]
+    );
+
+    const cerdoProducts = useMemo(
+        () => allProducts.filter((p) => p.gender === 'cerdo' && p.type !== 'canal' && p.type !== 'caja'),
+        [allProducts]
+    );
+
+    const polloProducts = useMemo(
+        () => allProducts.filter((p) => p.gender === 'pollo'),
+        [allProducts]
+    );
+
+    const chivoProducts = useMemo(
+        () => allProducts.filter((p) => p.gender === 'chivo' && p.type !== 'canal'),
+        [allProducts]
+    );
 
     return (
         <>
             <Hero cuts={data?.featured} />
             <LuxuryTicker />
 
-            {/* Sección de Productos Destacados con Pestañas Interactivas */}
-            <section className="container-luxe pt-10 pb-12 sm:pt-14 sm:pb-16">
-                <SectionHeading eyebrow="Boucherie d'Exception" title="Cortes & Embutidos Destacados" />
-
-                {/* Pestañas de filtrado dinámico */}
-                <div className="mb-8 flex flex-wrap items-center justify-center gap-2 sm:gap-2.5">
-                    {TABS.map((tab) => {
-                        const isActive = selectedTab === tab.id;
-                        return (
-                            <button
-                                key={tab.id}
-                                type="button"
-                                onClick={() => setSelectedTab(tab.id)}
-                                className={`group relative flex items-center justify-center overflow-hidden rounded-full px-4 py-2 sm:px-5 sm:py-2.5 text-[11px] sm:text-xs font-bold tracking-[0.14em] uppercase select-none transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-95 ${
-                                    isActive
-                                        ? 'bg-brand-wine text-white shadow-md ring-1 ring-brand-wine scale-105'
-                                        : 'bg-white border border-cream text-ink/80 hover:border-brand-wine hover:text-brand-wine hover:scale-105 hover:shadow-sm'
-                                }`}
-                            >
-                                <span className="relative z-10">{tab.label}</span>
-                            </button>
-                        );
-                    })}
-                </div>
-
-                {loading ? (
-                    <ProductGridSkeleton count={8} />
-                ) : filteredProducts.length > 0 ? (
-                    <ProductGrid products={filteredProducts} />
-                ) : (
-                    <div className="rounded-xl border border-dashed border-cream bg-white/50 p-10 text-center">
-                        <p className="text-sm text-taupe">No encontramos productos en esta pestaña ahora mismo.</p>
-                        <button
-                            type="button"
-                            onClick={() => setSelectedTab('all')}
-                            className="btn-brand mt-4 text-[10px]"
-                        >
-                            Ver todos los cortes
-                        </button>
-                    </div>
-                )}
-
-                <div className="mt-12 text-center">
-                    <Link to="/tienda" className="btn-brand px-8 py-3.5 text-xs transition-transform hover:scale-105 shadow-md">
-                        Ver Catálogo Completo
-                    </Link>
-                </div>
-            </section>
-
-            <AromaExplore />
+            {/* Explorador visual de las 5 especialidades principales */}
             <GenderExplore />
+
+            {/* SECCIÓN ESPECIALIZADA Y PROTAGONISTA: CHORIZOS 100% ARTESANALES */}
+            <ChorizosShowcase
+                chorizos={chorizos}
+                customProduct={chorizos.find((p) => p.slug === 'chorizos-personalizados')}
+            />
+
+            {/* SECCIÓN DEDICADA: CORTES DE RES AAA */}
+            <MeatCategorySection
+                id="seccion-res"
+                icon="🥩"
+                eyebrow="Boeuf de Première Qualité"
+                badgeText="Grado AAA & Sterling"
+                title="Cortes Nobles de Res AAA"
+                description="Maduración controlada, terneza garantizada y cortes gruesos para asados memorables: Ribeye, Chatas New York, Picaña AAA, Sobrebarriga y más."
+                products={resProducts}
+                categorySlug="res"
+                categoryLabel="Res AAA"
+                totalCount={resProducts.length}
+                bgClass="bg-cream/25"
+            />
+
+            {/* SECCIÓN DEDICADA: CERDO SELECTO DE GRANJA */}
+            <MeatCategorySection
+                id="seccion-cerdo"
+                icon="🥓"
+                eyebrow="Porc Fermier de Québec"
+                badgeText="Granja Selecta"
+                title="Cerdo Selecto de Primera"
+                description="Cortes jugosos y tiernos listos para tu parrilla u horno: Costillas Baby Back caramelizadas, pancetas con cuero crocante para chicharrón y hombros para pernil."
+                products={cerdoProducts}
+                categorySlug="cerdo"
+                categoryLabel="Cerdo"
+                totalCount={cerdoProducts.length}
+                bgClass="bg-white"
+            />
+
+            {/* SECCIÓN DEDICADA: POLLO FRESCO & GRANJA */}
+            <MeatCategorySection
+                id="seccion-pollo"
+                icon="🍗"
+                eyebrow="Volaille Fermière"
+                badgeText="Fresco del Día"
+                title="Pollo Fresco de Granja & Especialidades"
+                description="Pechugas frescas tiernas, alitas marinadas listas para BBQ al carbón, pollo campesino de textura firme para caldos y menudencias frescas."
+                products={polloProducts}
+                categorySlug="pollo"
+                categoryLabel="Pollo"
+                totalCount={polloProducts.length}
+                bgClass="bg-cream/25"
+            />
+
+            {/* SECCIÓN DEDICADA: CHIVO & CORDERO */}
+            <MeatCategorySection
+                id="seccion-chivo"
+                icon="🐐"
+                eyebrow="Agneau & Chèvre de Pastoreo"
+                badgeText="Tradición"
+                title="Chivo & Cordero Selecto"
+                description="Pierna tierna de cordero para asados lentos, cuarto delantero y carcasas enteras para reuniones familiares y celebraciones."
+                products={chivoProducts}
+                categorySlug="chivo"
+                categoryLabel="Chivo & Cordero"
+                totalCount={chivoProducts.length}
+                bgClass="bg-white"
+            />
+
+            {/* Explorador de métodos culinarios y ocasiones */}
+            <AromaExplore />
+
+            {/* Círculos de todas las categorías */}
             <CategoryCircles />
 
+            {/* Banners editoriales y de mayoreo */}
             <EditorialBanners />
 
-            {data?.newArrivals?.length > 0 && (
-                <section className="bg-cream/40 py-16">
-                    <div className="container-luxe">
-                        <SectionHeading eyebrow="Frescura del Día" title="Novedades de la Carnicería" />
-                        <ProductGrid products={data.newArrivals} />
-                    </div>
-                </section>
-            )}
-
-            {/* Líneas de producto */}
+            {/* Marcas y manifiesto de carnicería */}
             <BrandCarousel brands={data?.brands} />
-
             <BrandStatement />
         </>
     );

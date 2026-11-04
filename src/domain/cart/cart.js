@@ -7,6 +7,27 @@ export const MAX_QTY_PER_ITEM = 50;
 export const VIP_DISCOUNT_PERCENT = 10;     // 10% de descuento del Club VIP
 export const VIP_DISCOUNT_RATE = 0.10;
 
+export const DEFAULT_VIP_CONFIG = Object.freeze({
+    enabled: true,
+    discountPercent: 10,
+    mode: 'first_orders', // 'first_orders' | 'all_orders'
+    maxOrders: 1,
+});
+
+/**
+ * Evalúa si un usuario es elegible para el beneficio VIP según las reglas configuradas.
+ */
+export const isVipEligible = (user, config = DEFAULT_VIP_CONFIG) => {
+    if (!config || config.enabled === false) return false;
+    if (!user || user.isVip === false) return false;
+    if (config.mode === 'first_orders') {
+        const completed = Number(user.ordersCount) || 0;
+        const max = Number(config.maxOrders) || 1;
+        return completed < max;
+    }
+    return true;
+};
+
 /**
  * @typedef {Object} CartItem
  * @property {string} productId

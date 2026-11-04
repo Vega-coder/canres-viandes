@@ -27,7 +27,7 @@ import {
     makeListProductsForAdmin, makeGetProductForAdmin, makeSaveProduct, makeDeleteProduct, makeToggleProductActive,
 } from '@/application/admin/productAdmin.js';
 import { makeListOrders, makeChangeOrderStatus, makeGetDashboard } from '@/application/admin/orderAdmin.js';
-import { makeListCustomers, makeToggleCustomerVip } from '@/application/admin/customerAdmin.js';
+import { makeListCustomers, makeToggleCustomerVip, makeGetVipConfig, makeSaveVipConfig } from '@/application/admin/customerAdmin.js';
 import {
     makeSignInAdmin, makeGetCurrentAdmin, makeSignOut,
     makeSignInCustomer, makeSignUpCustomer, makeSignInWithGoogle, makeGetCurrentUser, makeGetUserOrders,
@@ -173,6 +173,7 @@ export const useCases = Object.freeze({
     onAuthStateChange: (cb) => authGateway.onAuthStateChange?.(cb),
     exchangeCodeForSession: (code) => authGateway.exchangeCodeForSession?.(code),
     updateUserWishlist: (wishlist) => authGateway.updateUserWishlist?.(wishlist),
+    getVipConfig: makeGetVipConfig({ supabase }),
 });
 
 export const adminUseCases = Object.freeze({
@@ -189,6 +190,8 @@ export const adminUseCases = Object.freeze({
     changeOrderStatus: makeChangeOrderStatus({ orderRepository }),
     listCustomers: makeListCustomers({ supabase, orderRepository }),
     toggleCustomerVip: makeToggleCustomerVip({ supabase }),
+    getVipConfig: makeGetVipConfig({ supabase }),
+    saveVipConfig: makeSaveVipConfig({ supabase }),
     generateShippingGuide: (params) => generateShippingGuide(params),
     quoteShippingRates: (order) => shippingGateway.quoteRates({ order }),
     getShippingTracking: (orderCode) => getShippingTracking(orderCode),

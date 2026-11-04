@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { HiOutlineMagnifyingGlass, HiOutlineUserGroup, HiOutlineSparkles, HiOutlineCheckBadge } from 'react-icons/hi2';
+import { useState, useMemo, useEffect } from 'react';
+import { HiOutlineMagnifyingGlass, HiOutlineUserGroup, HiOutlineCog6Tooth, HiOutlineCheck } from 'react-icons/hi2';
 import { FaWhatsapp } from 'react-icons/fa6';
 import { adminUseCases } from '@/infrastructure/container.js';
 import { useAsync } from '@/presentation/hooks/useAsync.js';
@@ -7,14 +7,190 @@ import { formatMoney } from '@/domain/shared/money.js';
 import { formatDate } from '@/presentation/utils/format.js';
 import { toast, alertError, confirmAction } from '@/presentation/utils/swal.js';
 import { PageHeader, StatCard } from '@/presentation/components/admin/AdminUi.jsx';
+import { DEFAULT_VIP_CONFIG } from '@/domain/cart/cart.js';
+
+function VipConfigModal({ isOpen, onClose, initialConfig, onSaved }) {
+    const [config, setConfig] = useState(initialConfig || DEFAULT_VIP_CONFIG);
+    const [saving, setSaving] = useState(false);
+
+    useEffect(() => {
+        if (initialConfig) setConfig(initialConfig);
+    }, [initialConfig]);
+
+    if (!isOpen) return null;
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setSaving(true);
+        try {
+            const saved = await adminUseCases.saveVipConfig(config);
+            toast('Reglas del Club VIP actualizadas con éxito');
+            onSaved?.(saved);
+            onClose();
+        } catch (err) {
+            alertError('No se pudo guardar la configuración', err.message);
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/60 backdrop-blur-xs">
+            <div className="w-full max-w-lg bg-white rounded-xl shadow-2xl overflow-hidden border border-taupe/20">
+                <header className="px-6 py-4 bg-gradient-to-r from-brand-wine to-brand-dark text-white flex justify-between items-center">
+                    <div className="flex items-center gap-2.5">
+                        <span className="text-xl">⚙️</span>
+                        <div>
+                            <h2 className="font-display font-bold text-lg leading-tight">Configuración del Club VIP</h2>
+                            <p className="text-[11px] text-cream/70">Define las reglas y el modo del descuento para tus clientes</p>
+                        </div>
+                    </div>
+                    <button type="button" onClick={onClose} className="text-cream/70 hover:text-white p-1 text-lg">✕</button>
+                </header>
+
+                <form onSubmit={handleSubmit} className="p-6 space-y-5 text-xs text-ink">
+                    {/* 1. Activar / Pausar */}
+                    <div className="flex items-center justify-between p-3.5 bg-cream/30 rounded-lg border border-taupe/15">
+                        <div>
+                            <p className="font-bold text-sm text-ink">Estado del Club VIP</p>
+                            <p className="text-taupe mt-0.5 text-[11px]">Habilitar o pausar descuentos para clientes registrados</p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                            <input
+                                type="checkbox"
+                                checked={config.enabled}
+                                onChange={(e) => setConfig((c) => ({ ...c, enabled: e.target.checked }))}
+                                className="sr-only peer"
+                            />
+                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                        </label>
+                    </div>
+
+                    {/* 2. Porcentaje de descuento */}
+                    <div>
+                        <label className="block font-bold text-sm mb-1 text-ink">
+                            Porcentaje de descuento VIP (%)
+                        </label>
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="number"
+                                min="1"
+                                max="80"
+                                value={config.discountPercent}
+                                onChange={(e) => setConfig((c) => ({ ...c, discountPercent: Math.max(1, Math.min(80, Number(e.target.value) || 10)) }))}
+                                className="input py-2 text-sm w-28 font-bold text-center"
+                            />
+                            <span className="text-xs font-semibold text-taupe">% de descuento aplicado</span>
+                        </div>
+                    </div>
+
+                    {/* 3. Modo de aplicación */}
+                    <div>
+                        <label className="block font-bold text-sm mb-2 text-ink">
+                            ¿Cuándo se aplica el descuento al cliente?
+                        </label>
+                        <div className="space-y-2.5">
+                            <label className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition ${config.mode === 'first_orders' && (config.maxOrders || 1) === 1 ? 'border-brand-wine bg-brand-wine/5 ring-1 ring-brand-wine/30' : 'border-taupe/20 hover:bg-cream/20'}`}>
+                                <input
+                                    type="radio"
+                                    name="vipMode"
+                                    checked={config.mode === 'first_orders' && (config.maxOrders || 1) === 1}
+                                    onChange={() => setConfig((c) => ({ ...c, mode: 'first_orders', maxOrders: 1 }))}
+                                    className="mt-0.5 text-brand-wine"
+                                />
+                                <div>
+                                    <p className="font-bold text-ink">Solo en la 1ª compra de bienvenida (Recomendado)</p>
+                                    <p className="text-taupe mt-0.5 text-[11px]">El cliente recibe el descuento en su primer pedido. En compras posteriores paga precio estándar.</p>
+                                </div>
+                            </label>
+
+                            <label className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition ${config.mode === 'first_orders' && (config.maxOrders || 1) > 1 ? 'border-brand-wine bg-brand-wine/5 ring-1 ring-brand-wine/30' : 'border-taupe/20 hover:bg-cream/20'}`}>
+                                <input
+                                    type="radio"
+                                    name="vipMode"
+                                    checked={config.mode === 'first_orders' && (config.maxOrders || 1) > 1}
+                                    onChange={() => setConfig((c) => ({ ...c, mode: 'first_orders', maxOrders: c.maxOrders > 1 ? c.maxOrders : 3 }))}
+                                    className="mt-0.5 text-brand-wine"
+                                />
+                                <div className="flex-1">
+                                    <p className="font-bold text-ink">En las primeras compras del cliente</p>
+                                    <p className="text-taupe mt-0.5 text-[11px]">Válido durante sus primeros pedidos para incentivar compras repetidas.</p>
+                                    {config.mode === 'first_orders' && (config.maxOrders || 1) > 1 && (
+                                        <div className="mt-2 flex items-center gap-2">
+                                            <span className="text-[11px] font-semibold">Válido en las primeras:</span>
+                                            <input
+                                                type="number"
+                                                min="2"
+                                                max="10"
+                                                value={config.maxOrders}
+                                                onChange={(e) => setConfig((c) => ({ ...c, maxOrders: Math.max(2, Math.min(10, Number(e.target.value) || 2)) }))}
+                                                className="input py-1 px-2 text-xs w-20 font-bold"
+                                            />
+                                            <span className="text-[11px]">compras</span>
+                                        </div>
+                                    )}
+                                </div>
+                            </label>
+
+                            <label className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition ${config.mode === 'all_orders' ? 'border-brand-wine bg-brand-wine/5 ring-1 ring-brand-wine/30' : 'border-taupe/20 hover:bg-cream/20'}`}>
+                                <input
+                                    type="radio"
+                                    name="vipMode"
+                                    checked={config.mode === 'all_orders'}
+                                    onChange={() => setConfig((c) => ({ ...c, mode: 'all_orders' }))}
+                                    className="mt-0.5 text-brand-wine"
+                                />
+                                <div>
+                                    <p className="font-bold text-ink">Permanente en todas las compras (De por vida)</p>
+                                    <p className="text-taupe mt-0.5 text-[11px]">Cada vez que el cliente compre con su cuenta tendrá el descuento asegurado.</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    {/* Vista previa en vivo */}
+                    <div className="rounded-lg bg-amber-500/10 p-3.5 border border-amber-300/60">
+                        <p className="font-bold text-amber-900 flex items-center gap-1.5">
+                            <span>👑</span>
+                            <span>Vista previa de la regla:</span>
+                        </p>
+                        <p className="mt-1 text-amber-950/80 text-[11px] leading-relaxed">
+                            {config.enabled ? (
+                                <>
+                                    Los clientes registrados recibirán un <strong>{config.discountPercent}% de descuento</strong>{' '}
+                                    {config.mode === 'first_orders'
+                                        ? ((config.maxOrders || 1) === 1 ? 'en su primera compra de bienvenida' : `en sus primeras ${config.maxOrders} compras`)
+                                        : 'en todas sus compras de por vida'}.
+                                </>
+                            ) : (
+                                <span className="text-red-700 font-semibold">El Club VIP está pausado actualmente. No se aplicarán descuentos automáticos.</span>
+                            )}
+                        </p>
+                    </div>
+
+                    <div className="flex justify-end gap-3 pt-3 border-t border-taupe/15">
+                        <button type="button" onClick={onClose} className="btn-outline px-4 py-2 text-xs">
+                            Cancelar
+                        </button>
+                        <button type="submit" disabled={saving} className="btn-brand px-6 py-2 text-xs shadow-md">
+                            {saving ? 'Guardando…' : 'Guardar Reglas VIP'}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+}
 
 export default function AdminCustomers() {
     const [version, setVersion] = useState(0);
     const [query, setQuery] = useState('');
     const [filter, setFilter] = useState('all'); // 'all' | 'vip' | 'regular'
     const [updatingId, setUpdatingId] = useState(null);
+    const [configModalOpen, setConfigModalOpen] = useState(false);
 
     const { data: customers = [], loading, error } = useAsync(() => adminUseCases.listCustomers(), [version]);
+    const { data: vipConfig = DEFAULT_VIP_CONFIG, execute: reloadConfig } = useAsync(() => adminUseCases.getVipConfig(), [version]);
 
     const stats = useMemo(() => {
         const total = customers.length;
@@ -44,7 +220,7 @@ export default function AdminCustomers() {
         const confirmed = await confirmAction({
             title: nextState ? '¿Asignar membresía VIP?' : '¿Desactivar membresía VIP?',
             text: nextState
-                ? `El cliente ${customer.fullName || customer.email} recibirá 10% de descuento automático en todos sus pedidos.`
+                ? `El cliente ${customer.fullName || customer.email} recibirá el beneficio del Club VIP en sus pedidos.`
                 : `El cliente ${customer.fullName || customer.email} volverá a los precios estándar sin descuento VIP.`,
             confirmButtonText: nextState ? 'Sí, hacer VIP' : 'Sí, quitar VIP',
         });
@@ -67,8 +243,44 @@ export default function AdminCustomers() {
         <>
             <PageHeader
                 title="Clientes y Club VIP"
-                subtitle="Gestiona los usuarios registrados, sus pedidos acumulados y asigna membresías VIP con 10% de descuento."
-            />
+                subtitle="Gestiona los usuarios registrados, sus pedidos acumulados y personaliza las reglas del beneficio VIP."
+            >
+                <button
+                    type="button"
+                    onClick={() => setConfigModalOpen(true)}
+                    className="btn-brand flex items-center gap-2 text-xs shadow-md"
+                >
+                    <HiOutlineCog6Tooth className="h-4 w-4" />
+                    Configurar Reglas VIP ({vipConfig.discountPercent}%)
+                </button>
+            </PageHeader>
+
+            {/* Banner de resumen de la regla activa */}
+            <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-xl bg-gradient-to-r from-amber-500/10 via-amber-400/15 to-amber-500/5 border border-amber-300/60 shadow-xs">
+                <div className="flex items-center gap-3">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/20 text-xl text-amber-900 font-bold">
+                        👑
+                    </span>
+                    <div>
+                        <p className="font-bold text-sm text-amber-950">
+                            Regla activa: {vipConfig.discountPercent}% de descuento{' '}
+                            {vipConfig.mode === 'first_orders'
+                                ? ((vipConfig.maxOrders || 1) === 1 ? 'en la 1ª compra de bienvenida' : `en las primeras ${vipConfig.maxOrders} compras`)
+                                : 'permanente en todas las compras'}
+                        </p>
+                        <p className="text-[11px] text-amber-900/80">
+                            {vipConfig.enabled ? 'Campaña activa para clientes registrados.' : 'Campaña pausada globalmente.'}
+                        </p>
+                    </div>
+                </div>
+                <button
+                    type="button"
+                    onClick={() => setConfigModalOpen(true)}
+                    className="text-xs font-bold text-brand-wine underline hover:text-ink self-start sm:self-auto"
+                >
+                    Cambiar reglas
+                </button>
+            </div>
 
             {/* Tarjetas de estadísticas */}
             <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -78,7 +290,7 @@ export default function AdminCustomers() {
                     hint="Cuentas registradas"
                 />
                 <StatCard
-                    label="Clientes VIP (10% OFF)"
+                    label={`Clientes VIP (${vipConfig.discountPercent}% OFF)`}
                     value={stats.vips}
                     hint="Con beneficio exclusivo activo"
                     accent
@@ -152,7 +364,7 @@ export default function AdminCustomers() {
                                 <th className="px-5 py-3.5">Contacto</th>
                                 <th className="px-5 py-3.5">Pedidos / Compras</th>
                                 <th className="px-5 py-3.5">Registro</th>
-                                <th className="px-5 py-3.5 text-right">Estado VIP (10% OFF)</th>
+                                <th className="px-5 py-3.5 text-right">Estado VIP</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-taupe/15">
@@ -235,7 +447,7 @@ export default function AdminCustomers() {
                                                 {c.isVip ? (
                                                     <>
                                                         <span>👑</span>
-                                                        <span>VIP Activo (10% OFF)</span>
+                                                        <span>VIP Activo ({vipConfig.discountPercent}% OFF)</span>
                                                     </>
                                                 ) : (
                                                     <>
@@ -252,6 +464,16 @@ export default function AdminCustomers() {
                     </table>
                 </div>
             )}
+
+            <VipConfigModal
+                isOpen={configModalOpen}
+                onClose={() => setConfigModalOpen(false)}
+                initialConfig={vipConfig}
+                onSaved={() => {
+                    reloadConfig();
+                    setVersion((v) => v + 1);
+                }}
+            />
         </>
     );
 }

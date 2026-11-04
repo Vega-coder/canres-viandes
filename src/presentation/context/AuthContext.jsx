@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useCases } from '@/infrastructure/container.js';
+import { DEFAULT_VIP_CONFIG, isVipEligible } from '@/domain/cart/cart.js';
 
 const AuthContext = createContext(null);
 const SESSION_BACKUP_KEY = 'canres_session_backup';
@@ -28,6 +29,14 @@ export const AuthProvider = ({ children }) => {
             return true;
         }
     });
+
+    const [vipConfig, setVipConfig] = useState(DEFAULT_VIP_CONFIG);
+
+    useEffect(() => {
+        useCases.getVipConfig?.().then((cfg) => {
+            if (cfg) setVipConfig(cfg);
+        }).catch(() => {});
+    }, []);
 
     const persistUser = useCallback((u) => {
         setUser(u);
@@ -171,18 +180,24 @@ export const AuthProvider = ({ children }) => {
         return updatedUser;
     }, [persistUser]);
 
+    const isVip = useMemo(() => isVipEligible(user, vipConfig), [user, vipConfig]);
+
     const value = useMemo(() => ({
         user,
         loading,
         isAuthenticated: Boolean(user),
         isAdmin: Boolean(user?.isAdmin),
+        isVip,
+        vipConfig,
+        setVipConfig,
+        isVipEligible: (u) => isVipEligible(u, vipConfig),
         signIn,
         signInWithGoogle,
         signUp,
         signOut,
         resetPassword,
         updatePassword,
-    }), [user, loading, signIn, signInWithGoogle, signUp, signOut, resetPassword, updatePassword]);
+    }), [user, loading, isVip, vipConfig, signIn, signInWithGoogle, signUp, signOut, resetPassword, updatePassword]);
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

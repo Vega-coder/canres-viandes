@@ -17,6 +17,17 @@ export const createSupabaseAuthGateway = (supabase) => {
         const phone = profile?.phone || user.user_metadata?.phone || '';
         const avatarUrl = profile?.avatar_url || user.user_metadata?.avatar_url || user.user_metadata?.picture || '';
 
+        let ordersCount = 0;
+        try {
+            const { count } = await supabase
+                .from('orders')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', user.id);
+            ordersCount = count || 0;
+        } catch {
+            // Ignorar si falla
+        }
+
         return {
             id: user.id,
             email: user.email,
@@ -24,6 +35,7 @@ export const createSupabaseAuthGateway = (supabase) => {
             phone,
             role,
             avatarUrl,
+            ordersCount,
             isVip: profile?.is_vip !== false,
             isAdmin: ['superadmin', 'admin', 'gerente'].includes(role),
             wishlist: Array.isArray(user.user_metadata?.wishlist) ? user.user_metadata.wishlist : [],
@@ -256,6 +268,7 @@ export const createDemoAuthGateway = ({ email, password, storage = globalThis.se
                 fullName: found.fullName,
                 phone: found.phone,
                 role: 'customer',
+                ordersCount: 0,
                 isVip: found.isVip !== false,
                 isAdmin: false,
             };
@@ -269,6 +282,7 @@ export const createDemoAuthGateway = ({ email, password, storage = globalThis.se
                 fullName: 'Cliente Google Demo',
                 phone: '3001234567',
                 role: 'customer',
+                ordersCount: 0,
                 isVip: true,
                 isAdmin: false,
             };
@@ -298,6 +312,7 @@ export const createDemoAuthGateway = ({ email, password, storage = globalThis.se
                 fullName: newCustomer.fullName,
                 phone: newCustomer.phone,
                 role: 'customer',
+                ordersCount: 0,
                 isVip: true,
                 isAdmin: false,
             };

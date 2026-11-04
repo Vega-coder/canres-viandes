@@ -1,4 +1,8 @@
 // Casos de uso de administración de clientes y membresías VIP para CANRES Viandes.
+import { DEFAULT_VIP_CONFIG } from '@/domain/cart/cart.js';
+
+const SETTINGS_KEY = 'vip_config';
+const LOCAL_STORAGE_SETTINGS_KEY = 'canres_vip_config';
 
 /**
  * @param {{
@@ -125,4 +129,61 @@ export const makeToggleCustomerVip = ({ supabase }) => async (customerId, isVip)
         return data;
     }
     return { id: customerId, is_vip: isVip };
+};
+
+export const makeGetVipConfig = ({ supabase }) => async () => {
+    if (supabase) {
+        try {
+            const { data, error } = await supabase
+                .from('store_settings')
+                .select('value')
+                .eq('key', SETTINGS_KEY)
+                .maybeSingle();
+            if (!error && data?.value) {
+                return { ...DEFAULT_VIP_CONFIG, ...data.value };
+            }
+        } catch {
+            // fallback
+        }
+    }
+
+    try {
+        const stored = typeof window !== 'undefined' ? localStorage.getItem(LOCAL_STORAGE_SETTINGS_KEY) : null;
+        if (stored) return { ...DEFAULT_VIP_CONFIG, ...JSON.parse(stored) };
+    } catch {
+        // Ignorar
+    }
+
+    return DEFAULT_VIP_CONFIG;
+};
+
+export const makeSaveVipConfig = ({ supabase }) => async (newConfig) => {
+    const merged = { ...DEFAULT_VIP_CONFIG, ...newConfig };
+    if (supabase) {
+        try {
+            const { error } = await supabase
+                .from('store_settings')
+                .upsert({
+                    key: SETTINGS_KEY,
+                    value: merged,
+                    updated_at: new Date().toISOString(),
+                });
+            if (error) {
+                if (typeof window !== 'undefined') {
+                    localStorage.setItem(LOCAL_STORAGE_SETTINGS_KEY, JSON.stringify(merged));
+                }
+                throw error;
+            }
+        } catch (err) {
+            if (typeof window !== 'undefined') {
+                localStorage.setItem(LOCAL_STORAGE_SETTINGS_KEY, JSON.stringify(merged));
+            }
+            throw err;
+        }
+    }
+
+    if (typeof window !== 'undefined') {
+        localStorage.setItem(LOCAL_STORAGE_SETTINGS_KEY, JSON.stringify(merged));
+    }
+    return merged;
 };

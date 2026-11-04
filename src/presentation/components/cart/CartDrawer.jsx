@@ -112,7 +112,7 @@ export default function CartDrawer() {
                                 <div className="flex justify-between text-xs font-semibold text-amber-800 bg-amber-50 px-2.5 py-1.5 rounded border border-amber-200">
                                     <span className="flex items-center gap-1.5">
                                         <span>👑</span>
-                                        <span>Descuento Club VIP (10%)</span>
+                                        <span>Descuento Club VIP ({Math.round((totals.vipDiscountRate || 0.10) * 100)}%)</span>
                                     </span>
                                     <span>-{formatMoney(totals.vipDiscount)}</span>
                                 </div>

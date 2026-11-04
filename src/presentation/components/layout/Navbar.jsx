@@ -62,7 +62,13 @@ function SearchForm({ onDone, className = '' }) {
 
 export default function Navbar() {
     const { count, totals, open } = useCart();
-    const { user, isAuthenticated } = useAuth();
+    const { user, isAuthenticated, isVip, vipConfig } = useAuth();
+    const vipPercent = vipConfig?.discountPercent || 10;
+    const isFirstOrders = vipConfig?.mode === 'first_orders';
+    const maxOrders = vipConfig?.maxOrders || 1;
+    const bannerBenefitText = isFirstOrders
+        ? (maxOrders === 1 ? 'en tu primera compra' : `en tus primeras ${maxOrders} compras`)
+        : 'en todos tus cortes';
     const { count: wishlistCount } = useWishlist();
     const { pathname } = useLocation();
     const [menuPath, setMenuPath] = useState(null);
@@ -95,17 +101,25 @@ export default function Navbar() {
             <div className="bg-gradient-to-r from-brand-wine via-brand-dark to-brand-wine text-white py-1.5 px-4 text-center text-[11px] font-medium tracking-wide">
                 {isAuthenticated ? (
                     <div className="container-luxe flex items-center justify-center gap-2">
-                        <span className="text-amber-300">👑</span>
-                        <span>
-                            ¡Hola, <strong className="font-semibold text-amber-200">{user?.fullName || user?.email?.split('@')[0]}</strong>! Tienes activo tu <strong className="font-semibold text-amber-200">10% de descuento del Club VIP</strong> en toda la carnicería.
-                        </span>
+                        {isVip ? (
+                            <>
+                                <span className="text-amber-300">👑</span>
+                                <span>
+                                    ¡Hola, <strong className="font-semibold text-amber-200">{user?.fullName || user?.email?.split('@')[0]}</strong>! Tienes activo tu <strong className="font-semibold text-amber-200">{vipPercent}% de descuento del Club VIP</strong> {bannerBenefitText}.
+                                </span>
+                            </>
+                        ) : (
+                            <span>
+                                ¡Hola, <strong className="font-semibold text-amber-200">{user?.fullName || user?.email?.split('@')[0]}</strong>! Bienvenido a CANRES Viandes · Carnicería y Charcutería artesanal.
+                            </span>
+                        )}
                         <Link to="/cuenta" className="hidden sm:inline-block underline text-amber-300 hover:text-white ml-2 text-[10px]">
                             Mi cuenta
                         </Link>
                     </div>
                 ) : (
                     <div className="container-luxe flex items-center justify-center gap-2">
-                        <span>🥩 ¿Quieres 10% de descuento en todos tus cortes?</span>
+                        <span>🥩 ¿Quieres {vipPercent}% de descuento {bannerBenefitText}?</span>
                         <span className="hidden sm:inline">Únete gratis al <strong>Club VIP CANRES</strong>.</span>
                         <Link to="/registro" className="underline font-bold text-amber-300 hover:text-white">
                             Regístrate aquí

@@ -34,9 +34,9 @@ export const loadCartForUser = (userId) => {
 };
 
 export const CartProvider = ({ children }) => {
-    const { user, isAuthenticated } = useAuth();
+    const { user, isVip, vipConfig } = useAuth();
     const userId = user?.id || null;
-    const isVip = Boolean(isAuthenticated && user?.isVip);
+    const discountRate = (vipConfig?.discountPercent || 10) / 100;
 
     const [currentUserId, setCurrentUserId] = useState(userId);
     const [items, setItems] = useState(() => loadCartForUser(userId));
@@ -71,7 +71,7 @@ export const CartProvider = ({ children }) => {
     const open = useCallback(() => setIsOpen(true), []);
     const close = useCallback(() => setIsOpen(false), []);
 
-    const totals = useMemo(() => calculateTotals(items, { isVip }), [items, isVip]);
+    const totals = useMemo(() => calculateTotals(items, { isVip, vipDiscountRate: discountRate }), [items, isVip, discountRate]);
 
     const value = useMemo(() => ({
         items,
