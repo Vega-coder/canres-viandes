@@ -5,7 +5,7 @@ import { createDemoAuthGateway } from '@/infrastructure/gateways/authGateways.js
 import { createWhatsappGateway } from '@/infrastructure/gateways/whatsappGateway.js';
 import { makeSaveProduct, makeDeleteProduct, makeToggleProductActive, makeListProductsForAdmin } from '@/application/admin/productAdmin.js';
 import { makeChangeOrderStatus, makeGetDashboard } from '@/application/admin/orderAdmin.js';
-import { makeListCustomers, makeToggleCustomerVip } from '@/application/admin/customerAdmin.js';
+import { makeListCustomers, makeToggleCustomerVip, makeGetVipConfig, makeSaveVipConfig } from '@/application/admin/customerAdmin.js';
 import { makeSignInAdmin, makeGetCurrentAdmin } from '@/application/auth/authUseCases.js';
 import { makePlaceOrder } from '@/application/orders/placeOrder.js';
 import { makeBrowseCatalog } from '@/application/catalog/catalogUseCases.js';
@@ -188,5 +188,35 @@ describe('Clientes y Club VIP', () => {
         const toggle = makeToggleCustomerVip({ supabase: mockSupabase });
         const res = await toggle('user-1', true);
         expect(res.is_vip).toBe(true);
+    });
+
+    it('permite leer y guardar reglas del Club VIP', async () => {
+        let storedValue = null;
+        const mockSupabase = {
+            from: (table) => ({
+                select: () => ({
+                    eq: () => ({
+                        maybeSingle: async () => ({ data: storedValue ? { value: storedValue } : null, error: null }),
+                    }),
+                }),
+                upsert: async ({ value }) => {
+                    storedValue = value;
+                    return { error: null };
+                },
+            }),
+        };
+
+        const getConfig = makeGetVipConfig({ supabase: mockSupabase });
+        const saveConfig = makeSaveVipConfig({ supabase: mockSupabase });
+
+        const initial = await getConfig();
+        expect(initial.discountPercent).toBe(10);
+
+        const updated = await saveConfig({ discountPercent: 15, mode: 'first_orders', maxOrders: 1 });
+        expect(updated.discountPercent).toBe(15);
+        expect(updated.mode).toBe('first_orders');
+
+        const reloaded = await getConfig();
+        expect(reloaded.discountPercent).toBe(15);
     });
 });

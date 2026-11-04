@@ -189,6 +189,27 @@ describe('Carrito', () => {
         expect(vipTotals.discountedSubtotal).toBe(90);
         expect(vipTotals.total).toBe(105); // 90 + 15
     });
+
+    it('evalúa elegibilidad VIP según la regla configurada (primera compra vs permanente)', () => {
+        // Regla: Solo en la primera compra
+        const firstOrderRule = { enabled: true, discountPercent: 15, mode: 'first_orders', maxOrders: 1 };
+        expect(isVipEligible({ isVip: true, ordersCount: 0 }, firstOrderRule)).toBe(true);
+        expect(isVipEligible({ isVip: true, ordersCount: 1 }, firstOrderRule)).toBe(false);
+        expect(isVipEligible({ isVip: true, ordersCount: 2 }, firstOrderRule)).toBe(false);
+
+        // Regla: En las primeras 3 compras
+        const threeOrdersRule = { enabled: true, discountPercent: 10, mode: 'first_orders', maxOrders: 3 };
+        expect(isVipEligible({ isVip: true, ordersCount: 2 }, threeOrdersRule)).toBe(true);
+        expect(isVipEligible({ isVip: true, ordersCount: 3 }, threeOrdersRule)).toBe(false);
+
+        // Regla: Permanente en todas las compras
+        const allOrdersRule = { enabled: true, discountPercent: 10, mode: 'all_orders' };
+        expect(isVipEligible({ isVip: true, ordersCount: 50 }, allOrdersRule)).toBe(true);
+
+        // Si el admin desactivó al usuario o la campaña está pausada
+        expect(isVipEligible({ isVip: false, ordersCount: 0 }, allOrdersRule)).toBe(false);
+        expect(isVipEligible({ isVip: true, ordersCount: 0 }, { enabled: false })).toBe(false);
+    });
 });
 
 describe('Pedidos', () => {
