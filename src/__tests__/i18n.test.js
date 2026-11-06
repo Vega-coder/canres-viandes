@@ -62,4 +62,14 @@ describe('Sistema de Internacionalización (i18n) Bilingüe Canadiense (FR / EN 
         expect(COOKING_METHOD_TRANSLATIONS.en['Parrilla']).toBe('Grill / BBQ');
         expect(COOKING_METHOD_TRANSLATIONS.fr['Sartén de hierro']).toBe('Poêle en fonte');
     });
+
+    it('contiene las claves completas del pie de página (footer) en todos los idiomas', () => {
+        ['fr', 'en', 'es'].forEach((lang) => {
+            const footer = TRANSLATIONS[lang].footer;
+            expect(footer.brand_name).toBe('CANRES VIANDES');
+            expect(footer.tagline).toBeTruthy();
+            expect(footer.pillars).toBeTruthy();
+            expect(footer.mission).toBeTruthy();
+        });
+    });
 });

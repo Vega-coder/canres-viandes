@@ -50,9 +50,12 @@ export function LanguageProvider({ children }) {
         document.documentElement.lang = htmlLang;
     }, [language]);
 
-    // Función de traducción t('section.key', { param: 'val' })
+    // Función de traducción t('section.key', { param: 'val' }) o t('section.key', 'Texto por defecto')
     const t = useCallback(
-        (path, params = {}) => {
+        (path, paramsOrFallback = {}) => {
+            const fallbackStr = typeof paramsOrFallback === 'string' ? paramsOrFallback : null;
+            const params = typeof paramsOrFallback === 'object' && paramsOrFallback !== null ? paramsOrFallback : {};
+
             const currentDict = TRANSLATIONS[language] || TRANSLATIONS.fr;
             const fallbackDict = TRANSLATIONS.en || TRANSLATIONS.es;
 
@@ -80,7 +83,7 @@ export function LanguageProvider({ children }) {
                 val = fb;
             }
 
-            if (!val) return path;
+            if (!val) return fallbackStr || path;
 
             if (typeof val === 'string' && params && typeof params === 'object') {
                 return Object.entries(params).reduce((str, [k, v]) => {
