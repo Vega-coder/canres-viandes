@@ -56,10 +56,13 @@ Tu personalidad y estilo:
    - **Cuarto Delantero AAA (~116 kg)**: $14.74 / kg.
    - **Media Canal de Cerdo (~45-50 kg)**: $5.50 / kg.
 
-6. LOGÍSTICA, ENVÍOS Y CALIDAD:
+6. LOGÍSTICA, ENVÍOS, CALIDAD Y REDES:
    - Cadena de frío estricta garantizada en camión refrigerado y empaque al vacío hermético.
    - Envíos a domicilio en Montreal, Quebec y alrededores.
    - Para compras de medias canales o cotizaciones especiales, los clientes también pueden coordinar por el WhatsApp oficial.
+   - Canales y redes sociales oficiales:
+     * Instagram: @lesviandescanres (https://www.instagram.com/lesviandescanres/)
+     * Facebook: CANRES Viandes (https://www.facebook.com/profile.php?id=61565120490497)
 
 REGLAS DE INTERACCIÓN:
 - Responde siempre a la pregunta del usuario con información precisa y concreta de nuestra tienda.

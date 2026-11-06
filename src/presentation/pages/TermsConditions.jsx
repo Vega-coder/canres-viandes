@@ -13,8 +13,8 @@ import {
     HiOutlineClock,
     HiOutlineArrowUpRight,
 } from 'react-icons/hi2';
-import { FaWhatsapp } from 'react-icons/fa6';
-import { STORE_WHATSAPP } from '@/infrastructure/container.js';
+import { FaWhatsapp, FaInstagram, FaFacebookF } from 'react-icons/fa6';
+import { STORE_WHATSAPP, STORE_INSTAGRAM, STORE_FACEBOOK } from '@/infrastructure/container.js';
 
 export default function TermsConditions() {
     const { hash } = useLocation();
@@ -170,6 +170,32 @@ export default function TermsConditions() {
                                                 className="inline-flex items-center gap-1 hover:underline"
                                             >
                                                 <FaWhatsapp className="h-3.5 w-3.5" /> {sellerInfo.phoneDisplay}
+                                            </a>
+                                        </dd>
+                                    </div>
+                                    <div>
+                                        <dt className="text-taupe font-medium">Instagram oficial:</dt>
+                                        <dd className="font-semibold text-gold-dark">
+                                            <a
+                                                href={STORE_INSTAGRAM}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="inline-flex items-center gap-1 hover:underline"
+                                            >
+                                                <FaInstagram className="h-3.5 w-3.5 text-pink-600" /> @lesviandescanres
+                                            </a>
+                                        </dd>
+                                    </div>
+                                    <div>
+                                        <dt className="text-taupe font-medium">Facebook oficial:</dt>
+                                        <dd className="font-semibold text-gold-dark">
+                                            <a
+                                                href={STORE_FACEBOOK}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="inline-flex items-center gap-1 hover:underline"
+                                            >
+                                                <FaFacebookF className="h-3.5 w-3.5 text-blue-600" /> CANRES Viandes
                                             </a>
                                         </dd>
                                     </div>
@@ -464,6 +490,30 @@ export default function TermsConditions() {
                                     </div>
                                     <p className="text-sm font-medium text-ink">{sellerInfo.hours}</p>
                                     <p className="text-xs text-taupe mt-0.5">Respuestas en menos de 2 horas hábiles</p>
+                                </div>
+
+                                <div className="rounded-xl border border-taupe/20 bg-cream-light/40 p-4 sm:col-span-2">
+                                    <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-ink mb-2">
+                                        <FaInstagram className="h-4 w-4 text-brand-wine" /> Redes Sociales Oficiales
+                                    </div>
+                                    <div className="flex flex-wrap items-center gap-6 pt-1 text-xs">
+                                        <a
+                                            href={STORE_INSTAGRAM}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="inline-flex items-center gap-1.5 font-semibold text-brand-wine hover:underline"
+                                        >
+                                            <FaInstagram className="h-4 w-4 text-pink-600" /> Instagram: @lesviandescanres <HiOutlineArrowUpRight className="h-3 w-3" />
+                                        </a>
+                                        <a
+                                            href={STORE_FACEBOOK}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="inline-flex items-center gap-1.5 font-semibold text-brand-wine hover:underline"
+                                        >
+                                            <FaFacebookF className="h-4 w-4 text-blue-600" /> Facebook: CANRES Viandes <HiOutlineArrowUpRight className="h-3 w-3" />
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
 

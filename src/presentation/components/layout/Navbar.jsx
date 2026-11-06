@@ -15,6 +15,8 @@ import { useCart } from '@/presentation/context/CartContext.jsx';
 import { useAuth } from '@/presentation/context/AuthContext.jsx';
 import { useWishlist } from '@/presentation/context/WishlistContext.jsx';
 import { useLanguage } from '@/presentation/context/LanguageContext.jsx';
+import { FaInstagram, FaFacebookF, FaWhatsapp } from 'react-icons/fa6';
+import { STORE_WHATSAPP, STORE_INSTAGRAM, STORE_FACEBOOK } from '@/infrastructure/container.js';
 
 const linkClass = ({ isActive }) =>
     `relative py-1 text-[10px] lg:text-[10.5px] xl:text-[11px] font-bold uppercase tracking-[0.05em] xl:tracking-[0.11em] transition hover:text-brand-wine whitespace-nowrap shrink-0 ${
@@ -306,6 +308,36 @@ export default function Navbar() {
                                 >
                                     {isAuthenticated ? t('nav.account_and_orders') : t('nav.sign_in')}
                                 </Link>
+
+                                <div className="mt-5 flex items-center justify-center gap-6 border-t border-cream/80 pt-4 text-ink/70">
+                                    <a
+                                        href={STORE_INSTAGRAM}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        aria-label="Instagram"
+                                        className="hover:text-brand-wine transition"
+                                    >
+                                        <FaInstagram className="h-5 w-5" />
+                                    </a>
+                                    <a
+                                        href={STORE_FACEBOOK}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        aria-label="Facebook"
+                                        className="hover:text-brand-wine transition"
+                                    >
+                                        <FaFacebookF className="h-5 w-5" />
+                                    </a>
+                                    <a
+                                        href={`https://wa.me/${STORE_WHATSAPP}`}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        aria-label="WhatsApp"
+                                        className="hover:text-brand-wine transition"
+                                    >
+                                        <FaWhatsapp className="h-5 w-5" />
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>,

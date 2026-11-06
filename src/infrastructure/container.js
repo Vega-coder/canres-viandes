@@ -43,6 +43,8 @@ const envPhone = String(env.VITE_STORE_WHATSAPP || '').trim().replace(/\D/g, '')
 export const STORE_WHATSAPP = (!envPhone || envPhone.includes('3000000000') || envPhone === '573000000000' || envPhone === '3000000000' || envPhone.startsWith('573000'))
     ? '573146160642'
     : (envPhone.startsWith('57') ? envPhone : `57${envPhone}`);
+export const STORE_INSTAGRAM = env.VITE_STORE_INSTAGRAM || 'https://www.instagram.com/lesviandescanres/';
+export const STORE_FACEBOOK = env.VITE_STORE_FACEBOOK || 'https://www.facebook.com/profile.php?id=61565120490497';
 export const isDemoMode = !isSupabaseConfigured;
 export const isAutoShippingEnabled = env.VITE_SHIPPING_AUTO_GENERATE !== 'false';
 export const defaultCarrierId = env.VITE_SHIPPING_DEFAULT_CARRIER || 'coordinadora';

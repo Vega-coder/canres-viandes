@@ -3,7 +3,7 @@ import { FaInstagram, FaWhatsapp, FaFacebookF } from 'react-icons/fa6';
 import Monogram from '@/presentation/components/brand/Monogram.jsx';
 import LanguageSelector from '@/presentation/components/ui/LanguageSelector.jsx';
 import { CATEGORIES } from '@/domain/catalog/categories.js';
-import { STORE_WHATSAPP } from '@/infrastructure/container.js';
+import { STORE_WHATSAPP, STORE_INSTAGRAM, STORE_FACEBOOK } from '@/infrastructure/container.js';
 import { useLanguage } from '@/presentation/context/LanguageContext.jsx';
 
 export default function Footer() {
@@ -33,8 +33,8 @@ export default function Footer() {
 
                     <div className="mt-6 flex items-center gap-4">
                         <div className="flex gap-4 text-cream-light text-lg">
-                            <a href="https://instagram.com" target="_blank" rel="noreferrer" aria-label="Instagram" className="hover:text-brand-light transition"><FaInstagram /></a>
-                            <a href="https://facebook.com" target="_blank" rel="noreferrer" aria-label="Facebook" className="hover:text-brand-light transition"><FaFacebookF /></a>
+                            <a href={STORE_INSTAGRAM} target="_blank" rel="noreferrer" aria-label="Instagram" className="hover:text-brand-light transition"><FaInstagram /></a>
+                            <a href={STORE_FACEBOOK} target="_blank" rel="noreferrer" aria-label="Facebook" className="hover:text-brand-light transition"><FaFacebookF /></a>
                             <a href={`https://wa.me/${STORE_WHATSAPP}`} target="_blank" rel="noreferrer" aria-label="WhatsApp" className="hover:text-brand-light transition"><FaWhatsapp /></a>
                         </div>
                         <div className="ml-4 pl-4 border-l border-white/10">
