@@ -73,6 +73,20 @@ export default function ButcherStage({
 
     const isThinking = status === 'thinking';
 
+    // Ciclo autónomo automático de poses ("lo hace solo")
+    useEffect(() => {
+        if (isThinking || isListening || isCollapsed) return;
+
+        // Cada 6.5 segundos alterna de pose y movimiento automáticamente de forma autónoma
+        const autoCycleInterval = setInterval(() => {
+            const actionCycle = ['welcome', 'meat', 'sausages', 'idle'];
+            const nextIdx = (actionCycle.indexOf(activeAction) + 1) % actionCycle.length;
+            onActionChange?.(actionCycle[nextIdx]);
+        }, 6500);
+
+        return () => clearInterval(autoCycleInterval);
+    }, [activeAction, isThinking, isListening, isCollapsed, onActionChange]);
+
     // Efecto 3D de seguimiento de cursor interactivo
     const handleMouseMove = (e) => {
         if (!stageRef.current) return;
@@ -114,6 +128,9 @@ export default function ButcherStage({
         if (isThinking) {
             return '/images/butcher/butcher-thinking.webp';
         }
+        if (isSpeaking && activeAction === 'idle') {
+            return '/images/butcher/butcher-talking.webp';
+        }
         if (activeAction === 'sausages') {
             return '/images/butcher/butcher-sausages.webp';
         }
@@ -124,7 +141,27 @@ export default function ButcherStage({
             return '/images/butcher/butcher-welcome.webp';
         }
         return '/images/butcher/butcher-idle.webp';
-    }, [isThinking, activeAction]);
+    }, [isThinking, isSpeaking, activeAction]);
+
+    const stageDialogTitle = useMemo(() => {
+        if (isListening) return translate('chatbot.stage_listening_title', '🎙️ Te estoy escuchando...');
+        if (isThinking) return translate('chatbot.stage_thinking_title', 'Preparando consejo gastronómico...');
+        if (isSpeaking) return translate('chatbot.stage_speaking_title', 'Explicando recomendación en vivo...');
+        if (activeAction === 'meat' || activeAction === 'ok') return translate('chatbot.stage_meat_title', '🥩 CORTE NOBLE AAA Y PUNTO DE ASADO');
+        if (activeAction === 'sausages') return translate('chatbot.stage_sausages_title', '🌭 CHORIZOS ARTESANALES DE LA CASA');
+        if (activeAction === 'idle') return translate('chatbot.stage_idle_title', '🔪 MAESTRO CARNICERO A TU SERVICIO');
+        return translate('chatbot.stage_welcome_title', '¡HOLA! TE DOY LA BIENVENIDA A MI CARNICERÍA');
+    }, [isListening, isThinking, isSpeaking, activeAction, t]);
+
+    const stageDialogDesc = useMemo(() => {
+        if (isListening) return userTranscript || translate('chatbot.stage_listening_prompt', 'Habla ahora con tu voz... ¿Qué corte o consejo de asado necesitas?');
+        if (isThinking) return thinkingMessages[thinkingIndex] || thinkingMessages[0];
+        if (isSpeaking) return translate('chatbot.stage_speaking_prompt', 'Presta atención a los secretos para lograr el mejor sabor y punto de cocción de tu corte.');
+        if (activeAction === 'meat' || activeAction === 'ok') return translate('chatbot.stage_meat_desc', 'Un buen Ribeye AAA debe sellarse a fuego vivo 3 minutos por lado y dejarse reposar para que conserve todos sus jugos.');
+        if (activeAction === 'sausages') return translate('chatbot.stage_sausages_desc', 'Nuestros chorizos artesanales son 100% de autor, embutidos a mano en tripa natural, sin conservantes.');
+        if (activeAction === 'idle') return translate('chatbot.stage_idle_desc', 'Cortes nobles, maduración artesanal y asesoría gastronómica personalizada. ¿Qué preparamos hoy?');
+        return translate('chatbot.stage_welcome_desc', 'Toca el botón «Conversar» para hablarme por voz o escríbeme cualquier pregunta de carnes.');
+    }, [isListening, isThinking, isSpeaking, activeAction, userTranscript, thinkingMessages, thinkingIndex, t]);
 
     return (
         <div
@@ -319,25 +356,13 @@ export default function ButcherStage({
 
                         {/* Diálogo interactivo del carnicero */}
                         <div className="flex-1 min-w-0">
-                            <div className="relative rounded-2xl border border-gold/35 bg-[#161311]/95 p-3 shadow-md backdrop-blur-xs">
+                            <div className="relative rounded-2xl border border-gold/35 bg-[#161311]/95 p-3 shadow-md backdrop-blur-xs transition-colors duration-300">
                                 <p className="text-[10.5px] font-bold uppercase tracking-wider text-gold flex items-center gap-1">
                                     <HiSparkles className="h-3 w-3 text-gold-light" />
-                                    {isListening
-                                        ? translate('chatbot.stage_listening_title', '🎙️ Te estoy escuchando...')
-                                        : isThinking
-                                        ? translate('chatbot.stage_thinking_title', 'Preparando consejo gastronómico...')
-                                        : isSpeaking
-                                        ? translate('chatbot.stage_speaking_title', 'Explicando recomendación en vivo...')
-                                        : translate('chatbot.stage_welcome_title', '¡HOLA! TE DOY LA BIENVENIDA A MI CARNICERÍA')}
+                                    {stageDialogTitle}
                                 </p>
                                 <p className="mt-1 text-[11.5px] leading-snug text-cream/95 font-medium line-clamp-3">
-                                    {isListening
-                                        ? userTranscript || translate('chatbot.stage_listening_prompt', 'Habla ahora con tu voz... ¿Qué corte o consejo de asado necesitas?')
-                                        : isThinking
-                                        ? thinkingMessages[thinkingIndex] || thinkingMessages[0]
-                                        : isSpeaking
-                                        ? translate('chatbot.stage_speaking_prompt', 'Presta atención a los secretos para lograr el mejor sabor y punto de cocción de tu corte.')
-                                        : translate('chatbot.stage_welcome_desc', 'Toca el botón «Conversar» para hablarme por voz o escríbeme cualquier pregunta de carnes.')}
+                                    {stageDialogDesc}
                                 </p>
                             </div>
 

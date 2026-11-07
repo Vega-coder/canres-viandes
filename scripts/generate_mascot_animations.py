@@ -1,13 +1,13 @@
 """
 Script para generar animaciones WebP fluidas del Maestro Carnicero CANRES:
-1. butcher-idle.webp: Respiración orgánica, balanceo suave de la carne y parpadeo natural de ojos.
+1. butcher-idle.webp: Respiración orgánica, balanceo suave de la carne y mirada cálida.
 2. butcher-talking.webp: Movimiento real de mandíbula, apertura de boca con dientes y lengua, flexión de bigote, inclinación de cabeza y gesticulación.
 3. butcher-thinking.webp: Movimiento de corte artesanal, cuchillo de chef rebanando carne en la tabla y concentración del carnicero.
 """
 import os
 import math
 import numpy as np
-from PIL import Image, ImageDraw, ImageFilter
+from PIL import Image, ImageDraw
 
 OUTPUT_DIR = 'public/images/butcher'
 
@@ -55,34 +55,6 @@ def warp_organic(arr, displacements):
     )
     return np.clip(warped, 0, 255).astype(np.uint8)
 
-def draw_blink(img, progress):
-    """
-    Dibuja párpados cerrándose de forma orgánica sobre los ojos.
-    progress: 0.0 (abiertos) a 1.0 (completamente cerrados)
-    """
-    if progress <= 0.05:
-        return img
-        
-    res = img.copy()
-    draw = ImageDraw.Draw(res, 'RGBA')
-    
-    # Left eye: cx=210, cy=185, rx=18, ry=14
-    # Right eye: cx=260, cy=185, rx=18, ry=14
-    for cx, cy in [(210, 185), (260, 185)]:
-        drop_h = int(14 * progress)
-        top = cy - 14
-        bottom = cy - 14 + drop_h * 2
-        
-        # Sombra y tono de piel del párpado
-        alpha = int(240 * progress)
-        draw.ellipse([cx - 16, top, cx + 16, min(bottom, cy + 12)], fill=(228, 168, 128, alpha))
-        
-        # Pestañas / pliegue cuando está muy cerrado
-        if progress > 0.6:
-            draw.arc([cx - 16, cy - 6, cx + 16, cy + 8], start=20, end=160, fill=(75, 40, 30, alpha), width=2)
-            
-    return res
-
 def draw_mouth_cavity(img, opening_px):
     """
     Dibuja la apertura de la boca bajo el bigote con dientes superiores y lengua.
@@ -99,23 +71,33 @@ def draw_mouth_cavity(img, opening_px):
     w_mouth = int(24 + opening_px * 2.5)
     h_mouth = int(opening_px * 1.6)
     
-    # Cavidad oscura de la boca
-    draw.ellipse(
-        [cx - w_mouth, cy - h_mouth // 2, cx + w_mouth, cy + h_mouth],
-        fill=(50, 12, 16, 250)
+    # 1. Cavidad oral interna oscura y profunda
+    draw.chord(
+        [cx - w_mouth // 2, cy - 2, cx + w_mouth // 2, cy + h_mouth],
+        start=0,
+        end=180,
+        fill=(40, 10, 10, 245)
     )
     
-    # Dientes superiores (arco marfil)
-    if opening_px > 3.0:
-        teeth_w = int(w_mouth * 0.7)
-        teeth_h = min(5, int(opening_px * 0.5))
-        draw.rounded_rectangle(
-            [cx - teeth_w, cy - h_mouth // 2, cx + teeth_w, cy - h_mouth // 2 + teeth_h],
-            radius=2,
-            fill=(248, 244, 238, 250)
+    # 2. Dientes superiores blancos nacarados
+    teeth_h = min(int(opening_px * 0.55), 6)
+    if teeth_h > 1:
+        teeth_w = int(w_mouth * 0.75)
+        draw.chord(
+            [cx - teeth_w // 2, cy - 2, cx + teeth_w // 2, cy + teeth_h * 2],
+            start=0,
+            end=180,
+            fill=(245, 245, 240, 245)
         )
-        
-    # Lengua inferior (tono rosa suave)
+        # Líneas de separación sutiles entre dientes frontales
+        for sep_x in [-6, 0, 6]:
+            draw.line(
+                [(cx + sep_x, cy - 1), (cx + sep_x, cy + teeth_h)],
+                fill=(180, 175, 170, 160),
+                width=1
+            )
+            
+    # 3. Lengua rosada realista en el fondo inferior
     if opening_px > 4.0:
         tongue_w = int(w_mouth * 0.65)
         tongue_h = int(opening_px * 0.5)
@@ -148,6 +130,9 @@ def generate_idle_animation(base_path, out_path):
         head_dy = math.sin(t * 0.5) * 0.8
         head_dx = math.cos(t * 0.5) * 0.6
         
+        # Elevación cálida de sonrisa/pómulos
+        smile_dy = -1.6 * max(0.0, math.sin(t))
+        
         displacements = [
             # Pecho y hombros
             {'cx': 250.0, 'cy': 380.0, 'sx': 140.0, 'sy': 60.0, 'dy': breath_dy, 'dx': 0.0},
@@ -155,21 +140,13 @@ def generate_idle_animation(base_path, out_path):
             {'cx': 250.0, 'cy': 520.0, 'sx': 160.0, 'sy': 70.0, 'dy': steak_dy, 'dx': steak_dx},
             # Cabeza
             {'cx': 250.0, 'cy': 200.0, 'sx': 110.0, 'sy': 90.0, 'dy': head_dy, 'dx': head_dx, 'y_max': 340.0},
+            # Sonrisa orgánica
+            {'cx': 200.0, 'cy': 225.0, 'sx': 35.0, 'sy': 20.0, 'dy': smile_dy, 'dx': 0.0},
+            {'cx': 275.0, 'cy': 225.0, 'sx': 35.0, 'sy': 20.0, 'dy': smile_dy, 'dx': 0.0},
         ]
         
         warped_arr = warp_organic(arr, displacements)
         frame_img = Image.fromarray(warped_arr).convert('RGBA')
-        
-        # Parpadeo natural en los cuadros 8 y 9
-        blink_progress = 0.0
-        if i == 8:
-            blink_progress = 0.7
-        elif i == 9:
-            blink_progress = 1.0
-        elif i == 10:
-            blink_progress = 0.3
-            
-        frame_img = draw_blink(frame_img, blink_progress)
         frames.append(frame_img)
         
     frames[0].save(
@@ -227,15 +204,6 @@ def generate_talking_animation(base_path, out_path):
         
         # Si la boca está abierta, dibujamos la cavidad interior
         frame_img = draw_mouth_cavity(frame_img, op)
-        
-        # Parpadeo expresivo en el cuadro 10 y 11
-        blink_progress = 0.0
-        if i == 10:
-            blink_progress = 0.85
-        elif i == 11:
-            blink_progress = 0.4
-            
-        frame_img = draw_blink(frame_img, blink_progress)
         frames.append(frame_img)
         
     frames[0].save(
@@ -266,9 +234,7 @@ def generate_thinking_animation(base_path, out_path):
         head_dx = math.cos(t) * 1.0
         
         # Movimiento de corte en la tabla (manos y antebrazos)
-        # Dos golpes de corte rítmicos por ciclo:
         cut_phase = (i % 6) / 6.0
-        # Golpe rápido hacia abajo y retorno elástico
         cut_dy = -6.0 if cut_phase < 0.3 else 3.0 if cut_phase < 0.6 else 0.0
         
         displacements = [
@@ -285,7 +251,6 @@ def generate_thinking_animation(base_path, out_path):
         
         # Dibujar cuchillo de chef rebanando carne en la tabla
         draw = ImageDraw.Draw(frame_img, 'RGBA')
-        # Cuchillo ubicado cerca de la mano derecha y la tabla (x ~ 320..420, y ~ 640..720)
         knife_y = 660 + int(cut_dy * 1.5)
         # Hoja metálica brillante de cuchillo
         draw.polygon(
@@ -323,4 +288,3 @@ if __name__ == '__main__':
     generate_idle_animation(presenting, os.path.join(OUTPUT_DIR, 'butcher-idle.webp'))
     generate_talking_animation(presenting, os.path.join(OUTPUT_DIR, 'butcher-talking.webp'))
     generate_thinking_animation(thinking, os.path.join(OUTPUT_DIR, 'butcher-thinking.webp'))
-    print("\n¡Todas las animaciones WebP generadas con éxito!")

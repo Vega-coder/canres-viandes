@@ -1,7 +1,7 @@
 import os
 import math
 import numpy as np
-from PIL import Image, ImageDraw
+from PIL import Image
 
 OUTPUT_DIR = 'public/images/butcher'
 TARGET_SIZE = (500, 889)
@@ -49,29 +49,6 @@ def warp_organic(arr, displacements):
     )
     return np.clip(warped, 0, 255).astype(np.uint8)
 
-def draw_blink(img, progress, left_eye=(210, 185), right_eye=(260, 185)):
-    """
-    Dibuja párpados cerrándose de forma orgánica sobre los ojos.
-    """
-    if progress <= 0.05:
-        return img
-        
-    res = img.copy()
-    draw = ImageDraw.Draw(res, 'RGBA')
-    
-    for cx, cy in [left_eye, right_eye]:
-        drop_h = int(14 * progress)
-        top = cy - 14
-        bottom = cy - 14 + drop_h * 2
-        
-        alpha = int(240 * progress)
-        draw.ellipse([cx - 16, top, cx + 16, min(bottom, cy + 12)], fill=(228, 168, 128, alpha))
-        
-        if progress > 0.6:
-            draw.arc([cx - 16, cy - 6, cx + 16, cy + 8], start=20, end=160, fill=(75, 40, 30, alpha), width=2)
-            
-    return res
-
 def generate_sausages_animation(base_path, out_path):
     print("Generando butcher-sausages.webp (Acción: Presumiendo chorizos artesanales)...")
     base_img = Image.open(base_path).convert('RGB')
@@ -85,16 +62,19 @@ def generate_sausages_animation(base_path, out_path):
     for i in range(num_frames):
         t = (2 * math.pi * i) / num_frames
         
-        # Respiración
+        # Respiración natural de tórax
         breath_dy = math.sin(t) * 2.8
         
         # Balanceo orgulloso de las salchichas en las manos
         sausage_dy = math.sin(t + 0.3) * 3.5
         sausage_dx = math.cos(t) * 1.5
         
-        # Leve cabeceo de satisfacción
+        # Leve cabeceo de satisfacción y mirada cálida
         head_dy = math.sin(t * 0.5) * 1.0
         head_dx = math.cos(t * 0.5) * 0.8
+        
+        # Elevación cálida y orgánica de pómulos/sonrisa
+        smile_dy = -1.6 * max(0.0, math.sin(t))
         
         displacements = [
             # Pecho y hombros
@@ -103,21 +83,13 @@ def generate_sausages_animation(base_path, out_path):
             {'cx': 250.0, 'cy': 520.0, 'sx': 160.0, 'sy': 90.0, 'dy': sausage_dy, 'dx': sausage_dx},
             # Cabeza
             {'cx': 250.0, 'cy': 200.0, 'sx': 110.0, 'sy': 90.0, 'dy': head_dy, 'dx': head_dx, 'y_max': 340.0},
+            # Sonrisa y mejillas
+            {'cx': 200.0, 'cy': 225.0, 'sx': 35.0, 'sy': 20.0, 'dy': smile_dy, 'dx': 0.0},
+            {'cx': 275.0, 'cy': 225.0, 'sx': 35.0, 'sy': 20.0, 'dy': smile_dy, 'dx': 0.0},
         ]
         
         warped_arr = warp_organic(arr, displacements)
         frame_img = Image.fromarray(warped_arr).convert('RGBA')
-        
-        # Parpadeo natural
-        blink_progress = 0.0
-        if i == 8:
-            blink_progress = 0.7
-        elif i == 9:
-            blink_progress = 1.0
-        elif i == 10:
-            blink_progress = 0.3
-            
-        frame_img = draw_blink(frame_img, blink_progress)
         frames.append(frame_img)
         
     frames[0].save(
@@ -159,6 +131,9 @@ def generate_ok_animation(base_path, out_path):
         head_dy = math.sin(t * 0.5) * 0.9
         head_dx = math.cos(t * 0.5) * 0.7
         
+        # Elevación orgánica de pómulos/sonrisa
+        smile_dy = -1.6 * max(0.0, math.sin(t))
+        
         displacements = [
             # Pecho y hombros
             {'cx': 250.0, 'cy': 380.0, 'sx': 140.0, 'sy': 60.0, 'dy': breath_dy, 'dx': 0.0},
@@ -168,21 +143,13 @@ def generate_ok_animation(base_path, out_path):
             {'cx': 180.0, 'cy': 530.0, 'sx': 110.0, 'sy': 80.0, 'dy': meat_dy, 'dx': 0.0},
             # Cabeza
             {'cx': 250.0, 'cy': 200.0, 'sx': 110.0, 'sy': 90.0, 'dy': head_dy, 'dx': head_dx, 'y_max': 340.0},
+            # Sonrisa y mejillas
+            {'cx': 200.0, 'cy': 225.0, 'sx': 35.0, 'sy': 20.0, 'dy': smile_dy, 'dx': 0.0},
+            {'cx': 275.0, 'cy': 225.0, 'sx': 35.0, 'sy': 20.0, 'dy': smile_dy, 'dx': 0.0},
         ]
         
         warped_arr = warp_organic(arr, displacements)
         frame_img = Image.fromarray(warped_arr).convert('RGBA')
-        
-        # Parpadeo natural
-        blink_progress = 0.0
-        if i == 8:
-            blink_progress = 0.7
-        elif i == 9:
-            blink_progress = 1.0
-        elif i == 10:
-            blink_progress = 0.3
-            
-        frame_img = draw_blink(frame_img, blink_progress)
         frames.append(frame_img)
         
     frames[0].save(
@@ -221,6 +188,9 @@ def generate_welcome_animation(base_path, out_path):
         head_dy = math.sin(t * 0.5) * 1.2
         head_dx = math.cos(t * 0.5) * 0.6
         
+        # Elevación orgánica de pómulos/sonrisa
+        smile_dy = -1.8 * max(0.0, math.sin(t))
+        
         displacements = [
             # Pecho y torso
             {'cx': 250.0, 'cy': 380.0, 'sx': 140.0, 'sy': 60.0, 'dy': breath_dy, 'dx': 0.0},
@@ -229,21 +199,13 @@ def generate_welcome_animation(base_path, out_path):
             {'cx': 360.0, 'cy': 490.0, 'sx': 110.0, 'sy': 80.0, 'dy': arms_dy, 'dx': arms_dx},
             # Cabeza
             {'cx': 250.0, 'cy': 200.0, 'sx': 110.0, 'sy': 90.0, 'dy': head_dy, 'dx': head_dx, 'y_max': 340.0},
+            # Sonrisa y mejillas
+            {'cx': 200.0, 'cy': 225.0, 'sx': 35.0, 'sy': 20.0, 'dy': smile_dy, 'dx': 0.0},
+            {'cx': 275.0, 'cy': 225.0, 'sx': 35.0, 'sy': 20.0, 'dy': smile_dy, 'dx': 0.0},
         ]
         
         warped_arr = warp_organic(arr, displacements)
         frame_img = Image.fromarray(warped_arr).convert('RGBA')
-        
-        # Parpadeo natural
-        blink_progress = 0.0
-        if i == 8:
-            blink_progress = 0.7
-        elif i == 9:
-            blink_progress = 1.0
-        elif i == 10:
-            blink_progress = 0.3
-            
-        frame_img = draw_blink(frame_img, blink_progress)
         frames.append(frame_img)
         
     frames[0].save(
@@ -270,4 +232,4 @@ if __name__ == '__main__':
     if os.path.exists(welcome_src):
         generate_welcome_animation(welcome_src, os.path.join(OUTPUT_DIR, 'butcher-welcome.webp'))
         
-    print("\n¡Nuevas animaciones WebP generadas con éxito!")
+    print("\n¡Nuevas animaciones WebP generadas con éxito sin parpadeos artificiales!")
