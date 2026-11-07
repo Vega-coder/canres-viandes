@@ -11,15 +11,24 @@ describe('Asistente Virtual Interactivo - Mascota Maestro Carnicero CANRES', () 
         const idleWebp = path.resolve('public/images/butcher/butcher-idle.webp');
         const talkingWebp = path.resolve('public/images/butcher/butcher-talking.webp');
         const thinkingWebp = path.resolve('public/images/butcher/butcher-thinking.webp');
+        const okWebp = path.resolve('public/images/butcher/butcher-ok.webp');
+        const sausagesWebp = path.resolve('public/images/butcher/butcher-sausages.webp');
+        const welcomeWebp = path.resolve('public/images/butcher/butcher-welcome.webp');
 
         expect(fs.existsSync(thinkingImg)).toBe(true);
         expect(fs.existsSync(presentingImg)).toBe(true);
         expect(fs.existsSync(idleWebp)).toBe(true);
         expect(fs.existsSync(talkingWebp)).toBe(true);
         expect(fs.existsSync(thinkingWebp)).toBe(true);
+        expect(fs.existsSync(okWebp)).toBe(true);
+        expect(fs.existsSync(sausagesWebp)).toBe(true);
+        expect(fs.existsSync(welcomeWebp)).toBe(true);
         expect(fs.statSync(idleWebp).size).toBeGreaterThan(10000);
         expect(fs.statSync(talkingWebp).size).toBeGreaterThan(10000);
         expect(fs.statSync(thinkingWebp).size).toBeGreaterThan(10000);
+        expect(fs.statSync(okWebp).size).toBeGreaterThan(10000);
+        expect(fs.statSync(sausagesWebp).size).toBeGreaterThan(10000);
+        expect(fs.statSync(welcomeWebp).size).toBeGreaterThan(10000);
     });
 
     it('cuenta con traducciones completas para el Maestro Carnicero en FR, EN y ES', () => {

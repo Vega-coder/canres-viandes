@@ -24,6 +24,7 @@ export default function Chatbot() {
     const { t, language, setLanguage } = useLanguage();
     const [isOpen, setIsOpen] = useState(false);
     const [isStageCollapsed, setIsStageCollapsed] = useState(false);
+    const [activeAction, setActiveAction] = useState('welcome');
 
     // Sistema interactivo de Text-to-Speech (voz saliente del carnicero)
     const { isSpeaking, speakingId, speak, stop } = useSpeech(language);
@@ -136,6 +137,40 @@ export default function Chatbot() {
         const query = (textToSend || input).trim();
         if (!query || loading) return;
 
+        // Cambiar la pose del carnicero según la intención temática
+        const qLower = query.toLowerCase();
+        if (
+            qLower.includes('chorizo') ||
+            qLower.includes('salchicha') ||
+            qLower.includes('saucisse') ||
+            qLower.includes('merguez') ||
+            qLower.includes('butifarra')
+        ) {
+            setActiveAction('sausages');
+        } else if (
+            qLower.includes('ribeye') ||
+            qLower.includes('corte') ||
+            qLower.includes('carne') ||
+            qLower.includes('asar') ||
+            qLower.includes('parrilla') ||
+            qLower.includes('picaña') ||
+            qLower.includes('picanha') ||
+            qLower.includes('bœuf') ||
+            qLower.includes('boeuf') ||
+            qLower.includes('grill') ||
+            qLower.includes('steak')
+        ) {
+            setActiveAction('meat');
+        } else if (
+            qLower.includes('hola') ||
+            qLower.includes('bonjour') ||
+            qLower.includes('hello') ||
+            qLower.includes('salut') ||
+            qLower.includes('allô')
+        ) {
+            setActiveAction('welcome');
+        }
+
         // Detener voz y micrófono previos si estaban activos
         stop();
         stopListening();
@@ -218,6 +253,18 @@ export default function Chatbot() {
     };
 
     const handleSuggestionClick = (query) => {
+        const qLower = (query || '').toLowerCase();
+        if (qLower.includes('chorizo') || qLower.includes('saucisse')) {
+            setActiveAction('sausages');
+        } else if (
+            qLower.includes('corte') ||
+            qLower.includes('grill') ||
+            qLower.includes('coupe') ||
+            qLower.includes('barbecue') ||
+            qLower.includes('asar')
+        ) {
+            setActiveAction('meat');
+        }
         handleSend(query);
     };
 
@@ -254,6 +301,7 @@ export default function Chatbot() {
                             {/* Avatar del Maestro Carnicero */}
                             <ButcherAvatar
                                 status={activeMascotStatus}
+                                activeAction={activeAction}
                                 size="sm"
                                 showStatusDot={true}
                                 showEqualizer={false}
@@ -373,6 +421,8 @@ export default function Chatbot() {
                     {/* Escenario interactivo del Maestro Carnicero en su taller */}
                     <ButcherStage
                         status={activeMascotStatus}
+                        activeAction={activeAction}
+                        onActionChange={setActiveAction}
                         isSpeaking={isSpeaking}
                         onToggleSpeech={handleToggleLatestSpeech}
                         onSpeakCustom={(text) => speak(text, -1)}

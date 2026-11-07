@@ -7,6 +7,7 @@
  */
 export default function ButcherAvatar({
     status = 'idle', // 'idle' | 'thinking' | 'speaking'
+    activeAction = 'idle', // 'idle' | 'welcome' | 'meat' | 'sausages'
     size = 'md', // 'xs' | 'sm' | 'md' | 'lg' | 'xl'
     showStatusDot = true,
     showEqualizer = true,
@@ -16,10 +17,16 @@ export default function ButcherAvatar({
     const isThinking = status === 'thinking';
     const isSpeaking = status === 'speaking';
 
-    // Se mantiene la animación natural de respiración, carne y parpadeo (sin alterar la boca)
-    const imageSrc = isThinking
-        ? '/images/butcher/butcher-thinking.webp'
-        : '/images/butcher/butcher-idle.webp';
+    let imageSrc = '/images/butcher/butcher-idle.webp';
+    if (isThinking) {
+        imageSrc = '/images/butcher/butcher-thinking.webp';
+    } else if (activeAction === 'sausages') {
+        imageSrc = '/images/butcher/butcher-sausages.webp';
+    } else if (activeAction === 'meat' || activeAction === 'ok') {
+        imageSrc = '/images/butcher/butcher-ok.webp';
+    } else if (activeAction === 'welcome') {
+        imageSrc = '/images/butcher/butcher-welcome.webp';
+    }
 
     const sizeClasses = {
         xs: 'h-7 w-7',

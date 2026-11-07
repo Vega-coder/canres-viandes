@@ -12,6 +12,8 @@ import { FaFire } from 'react-icons/fa6';
 
 export default function ButcherStage({
     status = 'idle', // 'idle' | 'thinking' | 'speaking'
+    activeAction = 'welcome', // 'idle' | 'welcome' | 'meat' | 'sausages' | 'thinking'
+    onActionChange,
     isSpeaking = false,
     onToggleSpeech,
     onSpeakCustom,
@@ -87,18 +89,42 @@ export default function ButcherStage({
     const handleMascotClick = () => {
         if (isSpeaking) {
             onToggleSpeech?.();
-        } else if (onSpeakCustom) {
-            const randomQuote = butcherQuotes[Math.floor(Math.random() * butcherQuotes.length)];
-            onSpeakCustom(randomQuote);
-        } else {
-            onToggleSpeech?.();
+            return;
+        }
+
+        // Rotación interactiva de poses y temas: welcome -> meat -> sausages -> idle
+        const actionCycle = ['meat', 'sausages', 'welcome', 'idle'];
+        const nextIdx = (actionCycle.indexOf(activeAction) + 1) % actionCycle.length;
+        const nextAction = actionCycle[nextIdx];
+        onActionChange?.(nextAction);
+
+        if (onSpeakCustom) {
+            if (nextAction === 'meat') {
+                onSpeakCustom(translate('chatbot.quote_2', butcherQuotes[1]));
+            } else if (nextAction === 'sausages') {
+                onSpeakCustom(translate('chatbot.quote_3', butcherQuotes[2]));
+            } else {
+                onSpeakCustom(translate('chatbot.quote_1', butcherQuotes[0]));
+            }
         }
     };
 
-    // Fuente animada según estado activo (mantiene la pose de respiración y parpadeo natural)
-    const imageSrc = isThinking
-        ? '/images/butcher/butcher-thinking.webp'
-        : '/images/butcher/butcher-idle.webp';
+    // Fuente animada WebP según acción o tema activo (poses basadas en el guión artesanal)
+    const imageSrc = useMemo(() => {
+        if (isThinking) {
+            return '/images/butcher/butcher-thinking.webp';
+        }
+        if (activeAction === 'sausages') {
+            return '/images/butcher/butcher-sausages.webp';
+        }
+        if (activeAction === 'meat' || activeAction === 'ok') {
+            return '/images/butcher/butcher-ok.webp';
+        }
+        if (activeAction === 'welcome') {
+            return '/images/butcher/butcher-welcome.webp';
+        }
+        return '/images/butcher/butcher-idle.webp';
+    }, [isThinking, activeAction]);
 
     return (
         <div
@@ -315,18 +341,19 @@ export default function ButcherStage({
                                 </p>
                             </div>
 
-                            {/* Botones de sugerencias temáticas */}
+                            {/* Botones de sugerencias temáticas con cambio dinámico de pose */}
                             <div className="mt-2 flex flex-wrap gap-1.5">
                                 <button
                                     type="button"
-                                    onClick={() =>
+                                    onClick={() => {
+                                        onActionChange?.('meat');
                                         onQuickPrompt?.(
                                             translate(
                                                 'chatbot.stage_chip_grill_query',
                                                 '¿Cuál es el mejor corte para asar en la parrilla y su punto perfecto?'
                                             )
-                                        )
-                                    }
+                                        );
+                                    }}
                                     className="inline-flex items-center gap-1 rounded-md border border-gold/30 bg-gold/10 px-2 py-0.5 text-[10px] font-medium text-cream hover:border-gold hover:bg-gold/25 transition active:scale-95"
                                 >
                                     <FaFire className="h-2.5 w-2.5 text-gold" />
@@ -334,14 +361,15 @@ export default function ButcherStage({
                                 </button>
                                 <button
                                     type="button"
-                                    onClick={() =>
+                                    onClick={() => {
+                                        onActionChange?.('sausages');
                                         onQuickPrompt?.(
                                             translate(
                                                 'chatbot.stage_chip_sausage_query',
                                                 '¿Qué variedades de chorizos artesanales tienen disponibles?'
                                             )
-                                        )
-                                    }
+                                        );
+                                    }}
                                     className="inline-flex items-center gap-1 rounded-md border border-gold/30 bg-gold/10 px-2 py-0.5 text-[10px] font-medium text-cream hover:border-gold hover:bg-gold/25 transition active:scale-95"
                                 >
                                     <span>🌭</span>
