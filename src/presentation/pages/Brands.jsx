@@ -3,26 +3,35 @@ import { Link } from 'react-router-dom';
 import { HiOutlineMagnifyingGlass, HiArrowRight, HiOutlineSparkles } from 'react-icons/hi2';
 import { useCases } from '@/infrastructure/container.js';
 import { useAsync } from '@/presentation/hooks/useAsync.js';
+import { useLanguage } from '@/presentation/context/LanguageContext.jsx';
 import BrandLogo from '@/presentation/components/brand/BrandLogo.jsx';
+import { BRAND_TRANSLATIONS } from '@/presentation/i18n/productTranslations.js';
 
 export default function Brands() {
+    const { t, language } = useLanguage();
     const [search, setSearch] = useState('');
     const { data, loading, error } = useAsync(() => useCases.getBrandsCatalog(), []);
 
+    const brandDict = BRAND_TRANSLATIONS[language] || {};
     const rawBrands = data?.brands;
 
     const filteredBrands = useMemo(() => {
         const brands = Array.isArray(rawBrands) ? rawBrands : [];
         const q = search.trim().toLowerCase();
-        if (!q) return brands;
-        return brands.filter(
+        const localized = brands.map((b) => ({
+            ...b,
+            name: brandDict[b?.name] || b?.name,
+        }));
+
+        if (!q) return localized;
+        return localized.filter(
             (b) =>
                 (b?.name || '').toLowerCase().includes(q) ||
                 (b?.country || '').toLowerCase().includes(q) ||
                 (b?.description || '').toLowerCase().includes(q) ||
                 (b?.tagline || '').toLowerCase().includes(q)
         );
-    }, [rawBrands, search]);
+    }, [rawBrands, search, brandDict]);
 
     return (
         <div className="bg-cream-light/40 min-h-screen py-12 sm:py-16">
@@ -30,14 +39,14 @@ export default function Brands() {
                 <header className="mx-auto max-w-3xl text-center">
                     <p className="eyebrow text-brand-wine flex items-center justify-center gap-2 font-bold">
                         <HiOutlineSparkles className="h-3.5 w-3.5" />
-                        Boucherie Artisanale & Charcuterie
+                        {t('brandsPage.eyebrow')}
                     </p>
                     <h1 className="mt-3 font-display text-3xl font-extrabold uppercase tracking-[0.16em] text-ink sm:text-4xl md:text-5xl">
-                        Líneas de Origen & Calidad
+                        {t('brandsPage.title')}
                     </h1>
                     <div className="mx-auto mt-4 h-1 w-20 bg-brand-wine" />
                     <p className="mt-6 text-sm leading-relaxed text-taupe sm:text-base">
-                        En CANRES Viandes seleccionamos minuciosamente cada producto. Desde novillos con clasificación AAA y Sterling hasta granjas locales de Québec y nuestras recetas ancestrales colombianas de charcutería artesanal sin aditivos.
+                        {t('brandsPage.description')}
                     </p>
 
                     <div className="relative mx-auto mt-8 max-w-md">
@@ -45,9 +54,9 @@ export default function Brands() {
                             type="search"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            placeholder="Buscar por corte, línea u origen..."
+                            placeholder={t('brandsPage.search_placeholder')}
                             className="input w-full py-3 pl-11 pr-4 text-xs shadow-sm rounded-xl"
-                            aria-label="Buscar línea"
+                            aria-label={t('brandsPage.search_aria')}
                         />
                         <HiOutlineMagnifyingGlass className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-taupe" />
                     </div>
@@ -68,13 +77,13 @@ export default function Brands() {
 
                 {error && (
                     <div className="mt-16 text-center text-taupe">
-                        <p>No se pudieron cargar las líneas en este momento.</p>
+                        <p>{t('brandsPage.error')}</p>
                         <button
                             type="button"
                             onClick={() => window.location.reload()}
                             className="btn-outline mt-4"
                         >
-                            Reintentar
+                            {t('brandsPage.retry')}
                         </button>
                     </div>
                 )}
@@ -98,22 +107,22 @@ export default function Brands() {
                                                 {b.name}
                                             </h2>
                                             <span className="rounded-full bg-brand-wine/10 px-2.5 py-0.5 text-[10px] font-bold text-brand-wine">
-                                                {b.count ?? 1} {(b.count ?? 1) === 1 ? 'corte' : 'cortes'}
+                                                {b.count ?? 1} {(b.count ?? 1) === 1 ? t('brandsPage.cut') : t('brandsPage.cuts')}
                                             </span>
                                         </div>
 
                                         <p className="mt-1 text-[11px] font-medium uppercase tracking-wider text-taupe">
-                                            {b.country || 'Québec, Canadá'}
+                                            {b.country || 'Québec, Canada'}
                                         </p>
 
                                         <p className="mt-3 text-xs leading-relaxed text-taupe line-clamp-3">
-                                            {b.description || 'Cortes seleccionados bajo estándares rigurosos.'}
+                                            {b.description}
                                         </p>
                                     </div>
                                 </div>
 
                                 <div className="mt-6 border-t border-cream pt-4 flex items-center justify-between text-xs font-bold uppercase tracking-wider text-ink transition-colors group-hover:text-brand-wine">
-                                    <span>Explorar cortes</span>
+                                    <span>{t('brandsPage.explore_cuts')}</span>
                                     <HiArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
                                 </div>
                             </Link>

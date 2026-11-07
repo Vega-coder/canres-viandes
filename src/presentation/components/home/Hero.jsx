@@ -47,29 +47,35 @@ const DEFAULT_FALLBACK_CUTS = [
 ];
 
 export default function Hero({ cuts = [] }) {
-    const { t, formatMoney, formatUnit, translateNote } = useLanguage();
+    const { t, formatMoney, formatUnit, translateNote, translateProduct } = useLanguage();
     const [currentIndex, setCurrentIndex] = useState(0);
     const [tilt, setTilt] = useState({ x: 0, y: 0 });
 
     const featuredCuts = useMemo(() => {
         if (Array.isArray(cuts) && cuts.length > 0) {
-            return cuts.slice(0, 5).map((c) => ({
-                id: c.id,
-                name: c.name,
-                brand: c.brand || 'Boucherie CANRES',
-                slug: c.slug || c.id,
-                price: `${formatMoney(c.price)} ${formatUnit(c.unit)}`,
-                image: (Array.isArray(c.images) && c.images[0]) || '/images/products/beef-ribeye.jpg',
-                tag: (Array.isArray(c.notes) && c.notes[0] ? translateNote(c.notes[0]) : t('hero.featured_tag')),
-                glow: c.gender === 'cerdo' ? 'bg-brand-light/35' : c.gender === 'chorizos' ? 'bg-brand-wine/40' : 'bg-brand-red/35',
-            }));
+            return cuts.slice(0, 5).map((raw) => {
+                const c = translateProduct(raw);
+                return {
+                    id: c.id,
+                    name: c.name,
+                    brand: c.brand || 'Boucherie CANRES',
+                    slug: c.slug || c.id,
+                    price: `${formatMoney(c.price)} ${formatUnit(c.unit)}`,
+                    image: (Array.isArray(c.images) && c.images[0]) || '/images/products/beef-ribeye.jpg',
+                    tag: (Array.isArray(c.notes) && c.notes[0] ? translateNote(c.notes[0]) : t('hero.featured_tag')),
+                    glow: c.gender === 'cerdo' ? 'bg-brand-light/35' : c.gender === 'chorizos' ? 'bg-brand-wine/40' : 'bg-brand-red/35',
+                };
+            });
         }
-        return DEFAULT_FALLBACK_CUTS.map((c) => ({
-            ...c,
-            price: `${formatMoney(c.price)} ${formatUnit(c.unit)}`,
-            tag: t('hero.featured_tag'),
-        }));
-    }, [cuts, formatMoney, formatUnit, translateNote, t]);
+        return DEFAULT_FALLBACK_CUTS.map((raw) => {
+            const c = translateProduct(raw);
+            return {
+                ...c,
+                price: `${formatMoney(c.price)} ${formatUnit(c.unit)}`,
+                tag: t('hero.featured_tag'),
+            };
+        });
+    }, [cuts, formatMoney, formatUnit, translateNote, translateProduct, t]);
 
     useEffect(() => {
         if (featuredCuts.length <= 1) return;

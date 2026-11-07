@@ -1,22 +1,30 @@
 import { Link } from 'react-router-dom';
 import { brandToSlug } from '@/domain/catalog/brands.js';
+import { useLanguage } from '@/presentation/context/LanguageContext.jsx';
+import { BRAND_TRANSLATIONS } from '@/presentation/i18n/productTranslations.js';
 
 export default function BrandCarousel({ brands = [] }) {
+    const { t, language } = useLanguage();
     if (!Array.isArray(brands) || brands.length === 0) return null;
+
+    const brandDict = BRAND_TRANSLATIONS[language] || {};
 
     const list = brands.map((b) => {
         if (!b) return null;
         if (typeof b === 'string') {
             const slug = brandToSlug(b);
+            const localizedName = brandDict[b] || b;
             return {
-                name: b,
+                name: localizedName,
                 slug,
                 count: null,
             };
         }
+        const originalName = b?.name || '';
+        const localizedName = brandDict[originalName] || originalName;
         return {
-            name: b?.name || '',
-            slug: b?.slug || brandToSlug(b?.name || ''),
+            name: localizedName,
+            slug: b?.slug || brandToSlug(originalName),
             count: b?.count ?? null,
         };
     }).filter(Boolean);
@@ -26,13 +34,13 @@ export default function BrandCarousel({ brands = [] }) {
             <div className="container-luxe">
                 <div className="flex items-center justify-between mb-8">
                     <div>
-                        <p className="eyebrow text-brand-wine font-bold">Nuestras Selecciones</p>
+                        <p className="eyebrow text-brand-wine font-bold">{t('brandCarousel.eyebrow')}</p>
                         <h2 className="font-display text-2xl font-bold uppercase tracking-wider text-ink">
-                            Líneas de Origen & Calidad
+                            {t('brandCarousel.title')}
                         </h2>
                     </div>
                     <Link to="/marcas" className="text-xs font-bold uppercase text-brand-wine hover:underline">
-                        Ver todas las líneas →
+                        {t('brandCarousel.view_all')}
                     </Link>
                 </div>
 
@@ -62,7 +70,7 @@ export default function BrandCarousel({ brands = [] }) {
                                 </h3>
                                 {b.count != null && (
                                     <span className="mt-1 text-[11px] text-taupe font-medium">
-                                        {b.count} {b.count === 1 ? 'producto' : 'productos'}
+                                        {b.count} {b.count === 1 ? t('brandCarousel.product') : t('brandCarousel.products')}
                                     </span>
                                 )}
                             </Link>

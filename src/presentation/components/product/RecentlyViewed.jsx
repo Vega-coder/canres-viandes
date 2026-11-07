@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/presentation/context/AuthContext.jsx';
+import { useLanguage } from '@/presentation/context/LanguageContext.jsx';
 import SectionHeading from '@/presentation/components/ui/SectionHeading.jsx';
 import ProductGrid from '@/presentation/components/product/ProductGrid.jsx';
 
@@ -11,6 +12,7 @@ const getRecentlyViewedStorageKey = (userId) =>
 
 export default function RecentlyViewed({ currentProduct, currentProductId }) {
     const { user } = useAuth();
+    const { t } = useLanguage();
     const userId = user?.id || null;
     const [recentlyViewed, setRecentlyViewed] = useState([]);
     const targetId = currentProduct?.id || currentProductId;
@@ -20,7 +22,6 @@ export default function RecentlyViewed({ currentProduct, currentProductId }) {
 
         let items = [];
         try {
-            // Eliminar clave legada no aislada
             localStorage.removeItem(LEGACY_STORAGE_KEY);
             const key = getRecentlyViewedStorageKey(userId);
             const raw = localStorage.getItem(key);
@@ -34,11 +35,9 @@ export default function RecentlyViewed({ currentProduct, currentProductId }) {
             items = [];
         }
 
-        // Filtrar los que no sean el actual para mostrarlos en el historial
         const others = items.filter((p) => p.id !== targetId);
         setRecentlyViewed(others);
 
-        // Guardar el actual al inicio de la lista si se pasó el objeto completo
         if (currentProduct?.id) {
             const compactProduct = {
                 id: currentProduct.id,
@@ -75,8 +74,8 @@ export default function RecentlyViewed({ currentProduct, currentProductId }) {
         <section className="border-t border-taupe/15 bg-cream/20 py-16 sm:py-20">
             <div className="container-luxe">
                 <SectionHeading
-                    eyebrow="Tu historial"
-                    title="Vistos recientemente"
+                    eyebrow={t('recentlyViewed.eyebrow')}
+                    title={t('recentlyViewed.title')}
                 />
                 <ProductGrid products={recentlyViewed.slice(0, 4)} columns="lg:grid-cols-4" />
             </div>

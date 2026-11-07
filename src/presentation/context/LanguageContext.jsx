@@ -5,6 +5,10 @@ import {
     COOKING_METHOD_TRANSLATIONS,
     NOTE_TRANSLATIONS,
 } from '@/presentation/i18n/translations.js';
+import {
+    PRODUCT_TRANSLATIONS,
+    BRAND_TRANSLATIONS,
+} from '@/presentation/i18n/productTranslations.js';
 import { formatMoney as rawFormatMoney, formatUnit as rawFormatUnit } from '@/domain/shared/money.js';
 
 const STORAGE_KEY = 'canres_lang';
@@ -133,6 +137,31 @@ export function LanguageProvider({ children }) {
         [language],
     );
 
+    const translateProduct = useCallback(
+        (product) => {
+            if (!product || typeof product !== 'object') return product;
+            const pid = product.id || product.slug;
+            const dict = PRODUCT_TRANSLATIONS[language] || PRODUCT_TRANSLATIONS.fr;
+            const pTrans = pid && dict ? dict[pid] : null;
+
+            const brandDict = BRAND_TRANSLATIONS[language] || {};
+            const translatedBrand = (product.brand && brandDict[product.brand]) || product.brand;
+
+            if (!pTrans) {
+                return product.brand !== translatedBrand ? { ...product, brand: translatedBrand } : product;
+            }
+
+            return {
+                ...product,
+                name: pTrans.name || product.name,
+                subname: pTrans.subname || product.subname,
+                description: pTrans.description || product.description,
+                brand: translatedBrand,
+            };
+        },
+        [language],
+    );
+
     const meta = useMemo(() => TRANSLATIONS[language]?.meta || TRANSLATIONS.fr.meta, [language]);
 
     const value = useMemo(
@@ -146,6 +175,7 @@ export function LanguageProvider({ children }) {
             getCategoryLabel,
             translateCookingMethod,
             translateNote,
+            translateProduct,
             meta,
             isFr: language === 'fr',
             isEn: language === 'en',
@@ -160,6 +190,7 @@ export function LanguageProvider({ children }) {
             getCategoryLabel,
             translateCookingMethod,
             translateNote,
+            translateProduct,
             meta,
         ],
     );

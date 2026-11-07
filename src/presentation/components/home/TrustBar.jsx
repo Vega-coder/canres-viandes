@@ -1,33 +1,40 @@
+import { useMemo } from 'react';
 import { HiOutlineShieldCheck, HiOutlineTruck, HiOutlineSparkles, HiOutlineCheckBadge } from 'react-icons/hi2';
-
-const ITEMS = [
-    {
-        icon: HiOutlineCheckBadge,
-        title: '100% Artesanal & Fresco',
-        text: 'Sin aditivos artificiales · Recetas tradicionales',
-    },
-    {
-        icon: HiOutlineTruck,
-        title: 'Cadena de Frío',
-        text: 'Entrega refrigerada express garantizada',
-    },
-    {
-        icon: HiOutlineSparkles,
-        title: 'Maître Boucher',
-        text: 'Asesoría y cortes personalizados por WhatsApp',
-    },
-    {
-        icon: HiOutlineShieldCheck,
-        title: 'Calidad Certificada',
-        text: 'Carne grado AAA y empaque al vacío estricto',
-    },
-];
+import { useLanguage } from '@/presentation/context/LanguageContext.jsx';
 
 export default function TrustBar() {
+    const { t } = useLanguage();
+
+    const items = useMemo(
+        () => [
+            {
+                icon: HiOutlineCheckBadge,
+                title: t('trustBar.t1_title'),
+                text: t('trustBar.t1_desc'),
+            },
+            {
+                icon: HiOutlineTruck,
+                title: t('trustBar.t2_title'),
+                text: t('trustBar.t2_desc'),
+            },
+            {
+                icon: HiOutlineSparkles,
+                title: t('trustBar.t3_title'),
+                text: t('trustBar.t3_desc'),
+            },
+            {
+                icon: HiOutlineShieldCheck,
+                title: t('trustBar.t4_title'),
+                text: t('trustBar.t4_desc'),
+            },
+        ],
+        [t],
+    );
+
     return (
         <section className="border-b border-cream bg-white">
             <ul className="container-luxe grid grid-cols-2 gap-3 py-6 sm:py-8 lg:grid-cols-4 lg:gap-6">
-                {ITEMS.map(({ icon: Icon, title, text }) => (
+                {items.map(({ icon: Icon, title, text }) => (
                     <li
                         key={title}
                         className="group flex items-center gap-3.5 rounded-xl p-2.5 transition-all duration-300 hover:bg-cream-light/70 hover:-translate-y-1 hover:shadow-sm"

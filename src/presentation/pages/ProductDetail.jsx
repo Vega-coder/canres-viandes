@@ -35,8 +35,9 @@ export default function ProductDetail() {
     return <ProductView key={slug} product={data.product} related={data.related} />;
 }
 
-function ProductView({ product, related }) {
-    const { t, formatMoney, formatUnit, getCategoryLabel, translateCookingMethod, translateNote } = useLanguage();
+function ProductView({ product: rawProduct, related }) {
+    const { t, formatMoney, formatUnit, getCategoryLabel, translateCookingMethod, translateNote, translateProduct } = useLanguage();
+    const product = translateProduct(rawProduct);
     const { add } = useCart();
     const { isInWishlist, toggleWishlist } = useWishlist();
     const isFav = isInWishlist(product.id);

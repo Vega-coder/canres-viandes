@@ -9,8 +9,9 @@ import FreeShippingProgress from '@/presentation/components/cart/FreeShippingPro
 import CartUpsell from '@/presentation/components/cart/CartUpsell.jsx';
 
 export default function Cart() {
-    const { t, formatMoney } = useLanguage();
-    const { items, count, totals, setQuantity, remove, clear } = useCart();
+    const { t, formatMoney, translateProduct } = useLanguage();
+    const { items: rawItems, count, totals, setQuantity, remove, clear } = useCart();
+    const items = rawItems.map(translateProduct);
 
     if (items.length === 0) {
         return (

@@ -5,10 +5,10 @@ import {
     FaTruckFast, FaArrowUpRightFromSquare, FaPrint,
 } from 'react-icons/fa6';
 import { useCases } from '@/infrastructure/container.js';
-import { ORDER_STATUS_LABELS, PAYMENT_METHODS } from '@/domain/orders/order.js';
-import { formatMoney } from '@/domain/shared/money.js';
+import { PAYMENT_METHODS } from '@/domain/orders/order.js';
 import { useAsync } from '@/presentation/hooks/useAsync.js';
 import { useAuth } from '@/presentation/context/AuthContext.jsx';
+import { useLanguage } from '@/presentation/context/LanguageContext.jsx';
 import Monogram from '@/presentation/components/brand/Monogram.jsx';
 
 export default function OrderConfirmation() {
@@ -16,6 +16,7 @@ export default function OrderConfirmation() {
     const { state } = useLocation();
     const [searchParams] = useSearchParams();
     const { isAuthenticated } = useAuth();
+    const { t, formatMoney } = useLanguage();
 
     const queryTxId = searchParams.get('id');
 
@@ -27,7 +28,6 @@ export default function OrderConfirmation() {
     const [paymentUpdate, setPaymentUpdate] = useState(null);
     const [checkingStatus, setCheckingStatus] = useState(false);
 
-    // Si viene de redirección de Wompi con ?id=... y el estado no está aún aprobado, verificar de forma asíncrona
     useEffect(() => {
         let active = true;
         const txId = queryTxId;
@@ -54,12 +54,12 @@ export default function OrderConfirmation() {
 
     const order = fetched ? { ...fetched, ...paymentUpdate } : null;
 
-    if (loading && !order) return <div className="py-40 text-center text-taupe">Cargando pedido…</div>;
+    if (loading && !order) return <div className="py-40 text-center text-taupe">{t('orderConfirmation.loading')}</div>;
     if (!order) {
         return (
             <div className="container-luxe py-32 text-center">
-                <h1 className="text-4xl">Pedido no encontrado</h1>
-                <Link to="/" className="btn-dark mt-8">Volver al inicio</Link>
+                <h1 className="text-4xl">{t('orderConfirmation.not_found_title')}</h1>
+                <Link to="/" className="btn-dark mt-8">{t('orderConfirmation.back_home')}</Link>
             </div>
         );
     }
@@ -83,7 +83,7 @@ export default function OrderConfirmation() {
                 });
             }
         } catch (err) {
-            console.warn('No se pudo verificar el estado con Wompi:', err);
+            console.warn('Wompi verification error:', err);
         } finally {
             setCheckingStatus(false);
         }
@@ -108,7 +108,7 @@ export default function OrderConfirmation() {
                 });
             }
         } catch (err) {
-            console.error('Error al reintentar pago con Wompi:', err);
+            console.error('Wompi retry error:', err);
         } finally {
             setCheckingStatus(false);
         }
@@ -118,33 +118,33 @@ export default function OrderConfirmation() {
         <div className="container-luxe max-w-3xl py-16">
             <div className="flex flex-col items-center text-center">
                 <Monogram className="h-16 w-auto" />
-                <p className="eyebrow mt-6 text-gold-dark">¡Gracias por tu compra!</p>
-                <h1 className="mt-3 text-4xl sm:text-5xl">Pedido {order.code}</h1>
-                <p className="mt-3 text-sm text-taupe">{ORDER_STATUS_LABELS[order.status]} · {payment?.label}</p>
+                <p className="eyebrow mt-6 text-gold-dark">{t('orderConfirmation.thank_you')}</p>
+                <h1 className="mt-3 text-4xl sm:text-5xl">{t('orderConfirmation.order_title', { code: order.code })}</h1>
+                <p className="mt-3 text-sm text-taupe">{payment?.label}</p>
 
                 {/* Banner de estado específico de Wompi */}
                 {isWompi && (
                     <div className="mt-6 w-full max-w-md rounded-xl border border-taupe/20 bg-cream/30 p-5 text-left">
                         <div className="flex items-center justify-between border-b border-taupe/15 pb-3">
-                            <span className="text-xs font-semibold uppercase tracking-wider text-taupe">Estado del pago online</span>
+                            <span className="text-xs font-semibold uppercase tracking-wider text-taupe">{t('orderConfirmation.payment_status_title')}</span>
                             {wompiStatus === 'APPROVED' && (
                                 <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
-                                    <FaCircleCheck className="h-3.5 w-3.5" /> Pago Aprobado
+                                    <FaCircleCheck className="h-3.5 w-3.5" /> {t('orderConfirmation.paid_approved')}
                                 </span>
                             )}
                             {wompiStatus === 'PENDING' && (
                                 <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">
-                                    <FaClock className="h-3.5 w-3.5" /> En validación
+                                    <FaClock className="h-3.5 w-3.5" /> {t('orderConfirmation.paid_pending')}
                                 </span>
                             )}
                             {(wompiStatus === 'DECLINED' || wompiStatus === 'ERROR') && (
                                 <span className="inline-flex items-center gap-1.5 rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-800">
-                                    <FaCircleXmark className="h-3.5 w-3.5" /> No aprobado
+                                    <FaCircleXmark className="h-3.5 w-3.5" /> {t('orderConfirmation.paid_declined')}
                                 </span>
                             )}
                             {!wompiStatus && (
                                 <span className="inline-flex items-center gap-1.5 rounded-full bg-taupe/15 px-3 py-1 text-xs font-semibold text-taupe">
-                                    Pendiente de pago
+                                    {t('orderConfirmation.paid_waiting')}
                                 </span>
                             )}
                         </div>
@@ -152,18 +152,18 @@ export default function OrderConfirmation() {
                         <div className="mt-3 space-y-2 text-xs text-ink/80">
                             {order.wompiTransactionId && (
                                 <p className="font-mono text-[11px] text-taupe">
-                                    ID Transacción: <span className="font-semibold text-ink">{order.wompiTransactionId}</span>
+                                    {t('orderConfirmation.tx_id')} <span className="font-semibold text-ink">{order.wompiTransactionId}</span>
                                 </p>
                             )}
 
                             {wompiStatus === 'APPROVED' ? (
                                 <p className="text-emerald-900">
-                                    ✓ Tu pago fue recibido exitosamente a través de Wompi. Tu pedido ya está confirmado y se encuentra en cola de despacho.
+                                    {t('orderConfirmation.approved_msg')}
                                 </p>
                             ) : wompiStatus === 'PENDING' ? (
                                 <div>
                                     <p className="text-amber-900">
-                                        Wompi o tu banco están procesando la transacción. Si pagaste por PSE o Botón Bancolombia, puede tardar de 1 a 5 minutos en confirmarse.
+                                        {t('orderConfirmation.pending_msg')}
                                     </p>
                                     <button
                                         type="button"
@@ -172,13 +172,13 @@ export default function OrderConfirmation() {
                                         className="mt-3 inline-flex items-center gap-1.5 rounded border border-amber-400 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-900 hover:bg-amber-100 disabled:opacity-50"
                                     >
                                         <FaRotate className={`h-3 w-3 ${checkingStatus ? 'animate-spin' : ''}`} />
-                                        {checkingStatus ? 'Consultando a Wompi…' : 'Verificar estado ahora'}
+                                        {checkingStatus ? t('orderConfirmation.verifying') : t('orderConfirmation.verify_now')}
                                     </button>
                                 </div>
                             ) : (
                                 <div>
                                     <p className="text-red-900">
-                                        No recibimos la confirmación de tu pago. Puedes reintentar con otra tarjeta, PSE o Nequi.
+                                        {t('orderConfirmation.declined_msg')}
                                     </p>
                                     <button
                                         type="button"
@@ -186,7 +186,7 @@ export default function OrderConfirmation() {
                                         disabled={checkingStatus}
                                         className="btn-dark mt-3 px-4 py-2 text-xs"
                                     >
-                                        Reintentar pago con Wompi
+                                        {t('orderConfirmation.retry_payment')}
                                     </button>
                                 </div>
                             )}
@@ -199,19 +199,19 @@ export default function OrderConfirmation() {
                     <div className="mt-6 w-full max-w-md rounded-xl border border-emerald-300 bg-emerald-50/70 p-5 text-left shadow-sm">
                         <div className="flex items-center justify-between border-b border-emerald-200/80 pb-3">
                             <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-950">
-                                <FaTruckFast className="h-4 w-4 text-emerald-700" /> Envío Despachado
+                                <FaTruckFast className="h-4 w-4 text-emerald-700" /> {t('orderConfirmation.shipped_title')}
                             </span>
                             <span className="rounded-full bg-emerald-200/80 px-2.5 py-0.5 text-[10px] font-bold uppercase text-emerald-900">
-                                {order.shippingCarrier || 'Transportadora'}
+                                {order.shippingCarrier || t('orderConfirmation.carrier')}
                             </span>
                         </div>
                         <div className="mt-3 space-y-2 text-xs text-ink/80">
                             <div className="flex items-center justify-between">
-                                <span className="text-taupe">Número de Guía:</span>
+                                <span className="text-taupe">{t('orderConfirmation.guide_number')}</span>
                                 <span className="font-mono text-sm font-bold text-ink">{order.shippingGuideNumber}</span>
                             </div>
                             <p className="text-[11px] text-emerald-900 leading-relaxed">
-                                ✓ Tu paquete ha sido radicado con la transportadora y se encuentra en ruta hacia <strong className="text-emerald-950">{order.customer?.city}</strong>.
+                                {t('orderConfirmation.shipped_msg', { city: order.customer?.city || '' })}
                             </p>
                             <div className="flex flex-wrap gap-2 pt-2">
                                 <a
@@ -220,14 +220,14 @@ export default function OrderConfirmation() {
                                     rel="noreferrer"
                                     className="btn-dark flex items-center gap-1.5 px-3 py-1.5 text-xs"
                                 >
-                                    <FaArrowUpRightFromSquare className="h-3 w-3" /> Rastrear mi paquete
+                                    <FaArrowUpRightFromSquare className="h-3 w-3" /> {t('orderConfirmation.track_package')}
                                 </a>
                                 <button
                                     type="button"
                                     onClick={() => useCases.printShippingLabel(order)}
                                     className="btn-outline flex items-center gap-1.5 bg-white px-3 py-1.5 text-xs"
                                 >
-                                    <FaPrint className="h-3 w-3" /> Ver comprobante de guía
+                                    <FaPrint className="h-3 w-3" /> {t('orderConfirmation.view_label')}
                                 </button>
                             </div>
                         </div>
@@ -236,7 +236,7 @@ export default function OrderConfirmation() {
                     wompiStatus === 'APPROVED' && (
                         <div className="mt-6 flex w-full max-w-md items-center gap-3 rounded-xl border border-taupe/20 bg-cream/30 p-4 text-left text-xs text-taupe">
                             <FaTruckFast className="h-5 w-5 text-ink shrink-0" />
-                            <span>Tu pago fue recibido exitosamente. Estamos cortando y empacando al vacío tus cortes para el despacho refrigerado. En breve verás aquí tu guía.</span>
+                            <span>{t('orderConfirmation.preparing_msg')}</span>
                         </div>
                     )
                 )}
@@ -244,12 +244,10 @@ export default function OrderConfirmation() {
                 {state?.confirmationUrl && (
                     <>
                         <p className="mt-8 max-w-md text-sm text-ink/80">
-                            {isWompi && wompiStatus === 'APPROVED'
-                                ? '¿Deseas una copia en WhatsApp o coordinar detalles de entrega directamente con nuestro equipo?'
-                                : 'Envíanos el resumen por WhatsApp para confirmar disponibilidad y coordinar el pago y la entrega.'}
+                            {t('orderConfirmation.whatsapp_copy')}
                         </p>
                         <a href={state.confirmationUrl} target="_blank" rel="noreferrer" className="btn-gold mt-6 py-4">
-                            <FaWhatsapp className="h-4 w-4" /> Notificar por WhatsApp
+                            <FaWhatsapp className="h-4 w-4" /> {t('orderConfirmation.whatsapp_notify')}
                         </a>
                     </>
                 )}
@@ -265,9 +263,9 @@ export default function OrderConfirmation() {
                     ))}
                 </ul>
                 <div className="mt-4 space-y-2 border-t border-taupe/15 pt-4 text-sm">
-                    <div className="flex justify-between"><span>Subtotal</span><span>{formatMoney(order.subtotal)}</span></div>
-                    <div className="flex justify-between text-taupe"><span>Envío</span><span>{order.shipping ? formatMoney(order.shipping) : 'Gratis'}</span></div>
-                    <div className="flex justify-between font-display text-2xl"><span>Total</span><span>{formatMoney(order.total)}</span></div>
+                    <div className="flex justify-between"><span>{t('orderConfirmation.subtotal')}</span><span>{formatMoney(order.subtotal)}</span></div>
+                    <div className="flex justify-between text-taupe"><span>{t('orderConfirmation.shipping')}</span><span>{order.shipping ? formatMoney(order.shipping) : t('orderConfirmation.free')}</span></div>
+                    <div className="flex justify-between font-display text-2xl"><span>{t('orderConfirmation.total')}</span><span>{formatMoney(order.total)}</span></div>
                 </div>
                 <div className="mt-6 border-t border-taupe/15 pt-4 text-sm text-taupe">
                     <p className="text-ink">{order.customer.fullName}</p>
@@ -279,22 +277,22 @@ export default function OrderConfirmation() {
             {!isAuthenticated && (
                 <div className="mt-8 border border-gold/30 bg-gold/10 p-6 text-center">
                     <p className="font-display text-lg font-semibold text-ink">
-                        ¿Quieres guardar tus direcciones y rastrear tus pedidos?
+                        {t('orderConfirmation.save_account_title')}
                     </p>
                     <p className="mt-1 text-xs text-taupe">
-                        Crea una cuenta gratis con tu correo <strong className="text-ink">{order.customer.email}</strong> y accede a tu historial completo.
+                        {t('orderConfirmation.save_account_desc', { email: order.customer.email })}
                     </p>
                     <Link
                         to={`/registro?redirect=/cuenta`}
                         className="btn-dark mt-4 inline-block px-6 py-3 text-xs"
                     >
-                        Crear cuenta gratis
+                        {t('orderConfirmation.create_account_btn')}
                     </Link>
                 </div>
             )}
 
             <div className="mt-10 text-center">
-                <Link to="/tienda" className="btn-outline">Seguir comprando</Link>
+                <Link to="/tienda" className="btn-outline">{t('orderConfirmation.continue_shopping')}</Link>
             </div>
         </div>
     );

@@ -8,8 +8,9 @@ import { useLanguage } from '@/presentation/context/LanguageContext.jsx';
 import ProductImage from './ProductImage.jsx';
 import PriceTag from './PriceTag.jsx';
 
-export default function ProductCard({ product }) {
-    const { t, formatMoney, translateNote } = useLanguage();
+export default function ProductCard({ product: rawProduct }) {
+    const { t, formatMoney, translateNote, translateProduct } = useLanguage();
+    const product = translateProduct(rawProduct);
     const { add } = useCart();
     const { isInWishlist, toggleWishlist } = useWishlist();
     const [justAdded, setJustAdded] = useState(false);

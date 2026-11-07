@@ -72,4 +72,34 @@ describe('Sistema de Internacionalización (i18n) Bilingüe Canadiense (FR / EN 
             expect(footer.mission).toBeTruthy();
         });
     });
+
+    it('traduce los círculos de categorías y explorador de estilos culinarios', () => {
+        expect(TRANSLATIONS.fr.categoryCircles.eyebrow).toBe('Boucherie Artisanale');
+        expect(TRANSLATIONS.fr.categoryCircles.title).toBe('Catégories de Viandes & Charcuteries');
+        expect(TRANSLATIONS.fr.categoryCircles.view_cuts).toBe('Voir les coupes');
+
+        expect(TRANSLATIONS.en.categoryCircles.title).toBe('Meat & Charcuterie Categories');
+        expect(TRANSLATIONS.en.categoryCircles.view_cuts).toBe('View cuts');
+
+        expect(TRANSLATIONS.es.categoryCircles.title).toBe('Categorías de Carnes & Embutidos');
+        expect(TRANSLATIONS.es.categoryCircles.view_cuts).toBe('Ver cortes');
+
+        expect(TRANSLATIONS.fr.aromaExplore.title).toBe('Explorer par Style & Occasion');
+        expect(TRANSLATIONS.en.aromaExplore.title).toBe('Explore by Style & Occasion');
+        expect(TRANSLATIONS.es.aromaExplore.title).toBe('Explora por Estilo & Ocasión');
+    });
+
+    it('traduce cortes y charcuterías al francés, inglés y español con descripciones artesanales', async () => {
+        const { PRODUCT_TRANSLATIONS, BRAND_TRANSLATIONS } = await import('@/presentation/i18n/productTranslations.js');
+
+        expect(PRODUCT_TRANSLATIONS.fr['lomo-ancho-rib-eye'].name).toBe('Faux-Filet de Boeuf AAA (Ribeye)');
+        expect(PRODUCT_TRANSLATIONS.en['lomo-ancho-rib-eye'].name).toBe('AAA Beef Ribeye (Boneless)');
+        expect(PRODUCT_TRANSLATIONS.es['lomo-ancho-rib-eye'].name).toBe('Lomo Ancho Rib Eye');
+
+        expect(PRODUCT_TRANSLATIONS.fr['chorizo-jarabe-de-cana'].name).toBe('Saucisse Artisanale au Sirop de Canne');
+        expect(PRODUCT_TRANSLATIONS.en['chorizo-jarabe-de-cana'].name).toBe('Artisan Cane Syrup Sausage');
+
+        expect(BRAND_TRANSLATIONS.fr['Res AAA']).toBe('Boeuf AAA');
+        expect(BRAND_TRANSLATIONS.en['Res AAA']).toBe('AAA Beef');
+    });
 });

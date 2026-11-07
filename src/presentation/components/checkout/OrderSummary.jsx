@@ -2,8 +2,9 @@ import { useLanguage } from '@/presentation/context/LanguageContext.jsx';
 import ProductImage from '@/presentation/components/product/ProductImage.jsx';
 import FreeShippingProgress from '@/presentation/components/cart/FreeShippingProgress.jsx';
 
-export default function OrderSummary({ items, totals }) {
-    const { t, formatMoney } = useLanguage();
+export default function OrderSummary({ items: rawItems, totals }) {
+    const { t, formatMoney, translateProduct } = useLanguage();
+    const items = (rawItems || []).map(translateProduct);
 
     return (
         <div className="bg-white p-6 shadow-sm ring-1 ring-taupe/10 sm:p-8">

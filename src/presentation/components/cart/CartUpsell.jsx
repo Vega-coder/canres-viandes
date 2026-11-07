@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useCases } from '@/infrastructure/container.js';
 import { useCart } from '@/presentation/context/CartContext.jsx';
-import { formatMoney, formatUnit } from '@/domain/shared/money.js';
+import { useLanguage } from '@/presentation/context/LanguageContext.jsx';
 import { getFinalPrice } from '@/domain/catalog/product.js';
 import { HiPlus, HiCheck } from 'react-icons/hi2';
 import ProductImage from '@/presentation/components/product/ProductImage.jsx';
 
 export default function CartUpsell() {
     const { items, add } = useCart();
+    const { t, formatMoney, formatUnit, translateProduct } = useLanguage();
     const [candidates, setCandidates] = useState([]);
     const [loading, setLoading] = useState(true);
     const [addedIds, setAddedIds] = useState(new Set());
@@ -55,11 +56,12 @@ export default function CartUpsell() {
 
     return (
         <div className="mt-6 border-t border-cream pt-5">
-            <p className="eyebrow text-brand-wine font-bold text-[10px]">Agrega a tu Parrillada</p>
-            <p className="text-xs text-taupe mt-0.5">Chorizos de autor y complementos ideales</p>
+            <p className="eyebrow text-brand-wine font-bold text-[10px]">{t('cartUpsell.eyebrow')}</p>
+            <p className="text-xs text-taupe mt-0.5">{t('cartUpsell.subtitle')}</p>
 
             <div className="mt-3 space-y-2.5">
-                {recommendations.map((p) => {
+                {recommendations.map((raw) => {
+                    const p = translateProduct(raw);
                     const isAdded = addedIds.has(p.id);
                     return (
                         <div
@@ -78,13 +80,13 @@ export default function CartUpsell() {
 
                             <button
                                 type="button"
-                                onClick={() => handleAdd(p)}
+                                onClick={() => handleAdd(raw)}
                                 className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition active:scale-90 ${
                                     isAdded
                                         ? 'bg-emerald-600 text-white'
                                         : 'bg-brand-wine text-white hover:bg-brand-red'
                                 }`}
-                                aria-label={`Agregar ${p.name}`}
+                                aria-label={t('cartUpsell.add_aria', { name: p.name })}
                             >
                                 {isAdded ? <HiCheck className="h-4 w-4" /> : <HiPlus className="h-4 w-4" />}
                             </button>

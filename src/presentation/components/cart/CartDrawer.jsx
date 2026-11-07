@@ -10,8 +10,9 @@ import FreeShippingProgress from './FreeShippingProgress.jsx';
 import CartUpsell from './CartUpsell.jsx';
 
 export default function CartDrawer() {
-    const { t, formatMoney, formatUnit } = useLanguage();
-    const { items, totals, isOpen, close, setQuantity, remove } = useCart();
+    const { t, formatMoney, formatUnit, translateProduct } = useLanguage();
+    const { items: rawItems, totals, isOpen, close, setQuantity, remove } = useCart();
+    const items = rawItems.map(translateProduct);
     const navigate = useNavigate();
 
     useEffect(() => {

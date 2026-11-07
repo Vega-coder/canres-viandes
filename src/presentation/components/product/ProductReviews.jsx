@@ -13,11 +13,14 @@ import {
 } from 'react-icons/hi2';
 import { useCases } from '@/infrastructure/container.js';
 import { useAuth } from '@/presentation/context/AuthContext.jsx';
+import { useLanguage } from '@/presentation/context/LanguageContext.jsx';
 import { alertError, toast } from '@/presentation/utils/swal.js';
 
 export default function ProductReviews({ product, productId, productName }) {
-    const targetId = product?.id || productId;
-    const targetName = product?.name || productName || 'Corte';
+    const { t, translateProduct } = useLanguage();
+    const localizedProduct = product ? translateProduct(product) : null;
+    const targetId = localizedProduct?.id || productId;
+    const targetName = localizedProduct?.name || productName || 'Corte';
     const { user, isAuthenticated } = useAuth();
     const location = useLocation();
 
@@ -33,22 +36,19 @@ export default function ProductReviews({ product, productId, productName }) {
     const [author, setAuthor] = useState('');
     const [title, setTitle] = useState('');
     const [comment, setComment] = useState('');
-    const [longevity, setLongevity] = useState('Más de 10 horas');
+    const [cookingMethod, setCookingMethod] = useState('Gril / BBQ');
     const [submitted, setSubmitted] = useState(false);
 
-    // URLs de redirección con retorno a esta sección de reseñas tras iniciar sesión
     const currentUrl = `${location.pathname}${location.search || ''}#reviews`;
     const loginUrl = `/login?redirect=${encodeURIComponent(currentUrl)}`;
     const registerUrl = `/registro?redirect=${encodeURIComponent(currentUrl)}`;
 
-    // Autocompletar nombre del autor cuando el usuario esté autenticado
     useEffect(() => {
         if (user && !author) {
             setAuthor(user.fullName || user.email?.split('@')[0] || '');
         }
     }, [user, author]);
 
-    // Cargar reseñas reales desde el backend / base de datos Supabase
     useEffect(() => {
         let mounted = true;
         if (!targetId) {
@@ -77,7 +77,6 @@ export default function ProductReviews({ product, productId, productName }) {
         };
     }, [targetId]);
 
-    // Estadísticas dinámicas calculadas 100% sobre datos reales de la BD
     const stats = useMemo(() => {
         if (!reviews.length) {
             return { average: '5.0', total: 0, distribution: { 5: 100, 4: 0, 3: 0, 2: 0, 1: 0 } };
@@ -103,9 +102,8 @@ export default function ProductReviews({ product, productId, productName }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Restricción para usuarios no registrados / invitados
         if (!isAuthenticated) {
-            alertError('Acceso restringido', 'Debes iniciar sesión o registrarte para calificar o comentar productos.');
+            alertError(t('reviews.exclusive_badge'), t('reviews.login_prompt_desc'));
             return;
         }
 
@@ -117,10 +115,10 @@ export default function ProductReviews({ product, productId, productName }) {
                 productId: targetId,
                 author: author.trim(),
                 rating,
-                title: title.trim() || 'Excelente calidad de corte',
+                title: title.trim() || 'Excellente qualité de coupe',
                 comment: comment.trim(),
-                longevity,
-                sillage: 'Excelente terneza',
+                longevity: cookingMethod,
+                sillage: 'Persillage supérieur',
             });
 
             setReviews((prev) => [saved, ...prev]);
@@ -132,23 +130,21 @@ export default function ProductReviews({ product, productId, productName }) {
             setTimeout(() => setSubmitted(false), 5000);
         } catch (err) {
             console.error('Error al enviar reseña:', err);
-            alertError('No se pudo guardar la reseña', err.message || 'Ocurrió un error inesperado al enviar la reseña');
+            alertError('Error', err.message || 'Error al guardar');
         } finally {
             setSubmitting(false);
         }
     };
 
     const handleVoteHelpful = async (id) => {
-        // Restricción informativa si el visitante no ha iniciado sesión
         if (!isAuthenticated) {
-            toast('Inicia sesión para valorar opiniones de otros clientes', 'info');
+            toast(t('reviews.login_prompt_title'), 'info');
             return;
         }
 
         if (helpfulVotes[id]) return;
         setHelpfulVotes((prev) => ({ ...prev, [id]: true }));
 
-        // Optimistic UI update
         setReviews((prev) =>
             prev.map((r) => (r.id === id ? { ...r, helpful: (r.helpful || 0) + 1 } : r))
         );
@@ -168,13 +164,13 @@ export default function ProductReviews({ product, productId, productName }) {
                     <div>
                         <p className="eyebrow text-gold-dark flex items-center gap-1.5">
                             <HiSparkles className="h-4 w-4" />
-                            Opiniones de clientes
+                            {t('reviews.eyebrow')}
                         </p>
                         <h2 className="mt-2 font-display text-2xl sm:text-3xl font-bold uppercase tracking-[0.15em] text-ink">
-                            Reseñas de {targetName}
+                            {t('reviews.title', { name: targetName })}
                         </h2>
                         <p className="mt-1 text-xs text-taupe">
-                            Experiencias reales de compradores verificados almacenadas en base de datos
+                            {t('reviews.subtitle')}
                         </p>
                     </div>
 
@@ -186,12 +182,12 @@ export default function ProductReviews({ product, productId, productName }) {
                         {isAuthenticated ? (
                             <>
                                 <HiOutlinePencilSquare className="h-4 w-4 text-gold" />
-                                <span>{formOpen ? 'Cerrar formulario' : 'Escribir una reseña'}</span>
+                                <span>{formOpen ? t('reviews.close_form') : t('reviews.write_btn')}</span>
                             </>
                         ) : (
                             <>
                                 <HiOutlineLockClosed className="h-4 w-4 text-gold" />
-                                <span>{formOpen ? 'Cerrar aviso' : 'Escribir una reseña'}</span>
+                                <span>{formOpen ? t('reviews.close_notice') : t('reviews.write_btn')}</span>
                             </>
                         )}
                     </button>
@@ -200,7 +196,7 @@ export default function ProductReviews({ product, productId, productName }) {
                 {/* Mensaje de confirmación tras publicar */}
                 {submitted && (
                     <div className="mt-6 rounded-xl border border-emerald-500/30 bg-emerald-50/80 p-4 text-center text-xs font-medium text-emerald-800 animate-fade-up">
-                        ✨ ¡Muchas gracias por tu reseña! Ha sido guardada y publicada exitosamente.
+                        {t('reviews.thanks_message')}
                     </div>
                 )}
 
@@ -215,15 +211,15 @@ export default function ProductReviews({ product, productId, productName }) {
                                 <div>
                                     <div className="flex items-center gap-2">
                                         <span className="inline-block rounded-full bg-gold/15 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-gold-dark">
-                                            Acceso exclusivo
+                                            {t('reviews.exclusive_badge')}
                                         </span>
-                                        <span className="text-[11px] text-taupe">Clientes registrados</span>
+                                        <span className="text-[11px] text-taupe">{t('reviews.registered_only')}</span>
                                     </div>
                                     <h3 className="mt-1.5 font-display text-lg font-bold text-ink">
-                                        Inicia sesión para opinar y puntuar este corte
+                                        {t('reviews.login_prompt_title')}
                                     </h3>
                                     <p className="mt-1 text-xs text-taupe leading-relaxed max-w-xl">
-                                        Para garantizar la veracidad de las opiniones y evitar spam, sólo los clientes registrados pueden comentar y calificar nuestros productos.
+                                        {t('reviews.login_prompt_desc')}
                                     </p>
                                 </div>
                             </div>
@@ -233,19 +229,19 @@ export default function ProductReviews({ product, productId, productName }) {
                                     to={loginUrl}
                                     className="btn-dark flex-1 sm:flex-none text-center px-5 py-2.5 text-xs font-semibold tracking-wider hover:scale-105 transition duration-300"
                                 >
-                                    Iniciar sesión
+                                    {t('reviews.btn_login')}
                                 </Link>
                                 <Link
                                     to={registerUrl}
                                     className="btn-outline flex-1 sm:flex-none text-center px-5 py-2.5 text-xs font-semibold tracking-wider hover:scale-105 transition duration-300"
                                 >
-                                    Crear cuenta
+                                    {t('reviews.btn_register')}
                                 </Link>
                                 <button
                                     type="button"
                                     onClick={() => setFormOpen(false)}
                                     className="text-taupe hover:text-ink p-1 hidden sm:block"
-                                    aria-label="Cerrar aviso"
+                                    aria-label={t('reviews.close_notice')}
                                 >
                                     <HiOutlineXMark className="h-5 w-5" />
                                 </button>
@@ -259,27 +255,26 @@ export default function ProductReviews({ product, productId, productName }) {
                     <div className="mt-8 rounded-2xl border border-gold/40 bg-cream-light/40 p-6 sm:p-8 animate-fade-up shadow-sm">
                         <div className="flex items-center justify-between border-b border-taupe/15 pb-4">
                             <div>
-                                <h3 className="font-display text-lg font-bold text-ink">Tu valoración de este corte</h3>
+                                <h3 className="font-display text-lg font-bold text-ink">{t('reviews.title', { name: targetName })}</h3>
                                 <p className="mt-0.5 text-xs text-taupe flex items-center gap-1.5">
                                     <HiCheckBadge className="h-4 w-4 text-emerald-600" />
-                                    <span>Publicando como <strong className="text-ink">{user?.fullName || user?.email}</strong></span>
+                                    <span>{user?.fullName || user?.email}</span>
                                 </p>
                             </div>
                             <button
                                 type="button"
                                 onClick={() => setFormOpen(false)}
                                 className="text-taupe hover:text-ink"
-                                aria-label="Cerrar formulario"
+                                aria-label={t('reviews.close_form')}
                             >
                                 <HiOutlineXMark className="h-5 w-5" />
                             </button>
                         </div>
 
                         <form onSubmit={handleSubmit} className="mt-6 space-y-5">
-                            {/* Selector de estrellas */}
                             <div>
                                 <label className="block text-xs font-semibold uppercase tracking-wider text-ink mb-1.5">
-                                    Calificación general *
+                                    {t('reviews.rating_label')} *
                                 </label>
                                 <div className="flex items-center gap-1">
                                     {[1, 2, 3, 4, 5].map((star) => (
@@ -290,7 +285,7 @@ export default function ProductReviews({ product, productId, productName }) {
                                             onMouseEnter={() => setHoverRating(star)}
                                             onMouseLeave={() => setHoverRating(0)}
                                             className="p-1 transition-transform hover:scale-125"
-                                            aria-label={`Calificar con ${star} estrellas`}
+                                            aria-label={`Rating ${star}`}
                                         >
                                             {star <= (hoverRating || rating) ? (
                                                 <HiStar className="h-7 w-7 text-amber-500" />
@@ -299,71 +294,64 @@ export default function ProductReviews({ product, productId, productName }) {
                                             )}
                                         </button>
                                     ))}
-                                    <span className="ml-3 text-xs font-semibold text-ink">
-                                        {rating === 5 && '¡Excelente!'}
-                                        {rating === 4 && 'Muy bueno'}
-                                        {rating === 3 && 'Bueno'}
-                                        {rating === 2 && 'Regular'}
-                                        {rating === 1 && 'No me gustó'}
-                                    </span>
                                 </div>
                             </div>
 
                             <div className="grid gap-4 sm:grid-cols-2">
                                 <div>
                                     <label className="block text-xs font-semibold uppercase tracking-wider text-ink mb-1.5">
-                                        Tu nombre para la reseña *
+                                        {t('reviews.name_label')} *
                                     </label>
                                     <input
                                         type="text"
                                         required
                                         value={author}
                                         onChange={(e) => setAuthor(e.target.value)}
-                                        placeholder="Tu nombre completo o alias"
                                         className="input w-full py-2.5 text-xs bg-white"
                                     />
                                 </div>
 
                                 <div>
                                     <label className="block text-xs font-semibold uppercase tracking-wider text-ink mb-1.5">
-                                        Fijación en tu piel
+                                        Mode de cuisson / Preparación
                                     </label>
                                     <select
-                                        value={longevity}
-                                        onChange={(e) => setLongevity(e.target.value)}
+                                        value={cookingMethod}
+                                        onChange={(e) => setCookingMethod(e.target.value)}
                                         className="input w-full py-2.5 text-xs bg-white"
                                     >
-                                        <option value="Más de 12 horas">Más de 12 horas (Monstruosa)</option>
-                                        <option value="Más de 10 horas">8 a 10 horas (Excelente)</option>
-                                        <option value="6 a 8 horas">6 a 8 horas (Buena)</option>
-                                        <option value="4 a 6 horas">4 a 6 horas (Moderada)</option>
+                                        <option value="Gril / BBQ">Gril / BBQ</option>
+                                        <option value="Four / Rôtissoire">Four / Horno</option>
+                                        <option value="Poêle en fonte">Poêle / Sartén</option>
+                                        <option value="Fumoir">Fumoir / Ahumador</option>
+                                        <option value="Mijoté / Sancocho">Mijoté / Sancocho</option>
                                     </select>
                                 </div>
                             </div>
 
                             <div>
                                 <label className="block text-xs font-semibold uppercase tracking-wider text-ink mb-1.5">
-                                    Título de tu reseña
+                                    {t('reviews.title_label')}
                                 </label>
                                 <input
                                     type="text"
                                     value={title}
                                     onChange={(e) => setTitle(e.target.value)}
-                                    placeholder="Ej: Excelente proyección y fijación"
+                                    placeholder={t('reviews.title_placeholder')}
                                     className="input w-full py-2.5 text-xs bg-white"
                                 />
                             </div>
 
                             <div>
                                 <label className="block text-xs font-semibold uppercase tracking-wider text-ink mb-1.5">
-                                    Comentario o experiencia *
+                                    {t('reviews.comment_label')} *
                                 </label>
                                 <textarea
                                     required
                                     rows={4}
                                     value={comment}
                                     onChange={(e) => setComment(e.target.value)}
-                                    placeholder="Describe la evolución del aroma, en qué ocasiones lo usarías, los cumplidos que recibiste..."
+                                    placeholder={t('reviews.comment_placeholder')}
                                     className="input w-full py-2.5 text-xs bg-white leading-relaxed"
                                 />
                             </div>
@@ -374,14 +362,14 @@ export default function ProductReviews({ product, productId, productName }) {
                                     onClick={() => setFormOpen(false)}
                                     className="btn-outline px-5 py-2.5 text-xs"
                                 >
-                                    Cancelar
+                                    {t('catalog.close_filters')}
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={submitting}
                                     className="btn-gold px-6 py-2.5 text-xs font-semibold disabled:opacity-50"
                                 >
-                                    {submitting ? 'Guardando en BD…' : 'Publicar reseña'}
+                                    {submitting ? t('reviews.submitting') : t('reviews.submit_btn')}
                                 </button>
                             </div>
                         </form>
@@ -401,11 +389,8 @@ export default function ProductReviews({ product, productId, productName }) {
                                 ))}
                             </div>
                             <p className="mt-2 text-xs font-medium text-taupe">
-                                Basado en <strong className="text-ink">{stats.total} {stats.total === 1 ? 'opinión' : 'opiniones'}</strong> en base de datos
+                                {stats.total} {stats.total === 1 ? 'avis' : 'avis'}
                             </p>
-                            <span className="mt-3 inline-block rounded-full bg-emerald-500/10 px-3 py-1 text-[11px] font-semibold text-emerald-800">
-                                ✓ Calificación verificada
-                            </span>
                         </div>
 
                         <div className="space-y-2 md:col-span-5 md:px-4">
@@ -429,33 +414,20 @@ export default function ProductReviews({ product, productId, productName }) {
                         </div>
 
                         <div className="space-y-3 rounded-xl bg-white p-4 text-xs md:col-span-3 shadow-xs border border-taupe/10">
-                            <p className="text-[10px] font-bold uppercase tracking-wider text-taupe">Rendimiento verificado</p>
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-taupe">Qualité Boucherie Artisanale</p>
                             <div className="flex justify-between border-b border-taupe/10 pb-1.5">
-                                <span className="text-taupe">Fijación en piel:</span>
-                                <span className="font-semibold text-ink">9.7 / 10</span>
+                                <span className="text-taupe">Tendreté :</span>
+                                <span className="font-semibold text-ink">9.9 / 10</span>
                             </div>
                             <div className="flex justify-between border-b border-taupe/10 pb-1.5">
-                                <span className="text-taupe">Estela / Proyección:</span>
-                                <span className="font-semibold text-ink">9.5 / 10</span>
+                                <span className="text-taupe">Jutosité :</span>
+                                <span className="font-semibold text-ink">9.8 / 10</span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-taupe">Autenticidad:</span>
-                                <span className="font-semibold text-emerald-700">100% Original</span>
+                                <span className="text-taupe">Fraîcheur :</span>
+                                <span className="font-semibold text-emerald-700">100% Frais AAA</span>
                             </div>
                         </div>
-                    </div>
-                )}
-
-                {/* Estado de carga */}
-                {loading && (
-                    <div className="mt-12 space-y-4">
-                        {[1, 2].map((i) => (
-                            <div key={i} className="animate-pulse rounded-2xl border border-taupe/15 bg-white p-6">
-                                <div className="h-4 w-1/4 rounded bg-cream/60" />
-                                <div className="mt-3 h-3 w-3/4 rounded bg-cream/40" />
-                                <div className="mt-2 h-3 w-1/2 rounded bg-cream/30" />
-                            </div>
-                        ))}
                     </div>
                 )}
 
@@ -466,18 +438,15 @@ export default function ProductReviews({ product, productId, productName }) {
                             <HiOutlineChatBubbleBottomCenterText className="h-7 w-7" />
                         </div>
                         <h4 className="mt-4 font-display text-lg font-bold text-ink">
-                            Aún no hay reseñas para este corte
+                            {t('reviews.no_reviews')}
                         </h4>
-                        <p className="mx-auto mt-2 max-w-md text-xs leading-relaxed text-taupe">
-                            ¿Has tenido la oportunidad de degustar {targetName}? Sé el primero en compartir tu experiencia y ayudar a otros amantes de la buena carne artesanal.
-                        </p>
                         {isAuthenticated ? (
                             <button
                                 type="button"
                                 onClick={() => setFormOpen(true)}
                                 className="btn-gold mt-6 px-6 py-2.5 text-xs font-semibold hover:scale-105 transition duration-300"
                             >
-                                Escribir la primera reseña
+                                {t('reviews.write_btn')}
                             </button>
                         ) : (
                             <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
@@ -486,13 +455,13 @@ export default function ProductReviews({ product, productId, productName }) {
                                     className="btn-dark inline-flex items-center gap-2 px-6 py-2.5 text-xs font-semibold hover:scale-105 transition duration-300"
                                 >
                                     <HiOutlineLockClosed className="h-4 w-4 text-gold" />
-                                    Inicia sesión para opinar
+                                    {t('reviews.btn_login')}
                                 </Link>
                                 <Link
                                     to={registerUrl}
                                     className="btn-outline px-6 py-2.5 text-xs font-semibold hover:scale-105 transition duration-300"
                                 >
-                                    Crear cuenta
+                                    {t('reviews.btn_register')}
                                 </Link>
                             </div>
                         )}
@@ -518,14 +487,14 @@ export default function ProductReviews({ product, productId, productName }) {
                                                 {rev.verified && (
                                                     <span className="flex items-center gap-0.5 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-700">
                                                         <HiCheckBadge className="h-3.5 w-3.5" />
-                                                        Compra verificada
+                                                        {t('reviews.verified_buyer')}
                                                     </span>
                                                 )}
                                             </div>
                                             <div className="mt-0.5 flex items-center gap-2 text-[11px] text-taupe">
-                                                <span>{rev.city || 'Colombia'}</span>
+                                                <span>{rev.city || 'Canada'}</span>
                                                 <span>·</span>
-                                                <span>{rev.date || 'Reciente'}</span>
+                                                <span>{rev.date || 'Récent'}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -547,21 +516,8 @@ export default function ProductReviews({ product, productId, productName }) {
                                     {rev.comment}
                                 </p>
 
-                                <div className="mt-4 flex flex-wrap items-center gap-2 text-[10px]">
-                                    {rev.longevity && (
-                                        <span className="rounded bg-cream/60 px-2 py-1 text-taupe font-medium">
-                                            ⏳ Fijación: <strong>{rev.longevity}</strong>
-                                        </span>
-                                    )}
-                                    {rev.sillage && (
-                                        <span className="rounded bg-cream/60 px-2 py-1 text-taupe font-medium">
-                                            💨 Estela: <strong>{rev.sillage}</strong>
-                                        </span>
-                                    )}
-                                </div>
-
                                 <div className="mt-4 flex items-center justify-between border-t border-taupe/10 pt-3 text-xs text-taupe">
-                                    <span>¿Te resultó útil esta reseña?</span>
+                                    <span>{t('reviews.helpful_btn', { count: rev.helpful || 0 })}</span>
                                     <button
                                         type="button"
                                         onClick={() => handleVoteHelpful(rev.id)}
@@ -573,7 +529,7 @@ export default function ProductReviews({ product, productId, productName }) {
                                         }`}
                                     >
                                         <HiHandThumbUp className="h-3.5 w-3.5" />
-                                        <span>Sí ({rev.helpful || 0})</span>
+                                        <span>{rev.helpful || 0}</span>
                                     </button>
                                 </div>
                             </article>
