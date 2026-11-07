@@ -14,7 +14,7 @@ import {
     HiOutlineArrowUpRight,
 } from 'react-icons/hi2';
 import { FaWhatsapp, FaInstagram, FaFacebookF } from 'react-icons/fa6';
-import { STORE_WHATSAPP, STORE_INSTAGRAM, STORE_FACEBOOK } from '@/infrastructure/container.js';
+import { STORE_WHATSAPP, STORE_WHATSAPP_DISPLAY, STORE_INSTAGRAM, STORE_FACEBOOK } from '@/infrastructure/container.js';
 
 export default function TermsConditions() {
     const { hash } = useLocation();
@@ -34,11 +34,11 @@ export default function TermsConditions() {
         tradeName: 'CANRES Viandes',
         owner: 'Rodrigo Andrés Picón Ovalle / CANRES Viandes',
         nit: '1148441082-1 / 901.458.291-3',
-        city: 'Ocaña, Norte de Santander, Colombia',
+        city: 'Montréal, QC, Canada / Ocaña, Colombia',
         address: 'Calle 1 # 29 A 40, Barrio El Lago Primera Etapa',
-        email: 'contacto@aromapremium.co',
-        phoneDisplay: '(+57) 314 616 0642',
-        website: 'www.aromapremiumstore.com',
+        email: 'contact@canres.com',
+        phoneDisplay: STORE_WHATSAPP_DISPLAY || '+1 (514) 833-9822',
+        website: 'www.canres.com',
         hours: 'Lunes a Sábado de 8:00 a.m. a 7:00 p.m.',
     };
 

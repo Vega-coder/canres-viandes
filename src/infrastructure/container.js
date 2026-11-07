@@ -37,12 +37,22 @@ import { makeSubmitProductReview } from '@/application/reviews/reviewUseCases.js
 
 const env = import.meta.env ?? {};
 
-// Número oficial de atención al cliente de Aroma Premium (+57 314 616 0642).
-// Descarta y neutraliza cualquier valor placeholder o dummy (como 573000000000) configurado previamente en variables de entorno de Vercel.
+// Número oficial de WhatsApp de atención al cliente de CANRES Viandes (+1 514 833-9822 / Montreal, QC, Canadá).
+// Neutraliza teléfonos dummy o números anteriores para asegurar el enlace oficial a Canadá.
 const envPhone = String(env.VITE_STORE_WHATSAPP || '').trim().replace(/\D/g, '');
-export const STORE_WHATSAPP = (!envPhone || envPhone.includes('3000000000') || envPhone === '573000000000' || envPhone === '3000000000' || envPhone.startsWith('573000'))
-    ? '573146160642'
-    : (envPhone.startsWith('57') ? envPhone : `57${envPhone}`);
+const isOldOrDummyPhone = !envPhone ||
+    envPhone.includes('3000000000') ||
+    envPhone === '573000000000' ||
+    envPhone === '3000000000' ||
+    envPhone.startsWith('573000') ||
+    envPhone === '573146160642' ||
+    envPhone === '3146160642';
+
+export const STORE_WHATSAPP = isOldOrDummyPhone
+    ? '15148339822'
+    : (envPhone.length === 10 && envPhone.startsWith('514') ? `1${envPhone}` : (envPhone.startsWith('1') ? envPhone : envPhone));
+
+export const STORE_WHATSAPP_DISPLAY = '+1 (514) 833-9822';
 export const STORE_INSTAGRAM = env.VITE_STORE_INSTAGRAM || 'https://www.instagram.com/lesviandescanres/';
 export const STORE_FACEBOOK = env.VITE_STORE_FACEBOOK || 'https://www.facebook.com/profile.php?id=61565120490497';
 export const isDemoMode = !isSupabaseConfigured;

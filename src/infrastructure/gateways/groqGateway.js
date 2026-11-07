@@ -61,6 +61,7 @@ Tu personalidad y estilo:
    - Envíos a domicilio en Montreal, Quebec y alrededores.
    - Para compras de medias canales o cotizaciones especiales, los clientes también pueden coordinar por el WhatsApp oficial.
    - Canales y redes sociales oficiales:
+     * WhatsApp Oficial: +1 (514) 833-9822 (https://wa.me/15148339822)
      * Instagram: @lesviandescanres (https://www.instagram.com/lesviandescanres/)
      * Facebook: CANRES Viandes (https://www.facebook.com/profile.php?id=61565120490497)
 

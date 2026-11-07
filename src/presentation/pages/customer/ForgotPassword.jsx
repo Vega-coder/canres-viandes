@@ -40,7 +40,7 @@ export default function ForgotPassword() {
     };
 
     const whatsappHelpUrl = `https://wa.me/${STORE_WHATSAPP}?text=${encodeURIComponent(
-        `Hola Aroma Premium ✨, necesito ayuda para recuperar el acceso a mi cuenta (${email.trim() || 'cliente'}).`
+        `Hola CANRES Viandes 🥩, necesito ayuda para recuperar el acceso a mi cuenta (${email.trim() || 'cliente'}).`
     )}`;
 
     return (
