@@ -1,0 +1,15 @@
+# Robots.txt para CANRES Viandes · La Vache CANRES
+# Sitio oficial: https://www.lavachecanres.com
+
+User-agent: *
+Allow: /
+
+# Rutas privadas o administrativas
+Disallow: /admin
+Disallow: /admin/*
+Disallow: /cliente/*
+Disallow: /checkout
+Disallow: /confirmacion/*
+
+# Mapa del sitio oficial para indexación rápida en Google
+Sitemap: https://www.lavachecanres.com/sitemap.xml

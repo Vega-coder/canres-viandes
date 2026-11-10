@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "feeds": "node scripts/generate_sitemap.js && node scripts/generate_google_merchant_feed.js",
+    "prerender": "node scripts/prerender_product_pages.js",
+    "build": "npm run feeds && vite build && npm run prerender",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run"

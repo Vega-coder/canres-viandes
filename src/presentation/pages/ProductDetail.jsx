@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { HiOutlineTruck, HiHeart, HiOutlineHeart, HiStar, HiOutlineFire } from 'react-icons/hi2';
 import { useCases } from '@/infrastructure/container.js';
@@ -45,6 +45,60 @@ function ProductView({ product: rawProduct, related }) {
     const soldOut = product.stock <= 0;
     const maxQty = Math.min(product.stock, MAX_QTY_PER_ITEM);
     const hasFreeShip = product.hasFreeShipping || !product.shippingCost || product.shippingCost <= 0;
+
+    // Actualizar dinámicamente metadatos y Schema.org Product para Google Search
+    useEffect(() => {
+        if (!product) return;
+        const pageTitle = `${product.name}${product.subname ? ` (${product.subname})` : ''} · ${product.brand || 'CANRES Viandes'} | La Vache CANRES`;
+        document.title = pageTitle;
+
+        const metaDesc = document.querySelector('meta[name="description"]');
+        if (metaDesc && product.description) {
+            metaDesc.setAttribute('content', `${product.description.slice(0, 150)}... Boucherie artisanale La Vache CANRES.`);
+        }
+
+        const schemaId = 'product-jsonld';
+        let script = document.getElementById(schemaId);
+        if (!script) {
+            script = document.createElement('script');
+            script.id = schemaId;
+            script.type = 'application/ld+json';
+            document.head.appendChild(script);
+        }
+
+        let mainImage = Array.isArray(product.images) && product.images[0] ? product.images[0] : '/brand/brand_cover.png';
+        if (!mainImage.startsWith('http')) {
+            mainImage = `https://www.lavachecanres.com${mainImage.startsWith('/') ? '' : '/'}${mainImage}`;
+        }
+
+        const schemaData = {
+            '@context': 'https://schema.org/',
+            '@type': 'Product',
+            name: product.name,
+            image: [mainImage],
+            description: product.description || pageTitle,
+            sku: product.slug || product.id,
+            brand: {
+                '@type': 'Brand',
+                name: product.brand || 'CANRES Viandes',
+            },
+            offers: {
+                '@type': 'Offer',
+                url: `https://www.lavachecanres.com/producto/${product.slug || product.id}`,
+                priceCurrency: 'CAD',
+                price: Number(product.price || 0).toFixed(2),
+                availability: product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+                itemCondition: 'https://schema.org/NewCondition',
+            },
+        };
+
+        script.textContent = JSON.stringify(schemaData);
+
+        return () => {
+            const s = document.getElementById(schemaId);
+            if (s) s.remove();
+        };
+    }, [product]);
 
     const details = [
         [t('productDetail.spec_line'), product.brand],
