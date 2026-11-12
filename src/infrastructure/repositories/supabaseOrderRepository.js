@@ -86,14 +86,19 @@ export const createSupabaseOrderRepository = (supabase) => ({
     },
     updateStripePayment: async (code, sessionId, status) => {
         const isApproved = status === 'paid' || status === 'APPROVED';
+        const normalizedStatus = isApproved ? 'APPROVED' : status === 'cancelled' ? 'DECLINED' : 'pending';
         try {
+            await supabase.rpc('update_order_wompi_payment', {
+                p_code: code,
+                p_transaction_id: sessionId,
+                p_status: normalizedStatus,
+            });
+        } catch {
             await supabase.from('orders').update({
                 status: isApproved ? 'confirmed' : status === 'cancelled' ? 'cancelled' : 'pending',
-                payment_status: isApproved ? 'APPROVED' : status,
+                payment_status: normalizedStatus,
                 wompi_transaction_id: sessionId,
             }).eq('code', code);
-        } catch (err) {
-            console.warn('[Supabase Order Repo] Error actualizando pago Stripe:', err);
         }
     },
     updateShippingGuide: async (code, shippingData) => {

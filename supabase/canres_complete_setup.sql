@@ -221,7 +221,7 @@ begin
         insert into public.order_items (order_id, product_id, name, brand, unit_price, quantity, line_total)
         values (v_order_id, v_product.id, v_product.name, coalesce(v_item ->> 'brand', 'CANRES Viandes'), v_unit, v_qty, v_unit * v_qty);
 
-        if v_payment_method <> 'wompi' then
+        if v_payment_method not in ('wompi', 'stripe') then
             update public.products set stock = stock - v_qty where id = v_product.id;
         end if;
     end loop;
