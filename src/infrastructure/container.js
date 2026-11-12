@@ -9,6 +9,7 @@ import { createSupabaseOrderRepository } from './repositories/supabaseOrderRepos
 import { createSupabaseReviewRepository } from './repositories/supabaseReviewRepository.js';
 import { createWhatsappGateway } from './gateways/whatsappGateway.js';
 import { createWompiGateway } from './gateways/wompiGateway.js';
+import { createStripeGateway } from './gateways/stripeGateway.js';
 import { createShippingGateway } from './gateways/shippingGateway.js';
 import { createGroqGateway } from './gateways/groqGateway.js';
 import { buildCatalogSummary } from '@/domain/catalog/catalogSummary.js';
@@ -111,6 +112,7 @@ const orderRepository = isDemoMode
 const notificationGateway = createWhatsappGateway(STORE_WHATSAPP);
 
 const wompiGateway = createWompiGateway();
+const stripeGateway = createStripeGateway();
 
 const shippingGateway = createShippingGateway();
 
@@ -123,6 +125,21 @@ const printShippingLabel = makePrintShippingLabel({ shippingGateway });
 const handleUpdateWompiPayment = async (code, transactionId, status) => {
     await orderRepository.updateWompiPayment(code, transactionId, status);
     if (status === 'APPROVED' && isAutoShippingEnabled) {
+        try {
+            const current = await orderRepository.findByCode(code);
+            if (current && !current.shippingGuideNumber) {
+                await generateShippingGuide({ orderCode: code, carrierId: defaultCarrierId });
+            }
+        } catch (shippingErr) {
+            console.warn('[Auto-Shipping] No se pudo generar la guía automáticamente:', shippingErr.message);
+        }
+    }
+};
+
+const handleUpdateStripePayment = async (code, sessionId, status) => {
+    await orderRepository.updateStripePayment?.(code, sessionId, status);
+    const isApproved = status === 'paid' || status === 'APPROVED';
+    if (isApproved && isAutoShippingEnabled) {
         try {
             const current = await orderRepository.findByCode(code);
             if (current && !current.shippingGuideNumber) {
@@ -177,6 +194,10 @@ export const useCases = Object.freeze({
     getWompiTransactionStatus: (id) => wompiGateway.getTransactionStatus(id),
     updateWompiPayment: handleUpdateWompiPayment,
     isWompiSandbox: wompiGateway.isSandbox,
+    openStripeCheckout: (params) => stripeGateway.openCheckout(params),
+    getStripeSessionStatus: (id) => stripeGateway.getSessionStatus(id),
+    updateStripePayment: handleUpdateStripePayment,
+    stripePublicKey: stripeGateway.publicKey,
     getShippingTracking: (orderCode) => getShippingTracking(orderCode),
     getAvailableCarriers: () => shippingGateway.getCarriers(),
     calculatePackageSpecs: (order) => calculatePackageSpecs(order),

@@ -19,6 +19,7 @@ export default function OrderConfirmation() {
     const { t, formatMoney } = useLanguage();
 
     const queryTxId = searchParams.get('id');
+    const querySessionId = searchParams.get('session_id');
 
     const { data: fetched, loading } = useAsync(
         () => (state?.order ? Promise.resolve(state.order) : useCases.getOrder(code)),
@@ -28,6 +29,7 @@ export default function OrderConfirmation() {
     const [paymentUpdate, setPaymentUpdate] = useState(null);
     const [checkingStatus, setCheckingStatus] = useState(false);
 
+    // Verificación automática de Wompi (Colombia)
     useEffect(() => {
         let active = true;
         const txId = queryTxId;
@@ -52,6 +54,33 @@ export default function OrderConfirmation() {
         };
     }, [queryTxId, fetched]);
 
+    // Verificación automática de Stripe (Canadá - CAD)
+    useEffect(() => {
+        let active = true;
+        const sessionId = querySessionId || fetched?.stripeSessionId;
+        if (!sessionId || !fetched || fetched.paymentStatus === 'APPROVED') {
+            return undefined;
+        }
+
+        useCases.getStripeSessionStatus(sessionId)
+            .then((data) => {
+                if (!active || !data) return;
+                const isPaid = data.payment_status === 'paid' || data.status === 'complete';
+                const statusStr = isPaid ? 'APPROVED' : data.status === 'open' ? 'PENDING' : 'DECLINED';
+                useCases.updateStripePayment(fetched.code, sessionId, statusStr).catch(() => {});
+                setPaymentUpdate({
+                    stripeSessionId: sessionId,
+                    paymentStatus: statusStr,
+                    status: isPaid ? 'confirmed' : fetched.status,
+                });
+            })
+            .catch(() => {});
+
+        return () => {
+            active = false;
+        };
+    }, [querySessionId, fetched]);
+
     const order = fetched ? { ...fetched, ...paymentUpdate } : null;
 
     if (loading && !order) return <div className="py-40 text-center text-taupe">{t('orderConfirmation.loading')}</div>;
@@ -65,10 +94,36 @@ export default function OrderConfirmation() {
     }
 
     const payment = PAYMENT_METHODS.find((m) => m.id === order.paymentMethod);
-    const isWompi = order.paymentMethod === 'wompi';
-    const wompiStatus = order.paymentStatus || (order.wompiTransactionId ? 'PENDING' : null);
+    const isStripe = order.paymentMethod === 'stripe' || Boolean(order.stripeSessionId) || Boolean(querySessionId);
+    const isWompi = order.paymentMethod === 'wompi' || Boolean(order.wompiTransactionId);
+    const isOnlineGateway = isStripe || isWompi;
+    const gatewayStatus = order.paymentStatus || (order.stripeSessionId || order.wompiTransactionId ? 'PENDING' : null);
 
     const handleManualVerify = async () => {
+        if (isStripe) {
+            const sId = order.stripeSessionId || querySessionId;
+            if (!sId) return;
+            setCheckingStatus(true);
+            try {
+                const data = await useCases.getStripeSessionStatus(sId);
+                if (data) {
+                    const isPaid = data.payment_status === 'paid' || data.status === 'complete';
+                    const statusStr = isPaid ? 'APPROVED' : data.status === 'open' ? 'PENDING' : 'DECLINED';
+                    await useCases.updateStripePayment(order.code, sId, statusStr);
+                    setPaymentUpdate({
+                        stripeSessionId: sId,
+                        paymentStatus: statusStr,
+                        status: isPaid ? 'confirmed' : order.status,
+                    });
+                }
+            } catch (err) {
+                console.warn('Stripe verification error:', err);
+            } finally {
+                setCheckingStatus(false);
+            }
+            return;
+        }
+
         const txId = order.wompiTransactionId || queryTxId;
         if (!txId) return;
         setCheckingStatus(true);
@@ -89,9 +144,18 @@ export default function OrderConfirmation() {
         }
     };
 
-    const handleRetryWompi = async () => {
+    const handleRetryPayment = async () => {
         setCheckingStatus(true);
         try {
+            if (isStripe || !isWompi) {
+                await useCases.openStripeCheckout({
+                    order,
+                    customer: order.customer,
+                    items: order.items || [],
+                });
+                return;
+            }
+
             const res = await useCases.openWompiCheckout({
                 order,
                 customer: order.customer,
@@ -108,7 +172,7 @@ export default function OrderConfirmation() {
                 });
             }
         } catch (err) {
-            console.error('Wompi retry error:', err);
+            console.error('Payment retry error:', err);
         } finally {
             setCheckingStatus(false);
         }
@@ -122,27 +186,27 @@ export default function OrderConfirmation() {
                 <h1 className="mt-3 text-4xl sm:text-5xl">{t('orderConfirmation.order_title', { code: order.code })}</h1>
                 <p className="mt-3 text-sm text-taupe">{payment?.label}</p>
 
-                {/* Banner de estado específico de Wompi */}
-                {isWompi && (
+                {/* Banner de estado de pasarela segura (Stripe Canadá / Wompi) */}
+                {isOnlineGateway && (
                     <div className="mt-6 w-full max-w-md rounded-xl border border-taupe/20 bg-cream/30 p-5 text-left">
                         <div className="flex items-center justify-between border-b border-taupe/15 pb-3">
                             <span className="text-xs font-semibold uppercase tracking-wider text-taupe">{t('orderConfirmation.payment_status_title')}</span>
-                            {wompiStatus === 'APPROVED' && (
+                            {gatewayStatus === 'APPROVED' && (
                                 <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
                                     <FaCircleCheck className="h-3.5 w-3.5" /> {t('orderConfirmation.paid_approved')}
                                 </span>
                             )}
-                            {wompiStatus === 'PENDING' && (
+                            {gatewayStatus === 'PENDING' && (
                                 <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">
                                     <FaClock className="h-3.5 w-3.5" /> {t('orderConfirmation.paid_pending')}
                                 </span>
                             )}
-                            {(wompiStatus === 'DECLINED' || wompiStatus === 'ERROR') && (
+                            {(gatewayStatus === 'DECLINED' || gatewayStatus === 'ERROR' || gatewayStatus === 'cancelled') && (
                                 <span className="inline-flex items-center gap-1.5 rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-800">
                                     <FaCircleXmark className="h-3.5 w-3.5" /> {t('orderConfirmation.paid_declined')}
                                 </span>
                             )}
-                            {!wompiStatus && (
+                            {!gatewayStatus && (
                                 <span className="inline-flex items-center gap-1.5 rounded-full bg-taupe/15 px-3 py-1 text-xs font-semibold text-taupe">
                                     {t('orderConfirmation.paid_waiting')}
                                 </span>
@@ -150,17 +214,22 @@ export default function OrderConfirmation() {
                         </div>
 
                         <div className="mt-3 space-y-2 text-xs text-ink/80">
+                            {(order.stripeSessionId || querySessionId) && (
+                                <p className="font-mono text-[11px] text-taupe">
+                                    Stripe Ref: <span className="font-semibold text-ink">{order.stripeSessionId || querySessionId}</span>
+                                </p>
+                            )}
                             {order.wompiTransactionId && (
                                 <p className="font-mono text-[11px] text-taupe">
                                     {t('orderConfirmation.tx_id')} <span className="font-semibold text-ink">{order.wompiTransactionId}</span>
                                 </p>
                             )}
 
-                            {wompiStatus === 'APPROVED' ? (
+                            {gatewayStatus === 'APPROVED' ? (
                                 <p className="text-emerald-900">
                                     {t('orderConfirmation.approved_msg')}
                                 </p>
-                            ) : wompiStatus === 'PENDING' ? (
+                            ) : gatewayStatus === 'PENDING' ? (
                                 <div>
                                     <p className="text-amber-900">
                                         {t('orderConfirmation.pending_msg')}
@@ -182,7 +251,7 @@ export default function OrderConfirmation() {
                                     </p>
                                     <button
                                         type="button"
-                                        onClick={handleRetryWompi}
+                                        onClick={handleRetryPayment}
                                         disabled={checkingStatus}
                                         className="btn-dark mt-3 px-4 py-2 text-xs"
                                     >

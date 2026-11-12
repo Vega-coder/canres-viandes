@@ -23,7 +23,7 @@ export default function Checkout() {
         notes: '',
     }));
     const [errors, setErrors] = useState({});
-    const paymentMethod = 'wompi';
+    const paymentMethod = 'stripe';
     const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
@@ -72,6 +72,19 @@ export default function Checkout() {
             });
 
             clear();
+
+            if (paymentMethod === 'stripe') {
+                try {
+                    const res = await useCases.openStripeCheckout({
+                        order: result.order,
+                        customer,
+                        items,
+                    });
+                    if (res?.url) return;
+                } catch (stripeErr) {
+                    console.warn('[Stripe Auto-Checkout Error]:', stripeErr);
+                }
+            }
 
             if (result.checkoutUrl) {
                 window.location.href = result.checkoutUrl;

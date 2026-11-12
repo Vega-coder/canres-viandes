@@ -31,25 +31,30 @@ export const getNextStatuses = (from) => TRANSITIONS[from] ?? [];
 
 export const PAYMENT_METHODS = Object.freeze([
     {
+        id: 'stripe',
+        label: 'Paiement sécurisé par carte (Stripe / Apple Pay / Google Pay)',
+        description: 'Cartes Visa, Mastercard, American Express, Apple Pay, Google Pay en dollars canadiens (CAD).',
+        badge: 'Recommandé',
+    },
+    {
         id: 'wompi',
         label: 'Paga online con Wompi (Bancolombia)',
         description: 'Tarjetas de crédito/débito, PSE (todos los bancos), Nequi y Botón Bancolombia.',
-        badge: 'Recomendado',
     },
     {
         id: 'transfer',
-        label: 'Transferencia Bancaria / Nequi / Bancolombia',
-        description: 'Transfiere a nuestra cuenta oficial y envía el comprobante.',
+        label: 'Virement bancaire / Transferencia Bancaria',
+        description: 'Virement Interac (Canada) ou virement bancaire officiel.',
     },
     {
         id: 'cod',
-        label: 'Pago Contra Entrega',
-        description: 'Paga en efectivo al recibir tu paquete en tu domicilio.',
+        label: 'Paiement à la livraison / Contra Entrega',
+        description: 'Paiement en espèces ou carte à la réception de votre commande.',
     },
 ]);
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PHONE_RE = /^3\d{9}$/; // Celular colombiano
+const PHONE_RE = /^[1-9]\d{9,13}$/; // 10 a 14 dígitos (Canadá / EE.UU. / Colombia / Internacional)
 
 /**
  * @typedef {Object} Customer
@@ -67,7 +72,7 @@ export const validateCustomer = (customer = {}) => {
     const phone = String(customer.phone ?? '').replace(/\D/g, '');
     if (!customer.fullName?.trim() || customer.fullName.trim().length < 3) errors.fullName = 'Ingresa tu nombre completo';
     if (!EMAIL_RE.test(customer.email ?? '')) errors.email = 'Correo electrónico inválido';
-    if (!PHONE_RE.test(phone)) errors.phone = 'Celular de 10 dígitos que empiece por 3';
+    if (!PHONE_RE.test(phone)) errors.phone = 'Teléfono inválido (10 dígitos requeridos)';
     if (!customer.city?.trim()) errors.city = 'Indica tu ciudad';
     if (!customer.address?.trim() || customer.address.trim().length < 6) errors.address = 'Indica una dirección válida';
     return errors;

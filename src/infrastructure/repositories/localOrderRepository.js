@@ -33,10 +33,11 @@ export const createLocalOrderRepository = (storage = globalThis.localStorage, { 
         save: async (order) => {
             const saved = { ...order, id: order.code, paymentStatus: order.paymentStatus || 'pending' };
             writeAll([saved, ...readAll()]);
-            // En Wompi, el inventario NO se descuenta al abrir la pasarela, sino únicamente cuando el pago es aprobado
-            if (saved.paymentMethod !== 'wompi' || saved.paymentStatus === 'APPROVED') {
+            // En pasarelas online (Stripe/Wompi), el inventario NO se descuenta al abrir la pasarela, sino al ser aprobado el pago
+            const isOnlineGateway = saved.paymentMethod === 'wompi' || saved.paymentMethod === 'stripe';
+            if (!isOnlineGateway || saved.paymentStatus === 'APPROVED' || saved.paymentStatus === 'paid') {
                 await onSaved?.(saved);
-                if (saved.paymentStatus === 'APPROVED') {
+                if (saved.paymentStatus === 'APPROVED' || saved.paymentStatus === 'paid') {
                     await onPaymentApproved?.(saved);
                 }
             }
@@ -46,6 +47,36 @@ export const createLocalOrderRepository = (storage = globalThis.localStorage, { 
         findAll: async () => readAll().sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
         updateStatus: async (code, status) => {
             writeAll(readAll().map((o) => (o.code === code ? { ...o, status } : o)));
+        },
+        updateStripePayment: async (code, sessionId, status) => {
+            const all = readAll();
+            const existing = all.find((o) => o.code === code);
+            const isApproved = status === 'paid' || status === 'APPROVED';
+            const isFirstApproval = existing && isApproved && existing.paymentStatus !== 'APPROVED' && existing.paymentStatus !== 'paid';
+
+            if (isFirstApproval) {
+                await (onWompiApproved || onSaved)?.(existing);
+            }
+
+            const updatedList = all.map((o) =>
+                o.code === code
+                    ? {
+                        ...o,
+                        stripeSessionId: sessionId,
+                        paymentStatus: isApproved ? 'APPROVED' : status,
+                        status: isApproved ? 'confirmed' : status === 'cancelled' ? 'cancelled' : o.status,
+                    }
+                    : o
+            );
+
+            writeAll(updatedList);
+
+            if (isFirstApproval) {
+                const updated = updatedList.find((o) => o.code === code);
+                if (updated) {
+                    await onPaymentApproved?.(updated);
+                }
+            }
         },
         updateWompiPayment: async (code, transactionId, status) => {
             const all = readAll();

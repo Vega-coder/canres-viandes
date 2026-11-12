@@ -221,7 +221,7 @@ export default function TermsConditions() {
                                 El valor total de la compra, los impuestos aplicables, los gastos de envío y cualquier cargo adicional se informarán de manera transparente antes de confirmar el pedido y proceder al pago.
                             </p>
                             <p>
-                                Los pagos electrónicos se procesan a través de la pasarela certificada <strong>Wompi (Grupo Bancolombia)</strong> y los medios habilitados (Tarjetas de crédito/débito, PSE con todos los bancos colombianos, Nequi y Botón Bancolombia).
+                                Los pagos electrónicos se procesan de manera segura a través de la pasarela internacional certificada <strong>Stripe Canada</strong> (PCI-DSS Nivel 1) y los medios habilitados (Tarjetas de crédito/débito Visa, Mastercard, American Express, Apple Pay, Google Pay e Interac en CAD).
                             </p>
                             <div className="rounded-lg border border-red-200 bg-red-50/70 p-4 text-xs text-red-900">
                                 <strong>⚠️ Aviso de seguridad:</strong> CANRES Viandes nunca solicitará contraseñas bancarias, claves personales, códigos OTP ni información confidencial mediante llamadas, mensajes de texto o redes sociales.
@@ -413,7 +413,7 @@ export default function TermsConditions() {
 
                             <h3 className="font-display text-base font-semibold text-ink pt-2">Proveedores tecnológicos y seguridad</h3>
                             <p>
-                                Para desarrollar nuestra operación colaboramos con proveedores tecnológicos de primer nivel para pasarela de pagos (Wompi Bancolombia), bases de datos seguras (Supabase) y servicios logísticos de paquetería, compartiendo exclusivamente los datos estrictamente necesarios para cumplir con el servicio contratado bajo estrictos acuerdos de confidencialidad y protocolos de seguridad SSL/TLS.
+                                Para desarrollar nuestra operación colaboramos con proveedores tecnológicos de primer nivel para pasarela de pagos (Stripe Canada), bases de datos seguras (Supabase) y servicios logísticos de paquetería refrigerada, compartiendo exclusivamente los datos estrictamente necesarios para cumplir con el servicio contratado bajo estrictos acuerdos de confidencialidad y protocolos de seguridad SSL/TLS.
                             </p>
 
                             <h3 className="font-display text-base font-semibold text-ink pt-2">Derechos de los titulares (Habeas Data)</h3>

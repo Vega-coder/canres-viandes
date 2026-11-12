@@ -66,20 +66,22 @@ export default function CheckoutForm({ values, errors, onChange, onSubmit, submi
                         <span className="block pointer-events-none">
                             <span className="flex flex-wrap items-center gap-2">
                                 <span className="font-medium text-sm text-ink group-hover:text-gold-dark transition-colors">
-                                    {t('checkout.wompi_label')}
+                                    {t('checkout.stripe_label', t('checkout.wompi_label'))}
                                 </span>
                                 <span className="rounded bg-gold/20 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-gold-dark">
                                     {t('checkout.recommended')}
                                 </span>
                             </span>
                             <span className="mt-1.5 block text-xs text-taupe">
-                                Tarjetas de crédito/débito (Visa, Mastercard, Amex) & transferencias.
+                                {t('checkout.stripe_desc', 'Cartes Visa, Mastercard, American Express, Apple Pay, Google Pay en CAD ($).')}
                             </span>
                             <span className="mt-3 flex flex-wrap items-center gap-1.5 text-[10px] font-semibold text-ink/70">
                                 <span className="rounded border border-taupe/20 bg-cream/30 px-2 py-1">Visa</span>
                                 <span className="rounded border border-taupe/20 bg-cream/30 px-2 py-1">Mastercard</span>
                                 <span className="rounded border border-taupe/20 bg-cream/30 px-2 py-1">American Express</span>
-                                <span className="rounded border border-taupe/20 bg-cream/30 px-2 py-1">Interac / Online</span>
+                                <span className="rounded border border-taupe/20 bg-cream/30 px-2 py-1">Apple Pay</span>
+                                <span className="rounded border border-taupe/20 bg-cream/30 px-2 py-1">Google Pay</span>
+                                <span className="rounded border border-taupe/20 bg-cream/30 px-2 py-1">Interac</span>
                             </span>
                             <span className="mt-4 flex items-center justify-between border-t border-gold/25 pt-3 text-xs font-semibold uppercase tracking-wider text-ink group-hover:text-gold-dark transition-colors">
                                 <span className="flex items-center gap-2">
