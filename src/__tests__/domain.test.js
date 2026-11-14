@@ -68,6 +68,27 @@ describe('Filtros del catálogo', () => {
         expect(filterProducts([ribeye, costilla], { query: 'MARMOLEO' })).toEqual([ribeye]);
     });
 
+    it('encuentra productos buscando por categoría y sinónimos (res, cerdo, boeuf, porc)', () => {
+        expect(filterProducts([ribeye, costilla], { query: 'res' })).toEqual([ribeye]);
+        expect(filterProducts([ribeye, costilla], { query: 'cerdo' })).toEqual([costilla]);
+        expect(filterProducts([ribeye, costilla], { query: 'boeuf' })).toEqual([ribeye]);
+        expect(filterProducts([ribeye, costilla], { query: 'pork' })).toEqual([costilla]);
+    });
+
+    it('soporta búsquedas compuestas con conectores como "pollo y res" o "lomo o costilla"', () => {
+        const pollo = createProduct({
+            id: 'pechuga',
+            name: 'Pechuga de Pollo Fresca',
+            price: 15,
+            gender: 'pollo',
+            brand: 'Aves de Corral',
+        });
+        const results = filterProducts([ribeye, costilla, pollo], { query: 'pollo y res' });
+        expect(results).toHaveLength(2);
+        expect(results.map((p) => p.id)).toContain('pechuga');
+        expect(results.map((p) => p.id)).toContain('ribeye');
+    });
+
     it('filtra por aroma / estilo culinario', () => {
         expect(matchesAroma(ribeye, 'parrilla')).toBe(true);
         expect(filterProducts([ribeye, costilla], { aroma: 'parrilla' })).toEqual([ribeye]);

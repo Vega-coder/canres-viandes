@@ -105,6 +105,21 @@ export default function Catalog() {
                         </span>
                     </div>
                 )}
+                {query && (
+                    <div className="mt-4 flex items-center justify-center gap-2">
+                        <span className="inline-flex items-center gap-2 rounded-full border border-brand-wine/30 bg-brand-wine/10 px-3.5 py-1 text-xs font-medium text-brand-wine">
+                            Búsqueda: <strong className="font-semibold">"{query}"</strong>
+                            <button
+                                type="button"
+                                onClick={() => update((p) => p.delete('q'))}
+                                className="ml-1 rounded-full p-0.5 hover:bg-brand-wine/20 text-brand-wine transition"
+                                title="Quitar búsqueda"
+                            >
+                                ✕
+                            </button>
+                        </span>
+                    </div>
+                )}
             </header>
 
             {/* Pestañas de categoría rápida */}
@@ -158,6 +173,15 @@ export default function Catalog() {
                         <div className="py-20 text-center">
                             <p className="font-display text-2xl">{t('catalog.no_products')}</p>
                             <p className="mt-2 text-sm text-taupe">{t('catalog.no_products_hint')}</p>
+                            {query && (
+                                <button
+                                    type="button"
+                                    onClick={() => update((p) => p.delete('q'))}
+                                    className="btn-brand mt-4 text-xs"
+                                >
+                                    Ver todos los productos
+                                </button>
+                            )}
                         </div>
                     )}
                     {!loading && !error && data.products.length > 0 && <ProductGrid products={data.products} columns="lg:grid-cols-3" />}

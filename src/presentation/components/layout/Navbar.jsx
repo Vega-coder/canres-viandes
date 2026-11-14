@@ -11,6 +11,7 @@ import {
 } from 'react-icons/hi2';
 import Logo from '@/presentation/components/brand/Logo.jsx';
 import LanguageSelector from '@/presentation/components/ui/LanguageSelector.jsx';
+import LiveSearchBar from '@/presentation/components/layout/LiveSearchBar.jsx';
 import { useCart } from '@/presentation/context/CartContext.jsx';
 import { useAuth } from '@/presentation/context/AuthContext.jsx';
 import { useWishlist } from '@/presentation/context/WishlistContext.jsx';
@@ -24,39 +25,6 @@ const linkClass = ({ isActive }) =>
             ? 'text-brand-wine after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-full after:bg-brand-wine'
             : 'text-ink/80'
     }`;
-
-function SearchForm({ onDone, className = '' }) {
-    const { t } = useLanguage();
-    const navigate = useNavigate();
-    const [query, setQuery] = useState('');
-
-    const submit = (e) => {
-        e.preventDefault();
-        const q = query.trim();
-        navigate(q ? `/tienda?q=${encodeURIComponent(q)}` : '/tienda');
-        onDone?.();
-    };
-
-    return (
-        <form onSubmit={submit} className={`relative ${className}`} role="search">
-            <input
-                type="search"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder={t('nav.search_placeholder')}
-                className="input py-2 pr-9 text-xs w-full"
-                aria-label={t('nav.search_aria')}
-            />
-            <button
-                type="submit"
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-taupe hover:text-brand-wine transition"
-                aria-label={t('nav.search_button')}
-            >
-                <HiOutlineMagnifyingGlass className="h-4 w-4" />
-            </button>
-        </form>
-    );
-}
 
 export default function Navbar() {
     const { t, formatMoney } = useLanguage();
@@ -198,8 +166,8 @@ export default function Navbar() {
 
                 {/* Acciones a la derecha agrupadas sin encogerse */}
                 <div className="flex items-center gap-1 sm:gap-1.5 xl:gap-2 shrink-0 ml-auto">
-                    <div className="hidden xl:block w-36 2xl:w-48">
-                        <SearchForm />
+                    <div className="hidden xl:block w-48 2xl:w-64">
+                        <LiveSearchBar />
                     </div>
 
                     {/* Selector de idioma compacto en el header principal */}
@@ -251,8 +219,8 @@ export default function Navbar() {
             </div>
 
             {searchOpen && (
-                <div className="border-t border-cream bg-white p-3 xl:hidden">
-                    <SearchForm onDone={closeSearch} />
+                <div className="border-t border-cream bg-white p-3 xl:hidden shadow-md">
+                    <LiveSearchBar onDone={closeSearch} autoFocus isMobile />
                 </div>
             )}
 
@@ -275,6 +243,11 @@ export default function Navbar() {
                                 >
                                     <HiOutlineXMark className="h-6 w-6" />
                                 </button>
+                            </div>
+
+                            {/* Buscador directo en el menú móvil */}
+                            <div className="py-3 border-b border-cream">
+                                <LiveSearchBar onDone={toggleMenu} isMobile />
                             </div>
 
                             {/* Selector de idioma destacado en el menú móvil */}

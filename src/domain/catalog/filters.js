@@ -20,18 +20,78 @@ export const PRICE_RANGES = Object.freeze([
 const normalize = (text = '') =>
     text.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
 
-export const matchesQuery = (product, query) => {
-    const terms = normalize(query).split(/\s+/).filter(Boolean);
-    if (terms.length === 0) return true;
-    const haystack = normalize([
+const STOP_WORDS = new Set([
+    'y', 'e', 'o', 'u', 'de', 'del', 'la', 'el', 'los', 'las', 'un', 'una', 'en', 'para', 'con',
+    'et', 'ou', 'des', 'du', 'avec', 'pour', 'le', 'les', 'and', 'or', 'with', 'the'
+]);
+
+const GENDER_SYNONYMS = {
+    res: ['res', 'vacuno', 'carne de res', 'boeuf', 'beef', 'vache', 'ternera', 'buey'],
+    cerdo: ['cerdo', 'puerco', 'porc', 'pork', 'cochon', 'chancho'],
+    pollo: ['pollo', 'granja', 'ave', 'aves', 'poulet', 'chicken', 'volaille'],
+    chivo: ['chivo', 'cordero', 'cabrito', 'agneau', 'lamb', 'goat', 'chevre'],
+    chorizos: ['chorizo', 'chorizos', 'embutido', 'embutidos', 'charcuteria', 'saucisse', 'sausage'],
+    canales: ['canal', 'canales', 'mayoreo', 'media canal', 'demi-carcasse', 'gros', 'wholesale'],
+    personalizados: ['personalizado', 'personalizados', 'a medida', 'sur mesure', 'custom'],
+};
+
+export const getProductHaystack = (product) => {
+    const genderKey = String(product.gender || '').toLowerCase();
+    const synonyms = GENDER_SYNONYMS[genderKey] || [];
+    return normalize([
         product.name,
         product.subname || '',
-        product.brand,
-        product.description,
+        product.brand || '',
+        product.gender || '',
+        product.description || '',
+        ...synonyms,
         ...(product.notes || []),
         ...(product.cookingMethods || []),
+        ...(product.cooking_methods || []),
     ].join(' '));
-    return terms.every((term) => haystack.includes(term));
+};
+
+export const matchesQuery = (product, query) => {
+    const rawTerms = normalize(query).split(/[\s,]+/).filter(Boolean);
+    if (rawTerms.length === 0) return true;
+
+    const meaningfulTerms = rawTerms.filter((t) => !STOP_WORDS.has(t));
+    const terms = meaningfulTerms.length > 0 ? meaningfulTerms : rawTerms;
+    const haystack = getProductHaystack(product);
+
+    // Si todos los términos coinciden con el producto
+    if (terms.every((term) => haystack.includes(term))) {
+        return true;
+    }
+
+    // Si el usuario buscó varios conceptos (ej: "pollo y res", "lomo o bife"),
+    // permitimos que coincida con cualquiera de los términos significativos
+    if (terms.length > 1) {
+        return terms.some((term) => haystack.includes(term));
+    }
+
+    return false;
+};
+
+export const calculateQueryScore = (product, query) => {
+    const rawTerms = normalize(query).split(/[\s,]+/).filter(Boolean);
+    if (rawTerms.length === 0) return 0;
+    const meaningfulTerms = rawTerms.filter((t) => !STOP_WORDS.has(t));
+    const terms = meaningfulTerms.length > 0 ? meaningfulTerms : rawTerms;
+    const haystack = getProductHaystack(product);
+
+    const nameNorm = normalize(product.name);
+    const brandNorm = normalize(product.brand || '');
+    const genderNorm = normalize(product.gender || '');
+
+    let score = 0;
+    for (const t of terms) {
+        if (nameNorm.includes(t)) score += 15;
+        else if (brandNorm.includes(t)) score += 10;
+        else if (genderNorm.includes(t)) score += 8;
+        else if (haystack.includes(t)) score += 3;
+    }
+    return score;
 };
 
 export const matchesAroma = (product, aromaSlug) => {

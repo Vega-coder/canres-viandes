@@ -1,5 +1,5 @@
 // Casos de uso del catálogo. Reciben sus dependencias por inyección (ver infrastructure/container.js).
-import { filterProducts, sortProducts, getAvailableBrands, getAvailableBrandsByPopularity } from '@/domain/catalog/filters.js';
+import { filterProducts, sortProducts, getAvailableBrands, getAvailableBrandsByPopularity, calculateQueryScore } from '@/domain/catalog/filters.js';
 import { getCategoryBySlug } from '@/domain/catalog/categories.js';
 import { buildBrandsCatalog, resolveBrandBySlug, brandToSlug } from '@/domain/catalog/brands.js';
 
@@ -10,8 +10,12 @@ export const makeBrowseCatalog = ({ productRepository }) =>
         const categoryFilter = getCategoryBySlug(category)?.filter ?? {};
         const scoped = filterProducts(all, { ...categoryFilter, aroma });
         const filtered = filterProducts(scoped, { query, brands, minPrice, maxPrice });
+        let sorted = sortProducts(filtered, sort);
+        if (query && sort === 'featured') {
+            sorted = [...sorted].sort((a, b) => calculateQueryScore(b, query) - calculateQueryScore(a, query));
+        }
         return {
-            products: sortProducts(filtered, sort),
+            products: sorted,
             // Las marcas disponibles se calculan sobre la categoría y aroma, no sobre el filtro de marcas,
             // para que el usuario pueda seguir marcando otras.
             brands: getAvailableBrands(scoped),
